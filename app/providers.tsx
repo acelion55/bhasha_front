@@ -28,7 +28,7 @@ function BackendKeepAlive() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <GoogleOAuthProvider clientId="683822003963-dq6ks32jnjeavrieaqd8ojf4f545jlkb.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "33929668327-4181d6ec94cq6j3dknqg618s5veqi1qg.apps.googleusercontent.com"}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <BackendKeepAlive />

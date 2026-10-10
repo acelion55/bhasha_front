@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { 
   Shield, Medal, Globe, GraduationCap, FileText, 
   Radio, Headphones, MessageCircle, Users, BookOpen, 
@@ -15,14 +15,18 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('A1');
 
   // Reusable animation variants
-  const fadeIn = {
+  const fadeIn: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   };
   
-  const popIn = {
+  const popIn: Variants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
+  };
+
+  const staggerVariants: Variants = {
+    visible: { transition: { staggerChildren: 0.2 } }
   };
 
   return (
@@ -48,9 +52,7 @@ export default function HomePage() {
 
           {/* Right Cards Stack */}
           <motion.div 
-            initial="hidden" animate="visible" variants={{
-              visible: { transition: { staggerChildren: 0.2 } }
-            }}
+            initial="hidden" animate="visible" variants={staggerVariants}
             className="flex-1 flex flex-col gap-[2vh]"
           >
             {/* ── LIVE COHORT CARD ── */}

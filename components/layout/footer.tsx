@@ -29,7 +29,7 @@ export default function Footer() {
             <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">English Conversational</Link></li>
             <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">Business German</Link></li>
             <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">Exam Preparation</Link></li>
-            <li><Link href="/pricing" className="hover:text-[var(--starbucks-green)] transition-colors">View Pricing</Link></li>
+            <li><Link href="/classes" className="hover:text-[var(--starbucks-green)] transition-colors">Public Masterclasses</Link></li>
           </ul>
         </div>
 
