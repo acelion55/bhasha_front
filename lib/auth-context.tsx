@@ -9,6 +9,8 @@ interface User {
   name: string;
   tenantId: string;
   role: string;
+  category?: string;
+  userWhatsappNumber?: string;
 }
 
 interface AuthContextType {
@@ -41,6 +43,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: res.data.name,
           tenantId: res.data.tenantId,
           role: res.data.role,
+          category: res.data.category,
+          userWhatsappNumber: res.data.userWhatsappNumber,
         });
       }
     } catch (err) {

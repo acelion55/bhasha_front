@@ -665,7 +665,7 @@ export default function IvrCallingPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <PhoneForwarded className="w-4 h-4 text-purple-400" /> DTMF Keypress Audio Routes (1, 2, 3...)
+                    <PhoneForwarded className="w-4 h-4 text-emerald-400" /> DTMF Keypress Audio Routes (1, 2, 3...)
                   </h3>
                   <p className="text-xs text-gray-400 mt-0.5">
                     Configure what happens when a caller presses a specific keypad number
@@ -673,7 +673,7 @@ export default function IvrCallingPage() {
                 </div>
                 <button
                   onClick={addDtmfRoute}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Number Option
                 </button>
@@ -778,8 +778,8 @@ export default function IvrCallingPage() {
                     )}
 
                     {route.action === 'transfer_call' && (
-                      <div className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/20 flex items-center gap-3">
-                        <PhoneForwarded className="w-4 h-4 text-purple-400 shrink-0" />
+                      <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-3">
+                        <PhoneForwarded className="w-4 h-4 text-emerald-400 shrink-0" />
                         <div className="flex-1">
                           <label className="text-[11px] text-gray-400 block mb-0.5">Agent Transfer Phone Number:</label>
                           <input
@@ -787,7 +787,7 @@ export default function IvrCallingPage() {
                             value={route.forwardPhone || ''}
                             onChange={(e) => updateDtmfRoute(idx, 'forwardPhone', e.target.value)}
                             placeholder="e.g. 9983745802"
-                            className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500 font-mono"
+                            className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-500 font-mono"
                           />
                         </div>
                       </div>
@@ -1035,7 +1035,7 @@ export default function IvrCallingPage() {
                             {c.status}
                           </span>
                         </td>
-                        <td className="p-3 font-mono text-purple-300 font-bold">
+                        <td className="p-3 font-mono text-emerald-300 font-bold">
                           {c.dtmfPressed ? `Key [${c.dtmfPressed}]` : '-'}
                         </td>
                       </tr>
@@ -1058,7 +1058,7 @@ export default function IvrCallingPage() {
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase">
                     Flow Template
                   </span>
                   {tpl._id && (

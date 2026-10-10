@@ -4,12 +4,25 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { MessageSquare, PhoneCall, Bot, LogOut, Home, User, Users, Mail } from 'lucide-react';
+import { 
+  BookOpen, 
+  GraduationCap, 
+  Users, 
+  FileText, 
+  Search, 
+  User, 
+  LogOut, 
+  Home, 
+  Sparkles,
+  Calendar,
+  Layers,
+  Settings
+} from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, fetchUser, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -18,44 +31,88 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [user, loading, router]);
 
   if (loading || !user) {
-    return null;
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#fdf8f3]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-violet-500 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-300">
+            <BookOpen className="w-6 h-6 text-white" />
+          </div>
+          <p className="text-sm font-semibold text-emerald-700">Loading BhashaSchool...</p>
+        </div>
+      </div>
+    );
   }
 
-  const navItems = [
-    { name: 'WhatsApp Automation', path: '/dashboard/whatsapp', icon: MessageSquare, badge: 'Active Module' },
-    { name: 'IVR Cloud Calling', path: '/dashboard/ivr-calling', icon: PhoneCall, badge: 'Coming Soon' },
-    { name: 'AI Voice Calling', path: '/dashboard/ai-calling', icon: Bot, badge: 'Coming Soon' },
-    { name: 'Profile & Settings', path: '/dashboard/profile', icon: User, badge: 'User Settings' },
-    ...(user?.role === 'admin'
-      ? [
-          { name: 'Leads', path: '/dashboard/leads', icon: Mail, badge: 'Admin Only' },
-          { name: 'User Management', path: '/dashboard/admin', icon: Users, badge: 'Admin Only' },
-        ]
-      : []),
+  // Navigation tabs based on user role
+  const studentNav = [
+    { name: 'My Classes & Cohorts', path: '/dashboard/student', icon: GraduationCap, badge: user.category || 'A1' },
+    { name: 'Profile & Category', path: '/dashboard/profile', icon: User, badge: 'Student' },
   ];
 
+  const mentorNav = [
+    { name: 'Mentor Class Studio', path: '/dashboard/mentor', icon: Calendar, badge: 'Mentor' },
+    { name: 'Profile & Settings', path: '/dashboard/profile', icon: User, badge: 'Settings' },
+  ];
+
+  const adminNav = [
+    { name: 'Classes Engine', path: '/dashboard/admin/classes', icon: Layers, badge: 'Live' },
+    { name: 'Students & Roles', path: '/dashboard/admin', icon: Users, badge: 'Admin' },
+    { name: 'Blog Posts', path: '/dashboard/admin/blogs', icon: FileText, badge: 'CMS' },
+    { name: 'SEO Meta Manager', path: '/dashboard/admin/seo', icon: Search, badge: 'SEO' },
+  ];
+
+  let navItems = studentNav;
+  if (user.role === 'admin') {
+    navItems = adminNav;
+  } else if (user.role === 'mentor') {
+    navItems = mentorNav;
+  }
+
   return (
-    <div className="h-screen flex bg-[#090a0f] text-gray-100 overflow-hidden">
-      {/* Sidebar — fixed height, scrollable internally */}
-      <aside className="w-56 flex-shrink-0 glass-panel border-r border-white/10 flex flex-col h-full overflow-hidden">
-        {/* Top scrollable area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-5 p-4">
-          {/* Logo */}
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-white text-xs">
-                M
+    <div className="h-screen flex bg-[#fdf8f3] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans]">
+
+      {/* Sidebar */}
+      <aside className="w-64 flex-shrink-0 bg-white border-r border-emerald-100/80 shadow-sm flex flex-col h-full overflow-hidden">
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-6 p-5">
+
+          {/* Brand Logo */}
+          <div className="flex items-center justify-between pt-1">
+            <Link href="/" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-violet-600 flex items-center justify-center shadow-md shadow-emerald-200">
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-sm text-white">Master Panel</span>
+              <span className="font-extrabold text-base text-gray-900 tracking-tight">
+                Bhasha<span className="text-emerald-600">School</span>
+              </span>
             </Link>
-            <Link href="/" title="Back to Website" className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5">
-              <Home className="w-3.5 h-3.5" />
+            <Link href="/" title="Back to Main Website" className="p-2 text-gray-400 hover:text-emerald-600 rounded-xl hover:bg-emerald-50 transition-colors">
+              <Home className="w-4 h-4" />
             </Link>
           </div>
 
-          {/* Nav */}
-          <div className="space-y-0.5">
-            <div className="text-[10px] font-semibold uppercase text-gray-500 px-2 mb-1.5 tracking-wider">Modules</div>
+          {/* User Role Card */}
+          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 border border-emerald-100 rounded-2xl p-3.5 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-200/50 px-2 py-0.5 rounded-full">
+                {user.role}
+              </span>
+              {user.category && (
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                  Level {user.category}
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-bold text-gray-900 truncate">{user.name || 'User'}</p>
+            <p className="text-[11px] text-gray-500 truncate">{user.email}</p>
+          </div>
+
+          {/* Main Navigation */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 px-2 mb-2">
+              Dashboard Navigation
+            </div>
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               const Icon = item.icon;
@@ -63,52 +120,52 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
                     isActive
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-300/50 scale-[1.01]'
+                      : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50/80'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate">{item.name}</span>
                   </div>
-                  {item.badge === 'Active Module' ? (
-                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full flex-shrink-0">Live</span>
-                  ) : item.badge === 'Admin Only' ? (
-                    <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full flex-shrink-0">Admin</span>
-                  ) : (
-                    <span className="text-[9px] bg-white/10 text-gray-500 px-1.5 py-0.5 rounded-full flex-shrink-0">Soon</span>
-                  )}
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-emerald-100/60 text-emerald-700'
+                  }`}>
+                    {item.badge}
+                  </span>
                 </Link>
               );
             })}
           </div>
+
+          {/* Quick Support Phone Box */}
+          <div className="pt-2">
+            <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-center">
+              <p className="text-[11px] font-bold text-emerald-900">Student Helpline</p>
+              <p className="text-xs font-extrabold text-emerald-600 mt-0.5">+91 91053 26128</p>
+            </div>
+          </div>
+
         </div>
 
-        {/* Sticky bottom — user profile */}
-        <div className="flex-shrink-0 p-4 border-t border-white/10 space-y-2">
-          <Link href="/dashboard/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-7 h-7 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 flex-shrink-0">
-              <User className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-white truncate">{user?.name || 'User'}</div>
-              <div className="text-[10px] text-gray-500 truncate">{user?.tenantId || 'Tenant'}</div>
-            </div>
-          </Link>
+        {/* Bottom User Controls */}
+        <div className="flex-shrink-0 p-4 border-t border-emerald-100/80 space-y-2 bg-white">
           <button
             onClick={() => logout()}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 text-[11px] font-medium transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition-colors"
           >
-            <LogOut className="w-3 h-3" />
-            Logout
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-[#fdf8f3] p-6 lg:p-8">
+        {children}
+      </main>
     </div>
   );
 }

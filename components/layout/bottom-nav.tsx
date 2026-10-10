@@ -1,0 +1,39 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Home, BookOpen, Layers, Sparkles } from 'lucide-react';
+
+export default function BottomNav() {
+  const pathname = usePathname();
+  
+  const navItems = [
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Courses', path: '/features', icon: BookOpen },
+    { name: 'Classes', path: '/classes', icon: Layers }, 
+    { name: 'Method', path: '/method', icon: Sparkles },
+  ];
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[var(--ceramic)] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-[100] pb-[env(safe-area-inset-bottom)]">
+      <div className="flex justify-around items-center h-[7vh] min-h-[65px]">
+        {navItems.map((item) => {
+          const isActive = pathname === item.path;
+          const Icon = item.icon;
+          return (
+            <Link 
+              key={item.path} 
+              href={item.path} 
+              className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+                isActive ? 'text-[var(--starbucks-green)]' : 'text-[var(--text-black-soft)]'
+              }`}
+            >
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              <span className="text-[1.1rem] font-bold tracking-wide">{item.name}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

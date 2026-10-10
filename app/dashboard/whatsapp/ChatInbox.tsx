@@ -31,6 +31,14 @@ interface ChatMessage {
   createdAt: string;
 }
 
+interface UserOption {
+  _id: string;
+  name: string;
+  email: string;
+  userWhatsappNumber?: string;
+  tenantId: string;
+}
+
 export default function ChatInbox() {
   const { user } = useAuth();
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -41,12 +49,27 @@ export default function ChatInbox() {
   const [replyText, setReplyText] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [usersList, setUsersList] = useState<UserOption[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('ALL');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // If Admin, fetch all users list for filtering
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      api.get('/admin/users?limit=100').then((res) => {
+        setUsersList(res.data?.users || []);
+      }).catch((err) => console.error('Failed to load users for filter', err));
+    }
+  }, [user]);
 
   const fetchThreads = async (quiet = false) => {
     if (!quiet) setLoadingThreads(true);
     try {
-      const res = await api.get<ChatThread[]>('/whatsapp/chats/threads');
+      let url = '/whatsapp/chats/threads';
+      if (user?.role === 'admin' && selectedUserId && selectedUserId !== 'ALL') {
+        url += `?targetUserId=${selectedUserId}`;
+      }
+      const res = await api.get<ChatThread[]>(url);
       setThreads(res.data || []);
       if (!selectedPhone && res.data && res.data.length > 0) {
         setSelectedPhone(res.data[0]._id);
@@ -61,7 +84,11 @@ export default function ChatInbox() {
   const fetchMessages = async (phone: string, quiet = false) => {
     if (!quiet) setLoadingMessages(true);
     try {
-      const res = await api.get<ChatMessage[]>(`/whatsapp/chats/history?phone=${encodeURIComponent(phone)}`);
+      let url = `/whatsapp/chats/history?phone=${encodeURIComponent(phone)}`;
+      if (user?.role === 'admin' && selectedUserId && selectedUserId !== 'ALL') {
+        url += `&targetUserId=${selectedUserId}`;
+      }
+      const res = await api.get<ChatMessage[]>(url);
       setMessages(res.data || []);
     } catch (err: any) {
       console.error('Failed to load chat history', err);
@@ -70,10 +97,11 @@ export default function ChatInbox() {
     }
   };
 
-  // Initial load
+  // Initial load & when selectedUserId changes
   useEffect(() => {
+    setSelectedPhone(null);
     fetchThreads();
-  }, []);
+  }, [selectedUserId]);
 
   // Poll threads and active chat every 5 seconds for real-time update feel
   useEffect(() => {
@@ -84,7 +112,7 @@ export default function ChatInbox() {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [selectedPhone]);
+  }, [selectedPhone, selectedUserId]);
 
   // Load messages when selected phone changes
   useEffect(() => {
@@ -157,6 +185,28 @@ export default function ChatInbox() {
               <RefreshCw className={`w-4 h-4 ${loadingThreads ? 'animate-spin' : ''}`} />
             </button>
           </div>
+
+          {/* Admin User Filter Dropdown */}
+          {user?.role === 'admin' && (
+            <div className="mb-3">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                Filter by User (Admin)
+              </label>
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                className="w-full p-2 text-xs bg-slate-100/90 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-slate-700 font-medium"
+              >
+                <option value="ALL">🌐 All Users & Tenants (Master View)</option>
+                {usersList.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    👤 {u.name || u.email} {u.userWhatsappNumber ? `(${u.userWhatsappNumber})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -177,10 +227,17 @@ export default function ChatInbox() {
             </div>
           ) : filteredThreads.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
-              <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-40" />
-              <p className="text-sm font-medium">No conversations found</p>
-              <p className="text-xs text-slate-400 mt-1">
-                Messages processed by your n8n automation will appear here automatically.
+              <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-40 text-emerald-500" />
+              <p className="text-sm font-medium text-slate-700">No conversations found</p>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Make sure you have registered your WhatsApp number in{' '}
+                <a 
+                  href={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/profile'} 
+                  className="text-emerald-600 font-semibold underline"
+                >
+                  Profile & Settings
+                </a>{' '}
+                and n8n logs messages with your tenant ID.
               </p>
             </div>
           ) : (

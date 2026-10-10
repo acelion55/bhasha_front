@@ -12,6 +12,7 @@ interface User {
   email: string;
   role: 'admin' | 'user';
   tenantId: string;
+  userWhatsappNumber?: string;
   whatsappApiKey?: string;
   whatsappPhoneNumberId?: string;
   airtelCustomerId?: string;
@@ -35,6 +36,67 @@ interface UsersResponse {
   pagination: Pagination;
 }
 
+function ProfileSettingsInline() {
+  const { user, fetchUser } = useAuth();
+  const [name, setName] = useState(user?.name || '');
+  const [userWhatsappNumber, setUserWhatsappNumber] = useState(user?.userWhatsappNumber || '');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || '');
+      setUserWhatsappNumber(user.userWhatsappNumber || '');
+    }
+  }, [user]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.post('/auth/profile', { name, userWhatsappNumber });
+      toast.success('Your profile settings updated!');
+      fetchUser();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-2">
+      <div>
+        <label className="block text-gray-300 font-medium mb-1">Your Name</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-emerald-500"
+        />
+      </div>
+      <div>
+        <label className="block text-gray-300 font-medium mb-1">Your Registered WhatsApp Number</label>
+        <input
+          type="text"
+          placeholder="e.g. 919876543210"
+          value={userWhatsappNumber}
+          onChange={(e) => setUserWhatsappNumber(e.target.value)}
+          className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-emerald-500 font-mono"
+        />
+      </div>
+      <div className="flex items-end">
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50"
+        >
+          {saving ? 'Saving...' : 'Save My Profile'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function AdminUsersPage() {
   const { user, fetchUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
@@ -46,6 +108,7 @@ export default function AdminUsersPage() {
     name: '',
     email: '',
     role: 'user',
+    userWhatsappNumber: '',
     whatsappApiKey: '',
     whatsappPhoneNumberId: '',
     airtelCustomerId: '',
@@ -84,6 +147,7 @@ export default function AdminUsersPage() {
       name: u.name,
       email: u.email,
       role: u.role,
+      userWhatsappNumber: u.userWhatsappNumber || '',
       whatsappApiKey: u.whatsappApiKey || '',
       whatsappPhoneNumberId: u.whatsappPhoneNumberId || '',
       airtelCustomerId: u.airtelCustomerId || '',
@@ -118,11 +182,28 @@ export default function AdminUsersPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Personal Profile & Settings Card */}
+      <div className="bg-gradient-to-r from-emerald-900/40 via-indigo-900/40 to-slate-900/60 border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 font-bold">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Your Profile & Personal Settings</h2>
+              <p className="text-xs text-gray-400">Update your account name and registered WhatsApp number for automation</p>
+            </div>
+          </div>
+        </div>
+
+        <ProfileSettingsInline />
+      </div>
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Shield className="w-6 h-6 text-purple-400" /> User & Telephony Management
+            <Users className="w-6 h-6 text-emerald-400" /> User & Telephony Management
           </h1>
           <p className="text-sm text-gray-400 mt-1">
             Manage system users, tenant roles, WhatsApp API, and Airtel IQ credentials.
@@ -137,7 +218,7 @@ export default function AdminUsersPage() {
               placeholder="Search by name, email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-purple-500 w-64"
+              className="pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-emerald-500 w-64"
             />
           </div>
         </form>
@@ -182,7 +263,7 @@ export default function AdminUsersPage() {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           u.role === 'admin'
-                            ? 'bg-purple-500/20 text-purple-300'
+                            ? 'bg-emerald-500/20 text-emerald-300'
                             : 'bg-blue-500/20 text-blue-300'
                         }`}
                       >
@@ -193,8 +274,8 @@ export default function AdminUsersPage() {
                     <td className="p-4 text-xs font-mono text-gray-300 space-y-1">
                       <div className="flex items-center gap-1.5 text-emerald-400">
                         <Key className="w-3 h-3" />
-                        <span>API Key:</span>
-                        <span className="text-gray-400 truncate max-w-[120px]">
+                        <span>Token:</span>
+                        <span className="text-gray-400 truncate max-w-[100px]">
                           {u.whatsappApiKey ? `${u.whatsappApiKey.slice(0, 8)}...` : 'Not Set'}
                         </span>
                       </div>
@@ -203,6 +284,13 @@ export default function AdminUsersPage() {
                         <span>Phone ID:</span>
                         <span className="text-gray-400">
                           {u.whatsappPhoneNumberId || 'Not Set'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-emerald-400">
+                        <PhoneCall className="w-3 h-3" />
+                        <span>Number:</span>
+                        <span className="text-gray-400 font-semibold">
+                          {u.userWhatsappNumber || 'Not Set'}
                         </span>
                       </div>
                     </td>
@@ -298,7 +386,7 @@ export default function AdminUsersPage() {
                     type="text"
                     value={editForm.name}
                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -307,7 +395,7 @@ export default function AdminUsersPage() {
                   <select
                     value={editForm.role}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-white focus:outline-none focus:border-emerald-500"
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
@@ -315,31 +403,47 @@ export default function AdminUsersPage() {
                 </div>
               </div>
 
+
               {/* WhatsApp Config */}
               <div className="border border-emerald-500/20 bg-emerald-500/5 p-4 rounded-2xl space-y-3">
                 <h4 className="font-semibold text-emerald-400 text-sm flex items-center gap-1.5">
-                  <Key className="w-4 h-4" /> WhatsApp Business Cloud API
+                  <Key className="w-4 h-4" /> Meta WhatsApp Cloud API & Number Config
                 </h4>
+
                 <div>
-                  <label className="block text-emerald-300 font-medium mb-1">WhatsApp API Key / Token</label>
+                  <label className="block text-emerald-300 font-medium mb-1">Meta Permanent Access Token / API Key</label>
                   <input
-                    type="text"
-                    placeholder="e.g. EAAG..."
+                    type="password"
+                    placeholder="e.g. EAAGm..."
                     value={editForm.whatsappApiKey}
                     onChange={(e) => setEditForm({ ...editForm, whatsappApiKey: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-500/30 text-white focus:outline-none focus:border-emerald-500 font-mono"
                   />
+                  <p className="text-[10px] text-gray-500 mt-1">Meta Graph API access token used for sending WhatsApp messages and template APIs.</p>
                 </div>
 
                 <div>
                   <label className="block text-emerald-300 font-medium mb-1">WhatsApp Phone Number ID</label>
                   <input
                     type="text"
-                    placeholder="e.g. 1092837465"
+                    placeholder="e.g. 562947193574921"
                     value={editForm.whatsappPhoneNumberId}
                     onChange={(e) => setEditForm({ ...editForm, whatsappPhoneNumberId: e.target.value })}
                     className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-500/30 text-white focus:outline-none focus:border-emerald-500 font-mono"
                   />
+                  <p className="text-[10px] text-gray-500 mt-1">Meta Business Phone Number ID for webhook and outbound API calls.</p>
+                </div>
+
+                <div>
+                  <label className="block text-emerald-300 font-medium mb-1">Business WhatsApp Phone Number (with country code)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 919876543210"
+                    value={editForm.userWhatsappNumber}
+                    onChange={(e) => setEditForm({ ...editForm, userWhatsappNumber: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-500/30 text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">Registered Business WhatsApp number for chat inbox routing and auto-detection.</p>
                 </div>
               </div>
 
@@ -403,7 +507,7 @@ export default function AdminUsersPage() {
               </button>
               <button
                 onClick={handleUpdate}
-                className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-500/20"
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20"
               >
                 Save Credentials
               </button>

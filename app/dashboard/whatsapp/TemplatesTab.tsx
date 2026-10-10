@@ -98,7 +98,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <LayoutTemplate className="w-5 h-5 text-purple-400" />
+            <LayoutTemplate className="w-5 h-5 text-emerald-400" />
             WhatsApp Message Templates
           </h2>
           <p className="text-xs text-gray-400">
@@ -107,7 +107,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/25 transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/25 transition-all"
         >
           <Plus className="w-4 h-4" /> Create New Template
         </button>
@@ -131,13 +131,13 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
           {templates.map((tpl) => (
             <div
               key={tpl._id || tpl.name}
-              className="glass-panel p-5 rounded-2xl border border-white/10 flex flex-col justify-between hover:border-purple-500/40 transition-all group relative"
+              className="glass-panel p-5 rounded-2xl border border-white/10 flex flex-col justify-between hover:border-emerald-500/40 transition-all group relative"
             >
               <div className="space-y-3">
                 {/* Header info */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
                       {tpl.category.toUpperCase()}
                     </span>
                     <h3 className="text-sm font-bold text-white mt-1 font-mono">{tpl.name}</h3>
@@ -169,7 +169,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                     {tpl.buttons.map((btn, idx) => (
                       <div
                         key={idx}
-                        className="w-full py-1.5 px-3 rounded-lg bg-purple-600/20 border border-purple-500/30 text-purple-300 text-center text-xs font-medium"
+                        className="w-full py-1.5 px-3 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-300 text-center text-xs font-medium"
                       >
                         {btn}
                       </div>
@@ -212,7 +212,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
           <div className="w-full max-w-lg glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" /> Create WhatsApp Template
+                <Sparkles className="w-5 h-5 text-emerald-400" /> Create WhatsApp Template
               </h3>
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -231,7 +231,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                   placeholder="e.g. order_confirmation"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500 font-mono"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono"
                 />
                 <p className="text-[10px] text-gray-500 mt-1">Only lowercase letters, numbers, and underscores.</p>
               </div>
@@ -242,7 +242,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
                   >
                     <option value="utility">Utility</option>
                     <option value="marketing">Marketing</option>
@@ -254,7 +254,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                   <select
                     value={form.language}
                     onChange={(e) => setForm({ ...form, language: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
                   >
                     <option value="en_US">English (en_US)</option>
                     <option value="hi">Hindi (hi)</option>
@@ -270,7 +270,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                   placeholder="Hello {{1}}, your order #{{2}} is successfully placed!"
                   value={form.bodyText}
                   onChange={(e) => setForm({ ...form, bodyText: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
                 />
                 <p className="text-[10px] text-gray-500 mt-1">Use &#123;&#123;1&#123;&#123;, &#123;&#123;2&#123;&#123; for dynamic variables like recipient name or order ID.</p>
               </div>
@@ -282,7 +282,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                   placeholder="Visit Website, Contact Support (comma separated)"
                   value={form.buttons}
                   onChange={(e) => setForm({ ...form, buttons: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
@@ -297,7 +297,7 @@ export default function TemplatesTab({ onSelectTemplate }: TemplatesTabProps) {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/25 disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/25 disabled:opacity-50"
                 >
                   {creating ? 'Saving...' : 'Save Template'}
                 </button>

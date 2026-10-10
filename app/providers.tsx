@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from '@/lib/auth-context';
 import { Toaster } from 'sonner';
 
@@ -27,12 +28,14 @@ function BackendKeepAlive() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BackendKeepAlive />
-        {children}
-        <Toaster position="top-right" richColors theme="dark" />
-      </AuthProvider>
-    </QueryClientProvider>
+    <GoogleOAuthProvider clientId="683822003963-dq6ks32jnjeavrieaqd8ojf4f545jlkb.apps.googleusercontent.com">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BackendKeepAlive />
+          {children}
+          <Toaster position="top-right" richColors theme="dark" />
+        </AuthProvider>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 }
