@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { BookOpen, ArrowRight, User, Mail, Lock, CheckCircle } from 'lucide-react';
 
@@ -22,13 +21,13 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { fetchUser, user, setUser } = useAuth();
+  const { fetchUser, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     fetchUser();
     if (user) {
-        router.push('/dashboard/whatsapp');
+        router.push('/dashboard');
     }
   }, [fetchUser, user, router]);
 
@@ -48,23 +47,20 @@ export default function RegisterPage() {
   };
 
   const loginWithGoogle = useGoogleLogin({
+    scope: 'openid email profile',
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        });
-        const googleUser = res.data;
-        setUser({
-          id: googleUser.sub,
-          email: googleUser.email,
-          name: googleUser.name,
-          tenantId: 'default',
-          role: 'student',
-          category: 'A1',
-        });
-        toast.success(`Welcome to BhashaSchool, ${googleUser.name}!`);
-        router.push('/dashboard/student');
-      } catch (err) {
+        const googleRes = await api.post<{ user?: { name?: string; role?: string } }>(
+          '/auth/google',
+          { accessToken: tokenResponse.access_token },
+        );
+        toast.success(`Welcome to BhashaSchool${googleRes.data.user?.name ? `, ${googleRes.data.user.name}` : ''}!`);
+        await fetchUser();
+        const role = googleRes.data.user?.role;
+        if (role === 'admin') router.push('/dashboard/admin');
+        else if (role === 'mentor') router.push('/dashboard/mentor');
+        else router.push('/dashboard/student');
+      } catch {
         toast.error('Google Sign-In Failed');
       }
     },

@@ -4,19 +4,18 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Users, 
-  FileText, 
-  Search, 
-  User, 
-  LogOut, 
-  Home, 
-  Sparkles,
+import {
+  BookOpen,
+  GraduationCap,
+  Users,
+  FileText,
+  User,
+  LogOut,
+  Home,
   Calendar,
   Layers,
-  Settings
+  BarChart3,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -32,12 +31,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !user) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#fdf8f3]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-violet-500 flex items-center justify-center animate-pulse shadow-lg shadow-emerald-300">
-            <BookOpen className="w-6 h-6 text-white" />
+      <div className="min-h-screen bg-[#f8faf9] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-[4vw] h-[4vw] min-w-16 min-h-16 rounded-3xl bg-gradient-to-br from-emerald-600 to-violet-500 flex items-center justify-center animate-pulse shadow-xl shadow-emerald-400/40">
+            <BookOpen className="w-8 h-8 text-white" />
           </div>
-          <p className="text-sm font-semibold text-emerald-700">Loading BhashaSchool...</p>
+          <p className="text-base sm:text-lg font-bold text-emerald-800">Loading BhashaSchool...</p>
         </div>
       </div>
     );
@@ -45,20 +44,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Navigation tabs based on user role
   const studentNav = [
-    { name: 'My Classes & Cohorts', path: '/dashboard/student', icon: GraduationCap, badge: user.category || 'A1' },
-    { name: 'Profile & Category', path: '/dashboard/profile', icon: User, badge: 'Student' },
+    { name: 'My Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
+    { name: 'Completed Classes', shortName: 'Completed', path: '/dashboard/student/completed', icon: CheckCircle2 },
+    { name: 'Profile & Category', shortName: 'Profile', path: '/dashboard/profile', icon: User },
   ];
 
   const mentorNav = [
-    { name: 'Mentor Class Studio', path: '/dashboard/mentor', icon: Calendar, badge: 'Mentor' },
-    { name: 'Profile & Settings', path: '/dashboard/profile', icon: User, badge: 'Settings' },
+    { name: 'Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
+    { name: 'Profile & Settings', shortName: 'Profile', path: '/dashboard/profile', icon: User },
   ];
 
   const adminNav = [
-    { name: 'Classes Engine', path: '/dashboard/admin/classes', icon: Layers, badge: 'Live' },
-    { name: 'Students & Roles', path: '/dashboard/admin', icon: Users, badge: 'Admin' },
-    { name: 'Blog Posts', path: '/dashboard/admin/blogs', icon: FileText, badge: 'CMS' },
-    { name: 'SEO Meta Manager', path: '/dashboard/admin/seo', icon: Search, badge: 'SEO' },
+    { name: 'Users Engine', shortName: 'Users', path: '/dashboard/admin/users', icon: Users },
+    { name: 'Analytics', shortName: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
+    { name: 'Classes Studio', shortName: 'Classes', path: '/dashboard/admin/classes', icon: Layers },
+    { name: 'Blog Posts', shortName: 'Blogs', path: '/dashboard/admin/blogs', icon: FileText },
   ];
 
   let navItems = studentNav;
@@ -69,50 +69,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="h-screen flex bg-[#fdf8f3] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans]">
+    <div className={`h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] ${user.role === 'admin' ? 'admin-panel' : ''}`}>
 
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-emerald-100/80 shadow-sm flex flex-col h-full overflow-hidden">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-screen overflow-hidden text-gray-200">
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-6 p-5">
+        {/* Scrollable Nav Area */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4">
 
-          {/* Brand Logo */}
-          <div className="flex items-center justify-between pt-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-violet-600 flex items-center justify-center shadow-md shadow-emerald-200">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-extrabold text-base text-gray-900 tracking-tight">
-                Bhasha<span className="text-emerald-600">School</span>
-              </span>
+          {/* Brand Header */}
+          <div className="flex items-center justify-between pt-1 pb-2 px-1">
+            <Link href="/" className="flex items-center">
+              <img src="/logos/whitelogo.png" alt="BhashaSchool Logo" className="h-8 w-auto object-contain" />
             </Link>
-            <Link href="/" title="Back to Main Website" className="p-2 text-gray-400 hover:text-emerald-600 rounded-xl hover:bg-emerald-50 transition-colors">
-              <Home className="w-4 h-4" />
+            <Link
+              href="/"
+              title="Back to Main Website"
+              className="p-1.5 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+            >
+              <Home className="w-5 h-5" />
             </Link>
           </div>
 
-          {/* User Role Card */}
-          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 border border-emerald-100 rounded-2xl p-3.5 shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-200/50 px-2 py-0.5 rounded-full">
-                {user.role}
-              </span>
-              {user.category && (
-                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                  Level {user.category}
-                </span>
-              )}
-            </div>
-            <p className="text-xs font-bold text-gray-900 truncate">{user.name || 'User'}</p>
-            <p className="text-[11px] text-gray-500 truncate">{user.email}</p>
-          </div>
-
-          {/* Main Navigation */}
-          <div className="space-y-1">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 px-2 mb-2">
-              Dashboard Navigation
-            </div>
+          {/* Nav Items */}
+          <nav className="space-y-1.5">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               const Icon = item.icon;
@@ -120,52 +100,86 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-base font-bold transition-all ${
                     isActive
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-300/50 scale-[1.01]'
-                      : 'text-gray-600 hover:text-emerald-700 hover:bg-emerald-50/80'
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/60'
+                      : 'text-gray-300 hover:text-white hover:bg-white/[0.08]'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">{item.name}</span>
-                  </div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-emerald-100/60 text-emerald-700'
-                  }`}>
-                    {item.badge}
-                  </span>
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                  <span className="truncate tracking-tight">{item.name}</span>
                 </Link>
               );
             })}
-          </div>
-
-          {/* Quick Support Phone Box */}
-          <div className="pt-2">
-            <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-center">
-              <p className="text-[11px] font-bold text-emerald-900">Student Helpline</p>
-              <p className="text-xs font-extrabold text-emerald-600 mt-0.5">+91 91053 26128</p>
-            </div>
-          </div>
-
+          </nav>
         </div>
 
-        {/* Bottom User Controls */}
-        <div className="flex-shrink-0 p-4 border-t border-emerald-100/80 space-y-2 bg-white">
+        {/* Sidebar Footer Controls */}
+        <div className="flex-shrink-0 p-4 border-t border-white/10 bg-[#0c1913]">
           <button
             onClick={() => logout()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition-colors"
+            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-base font-bold transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-5 h-5" />
             Sign Out
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto bg-[#fdf8f3] p-6 lg:p-8">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+
+        {/* Mobile Header (Slightly larger, prominent branding) */}
+        <header className="md:hidden flex items-center justify-between px-6 py-4.5 bg-[#0c1913] border-b border-[#152a20] text-gray-200 shrink-0 shadow-sm">
+          <Link href="/" className="flex items-center">
+            <img src="/logos/whitelogo.png" alt="BhashaSchool Logo" className="h-9 w-auto object-contain" />
+          </Link>
+          <div className="flex items-center gap-3">
+            {user?.category && (
+              <span className="text-sm font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl shadow-xs">
+                Level {user.category}
+              </span>
+            )}
+            <button
+              onClick={() => logout()}
+              title="Sign Out"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs sm:text-sm font-black transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Exit</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile Bottom Navigation (Larger icons, reduced padding) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0c1913] border-t border-[#152a20] px-2 py-1.5 shadow-2xl flex items-center justify-around">
+        {navItems.map((item) => {
+          const isActive = pathname === item.path;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+                isActive
+                  ? 'text-emerald-400 font-black'
+                  : 'text-gray-400 hover:text-gray-200 font-bold'
+              }`}
+            >
+              <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40 shadow-xs' : 'text-gray-400'}`}>
+                <Icon className="w-7 h-7" />
+              </div>
+              <span className="text-[11px] mt-0.5 tracking-tight font-black">{item.shortName || item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

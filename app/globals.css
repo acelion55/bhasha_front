@@ -172,3 +172,49 @@
 .min-h-vh {
   min-height: calc(100 * var(--vh));
 }
+
+/*
+  Admin / dashboard type scale.
+  Root html is 62.5% (1rem = 10px) for marketing pages, but Tailwind's
+  text-xs/sm/base assume a 16px root. Remap so admin UI is readable
+  and hierarchy stays consistent with the emerald theme.
+*/
+.admin-panel {
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  color: var(--text-black);
+}
+
+.admin-panel .text-xs { font-size: 1.3rem; line-height: 1.45; }
+.admin-panel .text-sm { font-size: 1.5rem; line-height: 1.5; }
+.admin-panel .text-base { font-size: 1.6rem; line-height: 1.5; }
+.admin-panel .text-lg { font-size: 1.85rem; line-height: 1.4; }
+.admin-panel .text-xl { font-size: 2.2rem; line-height: 1.3; }
+.admin-panel .text-2xl { font-size: 2.6rem; line-height: 1.25; }
+.admin-panel .text-3xl { font-size: 3.2rem; line-height: 1.2; }
+
+.admin-panel label {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-panel input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+.admin-panel select,
+.admin-panel textarea {
+  font-size: 1.55rem;
+  line-height: 1.45;
+  color: #111827;
+}
+
+.admin-panel input::placeholder,
+.admin-panel textarea::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.admin-panel [class*="text-[10px]"],
+.admin-panel [class*="text-[11px]"] {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
