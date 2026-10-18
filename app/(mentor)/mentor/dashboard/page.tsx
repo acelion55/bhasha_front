@@ -1,9 +1,29 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 import { LogOut, Inbox, Bell, Check, X, Calendar, FileText, ClipboardList } from 'lucide-react';
 
 export default function MentorDashboard() {
+  const router = useRouter();
+  const { user, loading, logout } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [loading, user, router]);
+
+  if (loading || !user) {
+    return (
+      <main className="min-h-vh w-[100vw] bg-[var(--neutral-warm)] flex items-center justify-center">
+        <p className="body-text text-[var(--starbucks-green)] font-bold">Loading…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-vh w-[100vw] bg-[var(--neutral-warm)] flex flex-col items-center pb-[10vh]">
       
@@ -18,9 +38,13 @@ export default function MentorDashboard() {
             <p className="small-text text-[var(--text-black-soft)] m-0">Guide. Support. Instruct.</p>
           </div>
         </div>
-        <Link href="/" className="btn-outline flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => logout()}
+          className="btn-outline flex items-center gap-2"
+        >
           <LogOut className="w-4 h-4" /> Sign Out
-        </Link>
+        </button>
       </header>
 
       {/* ── SCHEDULE & ASSIGNMENTS ── */}

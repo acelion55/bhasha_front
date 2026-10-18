@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Calendar, Clock, Users, ArrowRight, User, Play, Video } from 'lucide-react';
+import { Calendar, Clock, Users, User, Video, IndianRupee } from 'lucide-react';
+import PayButton from '@/components/PayButton';
 
 export const metadata = {
   title: 'Public Classes & Masterclasses — BhashaSchool',
@@ -14,6 +15,7 @@ const publicClasses = [
     level: 'A1 Beginner',
     duration: '45 mins',
     spots: 12,
+    price: 499,
     instructor: 'Laura Müller',
     theme: 'bg-emerald-50/50 border-[var(--green-light)]',
     tag: 'text-[var(--starbucks-green)] bg-[var(--green-light)]',
@@ -25,6 +27,7 @@ const publicClasses = [
     level: 'B1 Intermediate',
     duration: '60 mins',
     spots: 8,
+    price: 699,
     instructor: 'James Carter',
     theme: 'bg-amber-50/50 border-amber-200',
     tag: 'text-amber-800 bg-amber-100',
@@ -36,6 +39,7 @@ const publicClasses = [
     level: 'A2 Elementary',
     duration: '60 mins',
     spots: 3,
+    price: 399,
     instructor: 'Laura Müller',
     theme: 'bg-emerald-50/50 border-[var(--green-light)]',
     tag: 'text-[var(--starbucks-green)] bg-[var(--green-light)]',
@@ -97,11 +101,21 @@ export default function PublicClassesPage() {
                 <Users className="w-5 h-5 text-[var(--starbucks-green)]" />
                 {cls.spots} Spots Remaining
               </div>
+              <div className="flex items-center justify-between pt-[1.5vh] mt-[0.5vh] border-t border-[var(--ceramic)]">
+                <span className="body-text text-[var(--text-black-soft)] font-bold">Price</span>
+                <span className="h2-text text-[var(--starbucks-green)] flex items-center gap-0.5">
+                  <IndianRupee className="w-5 h-5" />
+                  {cls.price.toLocaleString('en-IN')}
+                </span>
+              </div>
             </div>
 
-            <Link href="/register" className="btn-primary w-full flex justify-center items-center gap-[1vw] py-[2vh] text-[1.6rem] !rounded-[12px]">
-              <Play className="w-5 h-5" /> Reserve Spot
-            </Link>
+            <PayButton
+              amount={cls.price}
+              description={`${cls.title} — ${cls.date}, ${cls.time}`}
+              courseName={cls.title}
+              variant="card"
+            />
           </div>
         ))}
       </section>

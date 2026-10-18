@@ -23,12 +23,21 @@ api.interceptors.request.use((config) => {
 });
 
 // Store token from response
-api.interceptors.response.use((response) => {
-  // If backend returns token in body (for cross-domain)
-  if (response.data?.accessToken) {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('access_token', response.data.accessToken);
+api.interceptors.response.use(
+  (response) => {
+    // If backend returns token in body (for cross-domain)
+    if (response.data?.accessToken) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('access_token', response.data.accessToken);
+      }
     }
-  }
-  return response;
-});
+    return response;
+  },
+  (error) => {
+    // Drop any stale token when the session is no longer valid
+    if (error?.response?.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('access_token');
+    }
+    return Promise.reject(error);
+  },
+);

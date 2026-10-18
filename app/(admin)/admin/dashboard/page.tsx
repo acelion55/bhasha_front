@@ -1,9 +1,54 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LogOut, Users, BookOpen, Shield, UserPlus, Edit3, ArrowUpCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { LogOut, Users, BookOpen, Shield, UserPlus, Edit3, ArrowUpCircle, Trash2 } from 'lucide-react';
+
+interface AdminUser {
+  name: string;
+  role: string;
+  level: string;
+  active: boolean;
+}
+
+const INITIAL_USERS: AdminUser[] = [
+  { name: 'John Doe', role: 'Learner', level: 'A1', active: true },
+  { name: 'Emma Wilson', role: 'Learner', level: 'A2', active: true },
+  { name: 'Dr. Smith', role: 'Mentor', level: 'N/A', active: true },
+  { name: 'Lisa V.', role: 'Learner', level: 'B2', active: false },
+];
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const { user: currentUser, loading, logout } = useAuth();
+  const [users, setUsers] = useState<AdminUser[]>(INITIAL_USERS);
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push('/login');
+    }
+  }, [loading, currentUser, router]);
+
+  const toggleActive = (name: string) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.name === name ? { ...u, active: !u.active } : u)),
+    );
+  };
+
+  const deleteUser = (name: string) => {
+    setUsers((prev) => prev.filter((u) => u.name !== name));
+  };
+
+  if (loading || !currentUser) {
+    return (
+      <main className="min-h-vh w-[100vw] bg-[var(--neutral-warm)] flex items-center justify-center">
+        <p className="body-text text-[var(--starbucks-green)] font-bold">Loading…</p>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-vh w-[100vw] bg-[var(--neutral-warm)] flex flex-col items-center pb-[10vh]">
       
@@ -18,9 +63,13 @@ export default function AdminDashboard() {
             <p className="small-text text-[var(--gold-light)] m-0">Global Overview</p>
           </div>
         </div>
-        <Link href="/" className="btn-outline !text-[var(--white)] !border-[var(--white)] flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => logout()}
+          className="btn-outline !text-[var(--white)] !border-[var(--white)] flex items-center gap-2"
+        >
           <LogOut className="w-4 h-4" /> Sign Out
-        </Link>
+        </button>
       </header>
 
       {/* ── DATA DASHBOARD ── */}
@@ -62,21 +111,33 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="body-text">
-              {[
-                { name: 'John Doe', role: 'Learner', level: 'A1' },
-                { name: 'Emma Wilson', role: 'Learner', level: 'A2' },
-                { name: 'Dr. Smith', role: 'Mentor', level: 'N/A' },
-                { name: 'Lisa V.', role: 'Learner', level: 'B2' },
-              ].map((user, idx) => (
+              {users.map((row, idx) => (
                 <tr key={idx} className="border-b border-[var(--ceramic)] hover:bg-[var(--neutral-cool)] transition-colors">
-                  <td className="py-3 font-bold">{user.name}</td>
+                  <td className="py-3 font-bold">{row.name}</td>
                   <td className="py-3">
-                    <span className={`px-2 py-0.5 rounded-[50px] small-text ${user.role === 'Mentor' ? 'bg-[var(--emerald-100)] text-[var(--emerald-700)]' : 'bg-[var(--green-light)] text-[var(--starbucks-green)]'}`}>{user.role}</span>
+                    <span className={`px-2 py-0.5 rounded-[50px] small-text ${row.role === 'Mentor' ? 'bg-[var(--emerald-100)] text-[var(--emerald-700)]' : 'bg-[var(--green-light)] text-[var(--starbucks-green)]'}`}>{row.role}</span>
                   </td>
-                  <td className="py-3 text-[var(--text-black-soft)]">{user.level}</td>
-                  <td className="py-3 text-right">
-                    <button className="btn-outline !py-1 !px-2 !text-[var(--green-accent)] !border-none mr-2 hover:bg-[var(--emerald-50)]"><Edit3 className="w-4 h-4 inline" /></button>
-                    {user.role === 'Learner' && <button className="btn-outline !py-1 !px-2 !text-[var(--gold)] !border-none hover:bg-[var(--gold-lightest)]"><ArrowUpCircle className="w-4 h-4 inline" /></button>}
+                  <td className="py-3 text-[var(--text-black-soft)]">{row.level}</td>
+                  <td className="py-3">
+                    <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={row.active}
+                          onClick={() => toggleActive(row.name)}
+                          title={row.active ? 'Click to deactivate this user' : 'Click to activate this user'}
+                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--starbucks-green)]/50 ${row.active ? 'bg-[var(--starbucks-green)]' : 'bg-[var(--ceramic)]'}`}
+                        >
+                          <span className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${row.active ? 'translate-x-4' : 'translate-x-0'}`} />
+                        </button>
+                        <span className={`w-11 text-left small-text font-bold ${row.active ? 'text-[var(--starbucks-green)]' : 'text-[var(--text-black-soft)]'}`}>{row.active ? 'Active' : 'Inactive'}</span>
+                      </div>
+                      <span className="h-4 w-px bg-[var(--ceramic)]" />
+                      <button className="btn-outline !py-1 !px-2 !text-[var(--green-accent)] !border-none hover:bg-[var(--emerald-50)]"><Edit3 className="w-4 h-4 inline" /></button>
+                      {row.role === 'Learner' && <button className="btn-outline !py-1 !px-2 !text-[var(--gold)] !border-none hover:bg-[var(--gold-lightest)]"><ArrowUpCircle className="w-4 h-4 inline" /></button>}
+                      <button onClick={() => deleteUser(row.name)} title="Delete User" className="btn-outline !py-1 !px-2 !text-[var(--red-500,#dc2626)] !border-none hover:bg-[var(--neutral-cool)]"><Trash2 className="w-4 h-4 inline" /></button>
+                    </div>
                   </td>
                 </tr>
               ))}

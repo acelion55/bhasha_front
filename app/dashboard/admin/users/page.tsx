@@ -14,17 +14,21 @@ import {
   IdCard,
   UserPlus,
   Filter,
-  RefreshCw
+  RefreshCw,
+  UserCheck,
+  UserX
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface User {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
+  phoneNumber?: string;
   role: 'admin' | 'student' | 'mentor' | 'user';
   category?: string;
   studentId?: string;
+  isActive?: boolean;
   tenantId: string;
   createdAt: string;
   updatedAt: string;
@@ -48,6 +52,7 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
 
   // Edit User Modal
@@ -55,9 +60,11 @@ export default function AdminUsersPage() {
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
+    phoneNumber: '',
     role: 'student',
     category: 'A1',
     studentId: '',
+    isActive: true,
   });
 
   // Create User Modal
@@ -65,6 +72,7 @@ export default function AdminUsersPage() {
   const [createForm, setCreateForm] = useState({
     name: '',
     email: '',
+    phoneNumber: '',
     password: '',
     role: 'student',
     category: 'A1',
@@ -120,6 +128,7 @@ export default function AdminUsersPage() {
     setCreateForm({
       name: '',
       email: '',
+      phoneNumber: '',
       password: '',
       role: 'student',
       category: 'A1',
@@ -139,10 +148,12 @@ export default function AdminUsersPage() {
     const defaultUuid = formatStudentUuid(u, idx);
     setEditForm({
       name: u.name,
-      email: u.email,
+      email: u.email || '',
+      phoneNumber: u.phoneNumber || '',
       role: u.role || 'student',
       category: u.category || 'A1',
       studentId: u.studentId || defaultUuid,
+      isActive: u.isActive !== false,
     });
   };
 
@@ -178,8 +189,14 @@ export default function AdminUsersPage() {
       return;
     }
 
-    if (!createForm.password || createForm.password.length < 6 || createForm.password.length > 32) {
-      toast.error('Password is required (6 to 32 characters)');
+    const phoneDigits = createForm.phoneNumber.replace(/\D/g, '');
+    if (phoneDigits.length !== 10) {
+      toast.error('A valid 10-digit phone number is required for login');
+      return;
+    }
+
+    if (!createForm.password || createForm.password.length < 4 || createForm.password.length > 32) {
+      toast.error('Password is required (4 to 32 characters)');
       return;
     }
 
@@ -191,6 +208,7 @@ export default function AdminUsersPage() {
         ...createForm,
         name: trimmedName,
         email: trimmedEmail,
+        phoneNumber: phoneDigits,
         studentId: studentIdToSend,
       });
       toast.success('New user created successfully!');
@@ -198,6 +216,7 @@ export default function AdminUsersPage() {
       setCreateForm({
         name: '',
         email: '',
+        phoneNumber: '',
         password: '',
         role: 'student',
         category: 'A1',
@@ -219,6 +238,19 @@ export default function AdminUsersPage() {
       fetchUsers();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  const handleToggleActive = async (u: User) => {
+    const nextActive = u.isActive === false;
+    try {
+      await api.put(`/admin/users/${u._id}`, { isActive: nextActive });
+      setUsers((prev) =>
+        prev.map((item) => (item._id === u._id ? { ...item, isActive: nextActive } : item)),
+      );
+      toast.success(nextActive ? 'User activated' : 'User deactivated');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update user status');
     }
   };
 
@@ -246,15 +278,18 @@ export default function AdminUsersPage() {
   const filteredUsers = users.filter((u) => {
     if (roleFilter !== 'all' && u.role !== roleFilter) return false;
     if (levelFilter !== 'all' && (u.category || 'A1') !== levelFilter) return false;
+    if (statusFilter === 'active' && u.isActive === false) return false;
+    if (statusFilter === 'inactive' && u.isActive !== false) return false;
     return true;
   });
 
-  const hasActiveFilters = search || roleFilter !== 'all' || levelFilter !== 'all';
+  const hasActiveFilters = search || roleFilter !== 'all' || levelFilter !== 'all' || statusFilter !== 'all';
 
   const resetFilters = () => {
     setSearch('');
     setRoleFilter('all');
     setLevelFilter('all');
+    setStatusFilter('all');
     setPagination((p) => ({ ...p, page: 1 }));
   };
 
@@ -322,6 +357,30 @@ export default function AdminUsersPage() {
             ))}
           </div>
 
+          {/* Status Filter */}
+          <div className="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-200/80">
+            <span className="text-[11px] font-bold text-gray-500 uppercase px-2">Status:</span>
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'active', label: 'Active' },
+              { key: 'inactive', label: 'Inactive' },
+            ].map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setStatusFilter(s.key)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  statusFilter === s.key
+                    ? s.key === 'inactive'
+                      ? 'bg-rose-500 text-white shadow-xs'
+                      : 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/80'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
           {/* Reset Filters button */}
           {hasActiveFilters && (
             <button
@@ -363,7 +422,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 w-[130px]">Role</th>
                 <th className="px-4 py-3 w-[140px]">CEFR Level</th>
                 <th className="px-4 py-3 w-[140px]">Joined Date</th>
-                <th className="px-4 py-3 w-[130px] text-right">Actions</th>
+                <th className="px-4 py-3 w-[210px] text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -416,7 +475,9 @@ export default function AdminUsersPage() {
                           </div>
                           <div className="min-w-0">
                             <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{u.name}</div>
-                            <div className="text-xs text-gray-400 truncate">{u.email}</div>
+                            <div className="text-xs text-gray-400 truncate">
+                              {u.email || (u.phoneNumber ? `+${u.phoneNumber}` : 'No email')}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -442,8 +503,34 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3.5 text-xs font-medium text-gray-600">
                         {formatDate(u.createdAt)}
                       </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center justify-end gap-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={u.isActive !== false}
+                              onClick={() => handleToggleActive(u)}
+                              title={u.isActive === false ? 'Activate user' : 'Deactivate user'}
+                              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 ${
+                                u.isActive === false ? 'bg-gray-300' : 'bg-emerald-500'
+                              }`}
+                            >
+                              <span
+                                className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                                  u.isActive === false ? 'translate-x-0' : 'translate-x-4'
+                                }`}
+                              />
+                            </button>
+                            <span
+                              className={`w-11 text-left text-[11px] font-bold ${
+                                u.isActive === false ? 'text-gray-400' : 'text-emerald-700'
+                              }`}
+                            >
+                              {u.isActive === false ? 'Inactive' : 'Active'}
+                            </span>
+                          </div>
+                          <span className="h-4 w-px bg-gray-200" />
                           <button
                             onClick={() => handleOpenEdit(u, idx)}
                             className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-800 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors"
@@ -549,6 +636,27 @@ export default function AdminUsersPage() {
                 />
               </div>
 
+              {/* Phone Number (login) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-gray-500 font-bold text-xs">+91</span>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    required
+                    maxLength={10}
+                    placeholder="98765 43210"
+                    value={createForm.phoneNumber}
+                    onChange={(e) => setCreateForm({ ...createForm, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    className="w-full pl-11 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400">Used by the user to log in with a password.</p>
+              </div>
+
               {/* Account Password */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
@@ -557,7 +665,7 @@ export default function AdminUsersPage() {
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  minLength={4}
                   maxLength={32}
                   placeholder="••••••••"
                   value={createForm.password}
@@ -683,6 +791,26 @@ export default function AdminUsersPage() {
                 />
               </div>
 
+              {/* Phone Number (login) */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Phone Number
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-gray-500 font-bold text-xs">+91</span>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={12}
+                    placeholder="98765 43210"
+                    value={editForm.phoneNumber}
+                    onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    className="w-full pl-11 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400">Leave blank to keep the current number.</p>
+              </div>
+
               {/* Role & Level */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
@@ -719,6 +847,40 @@ export default function AdminUsersPage() {
                     <option value="C2">C2 Mastery</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Account Status */}
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Account Status
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditForm({ ...editForm, isActive: true })}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                      editForm.isActive
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-200'
+                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <UserCheck className="w-3.5 h-3.5" /> Active
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm({ ...editForm, isActive: false })}
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                      !editForm.isActive
+                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-200'
+                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <UserX className="w-3.5 h-3.5" /> Inactive
+                  </button>
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400">
+                  Inactive users cannot log in until reactivated.
+                </p>
               </div>
             </div>
 

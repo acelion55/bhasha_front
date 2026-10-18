@@ -7,7 +7,8 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useGoogleLogin } from '@react-oauth/google';
 import { toast } from 'sonner';
-import { BookOpen, ArrowRight, User, Mail, Lock, CheckCircle } from 'lucide-react';
+import { ArrowRight, User, Phone, Lock, CheckCircle } from 'lucide-react';
+import CompletePhoneModal from '@/components/complete-phone-modal';
 
 const perks = [
   'Free first lesson with a native tutor',
@@ -18,24 +19,40 @@ const perks = [
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPhonePrompt, setShowPhonePrompt] = useState(false);
+  const [googleRole, setGoogleRole] = useState<string | undefined>(undefined);
   const { fetchUser, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     fetchUser();
-    if (user) {
-        router.push('/dashboard');
+  }, [fetchUser]);
+
+  useEffect(() => {
+    if (user && user.phoneNumber) {
+      router.push('/dashboard');
     }
-  }, [fetchUser, user, router]);
+  }, [user, router]);
+
+  const finishSignup = (role?: string) => {
+    if (role === 'admin') router.push('/dashboard/admin');
+    else if (role === 'mentor') router.push('/dashboard/mentor');
+    else router.push('/dashboard/student');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length !== 10) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return;
+    }
     setLoading(true);
     try {
-      await api.post('/auth/register', { name, email, password });
+      await api.post('/auth/register', { name, phoneNumber: digits, password });
       toast.success('Account created! Welcome to BhashaSchool 🎓');
       await fetchUser();
       router.push('/dashboard/student');
@@ -50,16 +67,19 @@ export default function RegisterPage() {
     scope: 'openid email profile',
     onSuccess: async (tokenResponse) => {
       try {
-        const googleRes = await api.post<{ user?: { name?: string; role?: string } }>(
+        const googleRes = await api.post<{ user?: { name?: string; role?: string; phoneNumber?: string } }>(
           '/auth/google',
           { accessToken: tokenResponse.access_token },
         );
         toast.success(`Welcome to BhashaSchool${googleRes.data.user?.name ? `, ${googleRes.data.user.name}` : ''}!`);
         await fetchUser();
         const role = googleRes.data.user?.role;
-        if (role === 'admin') router.push('/dashboard/admin');
-        else if (role === 'mentor') router.push('/dashboard/mentor');
-        else router.push('/dashboard/student');
+        if (!googleRes.data.user?.phoneNumber) {
+          setGoogleRole(role);
+          setShowPhonePrompt(true);
+          return;
+        }
+        finishSignup(role);
       } catch {
         toast.error('Google Sign-In Failed');
       }
@@ -68,63 +88,64 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[var(--neutral-warm)] flex items-center justify-center px-[5vw] py-[8vh]">
+    <div className="min-h-[100dvh] bg-[var(--neutral-warm)] flex items-center justify-center px-[5vw] py-[3vh]">
 
       <div className="relative w-full max-w-[1000px] grid grid-cols-1 md:grid-cols-2 gap-[4vw] items-center">
 
         {/* Left panel — perks */}
-        <div className="hidden md:block space-y-[4vh]">
+        <div className="hidden md:block space-y-[2.5vh]">
           <div className="flex items-center gap-[15px]">
-            <div className="w-[60px] h-[60px] rounded-[16px] bg-gradient-to-br from-[var(--starbucks-green)] to-[var(--green-accent)] flex items-center justify-center shadow-lg">
-              <BookOpen className="w-[30px] h-[30px] text-white" />
-            </div>
-            <span className="text-[3rem] font-extrabold text-[var(--house-green)]">
+            <img
+              src="/logos/logowithouttext.png"
+              alt="BhashaSchool Logo"
+              className="w-[56px] h-[56px] object-contain"
+            />
+            <span className="text-[2.8rem] font-extrabold text-[var(--house-green)]">
               Bhasha<span className="text-[var(--starbucks-green)]">School</span>
             </span>
           </div>
 
-          <h2 className="display-text text-[4rem] text-[var(--text-black)] leading-snug">
+          <h2 className="display-text text-[3.2rem] text-[var(--text-black)] leading-snug">
             Start your <span className="text-[var(--starbucks-green)]">language journey</span> today.
           </h2>
-          <p className="body-text text-[1.8rem] text-[var(--text-black-soft)] leading-relaxed">
+          <p className="body-text text-[1.5rem] text-[var(--text-black-soft)] leading-relaxed">
             Join thousands of learners mastering German &amp; English with expert tutors and AI-powered tools.
           </p>
 
-          <div className="space-y-[2vh]">
+          <div className="space-y-[1.4vh]">
             {perks.map((p) => (
-              <div key={p} className="flex items-center gap-[1vw] text-[1.6rem] font-medium text-[var(--text-black-soft)]">
-                <CheckCircle className="w-6 h-6 text-[var(--starbucks-green)] flex-shrink-0" />
+              <div key={p} className="flex items-center gap-[1vw] text-[1.4rem] font-medium text-[var(--text-black-soft)]">
+                <CheckCircle className="w-5 h-5 text-[var(--starbucks-green)] flex-shrink-0" />
                 {p}
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-[2vw] mt-[4vh]">
-            <span className="px-[1vw] py-[0.5vh] rounded-[8px] bg-white border border-[var(--ceramic)] shadow-sm text-[1.4rem] font-bold tracking-wide">🇩🇪 Deutsch</span>
-            <span className="px-[1vw] py-[0.5vh] rounded-[8px] bg-white border border-[var(--ceramic)] shadow-sm text-[1.4rem] font-bold tracking-wide">🇬🇧 English</span>
+          <div className="flex items-center gap-[2vw] mt-[2vh]">
+            <span className="px-[1vw] py-[0.4vh] rounded-[8px] bg-white border border-[var(--ceramic)] shadow-sm text-[1.3rem] font-bold tracking-wide">🇩🇪 Deutsch</span>
+            <span className="px-[1vw] py-[0.4vh] rounded-[8px] bg-white border border-[var(--ceramic)] shadow-sm text-[1.3rem] font-bold tracking-wide">🇬🇧 English</span>
           </div>
         </div>
 
         {/* Right panel — form */}
-        <div className="bg-white rounded-[24px] shadow-2xl border border-[var(--ceramic)] p-[8vw] md:p-[40px] space-y-[4vh]">
-          
-          <div className="md:hidden text-center mb-[4vh]">
+        <div className="bg-white rounded-[24px] shadow-2xl border border-[var(--ceramic)] p-[7vw] md:p-[34px] space-y-[2.5vh]">
+
+          <div className="md:hidden text-center mb-[2.5vh]">
             <Link href="/" className="inline-flex flex-col items-center gap-2">
-              <div className="w-[60px] h-[60px] rounded-[16px] bg-gradient-to-br from-[var(--starbucks-green)] to-[var(--green-accent)] flex items-center justify-center shadow">
-                <BookOpen className="w-[30px] h-[30px] text-white" />
-              </div>
-              <span className="font-extrabold text-[2.5rem] text-[var(--text-black)] pt-2">Bhasha<span className="text-[var(--starbucks-green)]">School</span></span>
+              <img
+                src="/logos/logowithouttext.png"
+                alt="BhashaSchool Logo"
+                className="w-[56px] h-[56px] object-contain"
+              />
+              <span className="font-extrabold text-[2.3rem] text-[var(--text-black)] pt-2">Bhasha<span className="text-[var(--starbucks-green)]">School</span></span>
             </Link>
           </div>
 
-          <div className="text-center space-y-[1vh]">
-            <h1 className="h1-text text-[3rem] text-[var(--text-black)]">Create Your Account</h1>
-            <p className="body-text text-[var(--text-black-soft)]">Free forever · No credit card needed</p>
-          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-[2.5vh]">
+
+          <form onSubmit={handleSubmit} className="space-y-[2vh]">
             <div>
-              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[1vh] tracking-wider">Full Name</label>
+              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[0.8vh] tracking-wider">Full Name</label>
               <div className="relative flex items-center">
                 <User className="absolute left-[15px] w-6 h-6 text-[var(--starbucks-green)]" />
                 <input
@@ -132,39 +153,42 @@ export default function RegisterPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-[50px] pr-[15px] py-[2vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
+                  className="w-full pl-[50px] pr-[15px] py-[1.5vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
                   placeholder="Your full name"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[1vh] tracking-wider">Email Address</label>
+              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[0.8vh] tracking-wider">Phone Number</label>
               <div className="relative flex items-center">
-                <Mail className="absolute left-[15px] w-6 h-6 text-[var(--starbucks-green)]" />
+                <Phone className="absolute left-[15px] w-6 h-6 text-[var(--starbucks-green)]" />
+                <span className="absolute left-[50px] text-[var(--text-black-soft)] font-bold text-[1.6rem]">+91</span>
                 <input
-                  type="email"
+                  type="tel"
+                  inputMode="numeric"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-[50px] pr-[15px] py-[2vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
-                  placeholder="you@example.com"
+                  maxLength={10}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  className="w-full pl-[95px] pr-[15px] py-[1.5vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
+                  placeholder="Enter the number"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[1vh] tracking-wider">Password</label>
+              <label className="block text-[1.3rem] font-bold uppercase text-[var(--text-black-soft)] mb-[0.8vh] tracking-wider">Password</label>
               <div className="relative flex items-center">
                 <Lock className="absolute left-[15px] w-6 h-6 text-[var(--starbucks-green)]" />
                 <input
                   type="password"
                   required
-                  minLength={6}
+                  maxLength={4}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-[50px] pr-[15px] py-[2vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
-                  placeholder="Min 6 characters"
+                  className="w-full pl-[50px] pr-[15px] py-[1.5vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
+                  placeholder="Min 4 characters"
                 />
               </div>
             </div>
@@ -172,31 +196,31 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-[2vh] !rounded-[12px] text-[1.8rem] disabled:opacity-60 disabled:cursor-not-allowed mt-[1vh]"
+              className="w-full btn-primary py-[1.5vh] !rounded-[12px] text-[1.8rem] disabled:opacity-60 disabled:cursor-not-allowed mt-[0.5vh]"
             >
               {loading ? 'Creating...' : <><span>Create Account</span><ArrowRight className="w-6 h-6" /></>}
             </button>
           </form>
 
-          <div className="flex items-center gap-[2vw] my-[3vh]">
+          <div className="flex items-center gap-[2vw] my-[1.5vh]">
             <div className="h-px bg-[var(--ceramic)] flex-1"></div>
             <span className="text-[1.2rem] text-[var(--text-black-soft)] font-bold uppercase tracking-widest">or sign up via</span>
             <div className="h-px bg-[var(--ceramic)] flex-1"></div>
           </div>
 
-          <button type="button" onClick={() => loginWithGoogle()} className="w-full flex items-center justify-center gap-[3vw] md:gap-[15px] py-[1.8vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[1.6rem] font-bold text-[var(--text-black)] hover:bg-[var(--ceramic)] transition-all shadow-sm">
+          <button type="button" onClick={() => loginWithGoogle()} className="w-full flex items-center justify-center gap-[3vw] md:gap-[15px] py-[1.4vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[1.6rem] font-bold text-[var(--text-black)] hover:bg-[var(--ceramic)] transition-all shadow-sm">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-[24px] h-[24px]" />
             Sign Up with Google
           </button>
 
-          <p className="text-center text-[1.4rem] text-[var(--text-black-soft)] mt-[3vh]">
+          <p className="text-center text-[1.4rem] text-[var(--text-black-soft)]">
             Already have an account?{' '}
             <Link href="/login" className="text-[var(--starbucks-green)] font-extrabold hover:underline">
               Log in
             </Link>
           </p>
 
-          <p className="text-center text-[1.1rem] text-gray-400 mt-[2vh]">
+          <p className="text-center text-[1.1rem] text-gray-400">
             By registering, you agree to our{' '}
             <Link href="/terms" className="underline hover:text-emerald-600">Terms</Link>{' '}
             &amp;{' '}
@@ -204,6 +228,19 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+
+      <CompletePhoneModal
+        open={showPhonePrompt}
+        onComplete={async () => {
+          await fetchUser();
+          setShowPhonePrompt(false);
+          finishSignup(googleRole);
+        }}
+        onCancel={() => {
+          setShowPhonePrompt(false);
+          toast.error('A phone number is required to continue');
+        }}
+      />
     </div>
   );
 }

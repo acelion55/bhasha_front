@@ -85,19 +85,19 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Email (Disabled) */}
+          {/* Email / Phone (Disabled) */}
           <div className="space-y-2.5">
             <label className="block text-xs sm:text-sm font-black text-gray-800 uppercase tracking-wider">
-              Email Address
+              {user?.email ? 'Email Address' : 'Phone Number'}
             </label>
             <input
-              type="email"
-              value={user?.email || ''}
+              type={user?.email ? 'email' : 'text'}
+              value={user?.email || (user?.phoneNumber ? `+${user.phoneNumber}` : '')}
               disabled
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-600 text-sm sm:text-base font-bold cursor-not-allowed"
             />
             <p className="text-xs sm:text-sm text-gray-500 font-medium">
-              Email address is linked to your account authentication and cannot be changed directly.
+              Linked to your account authentication and cannot be changed directly.
             </p>
           </div>
 

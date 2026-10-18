@@ -5,7 +5,8 @@ import { api } from './api';
 
 interface User {
   id: string;
-  email: string;
+  email?: string;
+  phoneNumber?: string;
   name: string;
   tenantId: string;
   role: string;
@@ -40,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           id: res.data._id || res.data.id,
           email: res.data.email,
+          phoneNumber: res.data.phoneNumber,
           name: res.data.name,
           tenantId: res.data.tenantId,
           role: res.data.role,

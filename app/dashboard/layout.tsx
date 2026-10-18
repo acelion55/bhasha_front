@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import {
-  BookOpen,
   GraduationCap,
   Users,
   FileText,
@@ -15,7 +14,8 @@ import {
   Calendar,
   Layers,
   BarChart3,
-  CheckCircle2
+  CheckCircle2,
+  CreditCard
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -33,9 +33,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
       <div className="min-h-screen bg-[#f8faf9] flex items-center justify-center p-4">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-[4vw] h-[4vw] min-w-16 min-h-16 rounded-3xl bg-gradient-to-br from-emerald-600 to-violet-500 flex items-center justify-center animate-pulse shadow-xl shadow-emerald-400/40">
-            <BookOpen className="w-8 h-8 text-white" />
-          </div>
+          <img
+            src="/logos/logowithouttext.png"
+            alt="BhashaSchool Logo"
+            className="w-20 h-20 object-contain animate-pulse"
+          />
           <p className="text-base sm:text-lg font-bold text-emerald-800">Loading BhashaSchool...</p>
         </div>
       </div>
@@ -46,11 +48,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const studentNav = [
     { name: 'My Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
     { name: 'Completed Classes', shortName: 'Completed', path: '/dashboard/student/completed', icon: CheckCircle2 },
+    { name: 'Payments & Plans', shortName: 'Payments', path: '/dashboard/student/payments', icon: CreditCard },
     { name: 'Profile & Category', shortName: 'Profile', path: '/dashboard/profile', icon: User },
   ];
 
   const mentorNav = [
     { name: 'Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
+    { name: 'Payments & Plans', shortName: 'Payments', path: '/dashboard/student/payments', icon: CreditCard },
     { name: 'Profile & Settings', shortName: 'Profile', path: '/dashboard/profile', icon: User },
   ];
 
