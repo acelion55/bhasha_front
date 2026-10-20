@@ -1,134 +1,200 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, Users, User, Video, IndianRupee } from 'lucide-react';
-import PayButton from '@/components/PayButton';
+import { Calendar, Clock, Users, User, Video, IndianRupee, Search, Filter } from 'lucide-react';
 
-export const metadata = {
-  title: 'Public Classes & Masterclasses — BhashaSchool',
-  description: 'Join our free and public masterclasses to experience our teaching methodology.',
-};
+interface PublicClass {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  duration: string;
+  instructor: string;
+  category: string;
+  capacity: string;
+  registrations?: number;
+}
 
-const publicClasses = [
-  {
-    title: 'A1 German: Master Basic Greetings',
-    date: 'Saturday, Oct 15',
-    time: '18:00 CET',
-    level: 'A1 Beginner',
-    duration: '45 mins',
-    spots: 12,
-    price: 499,
-    instructor: 'Laura Müller',
-    theme: 'bg-emerald-50/50 border-[var(--green-light)]',
-    tag: 'text-[var(--starbucks-green)] bg-[var(--green-light)]',
-  },
-  {
-    title: 'B1 English: Professional Email Writing',
-    date: 'Sunday, Oct 16',
-    time: '14:00 GMT',
-    level: 'B1 Intermediate',
-    duration: '60 mins',
-    spots: 8,
-    price: 699,
-    instructor: 'James Carter',
-    theme: 'bg-amber-50/50 border-amber-200',
-    tag: 'text-amber-800 bg-amber-100',
-  },
-  {
-    title: 'A2 German: Essential Grammar Structures',
-    date: 'Wednesday, Oct 19',
-    time: '19:00 CET',
-    level: 'A2 Elementary',
-    duration: '60 mins',
-    spots: 3,
-    price: 399,
-    instructor: 'Laura Müller',
-    theme: 'bg-emerald-50/50 border-[var(--green-light)]',
-    tag: 'text-[var(--starbucks-green)] bg-[var(--green-light)]',
-    fillingFast: true,
-  }
+const themes = [
+  { theme: 'bg-emerald-50/50 border-emerald-200', tag: 'text-emerald-800 bg-emerald-100' },
+  { theme: 'bg-blue-50/50 border-blue-200', tag: 'text-blue-800 bg-blue-100' },
+  { theme: 'bg-purple-50/50 border-purple-200', tag: 'text-purple-800 bg-purple-100' },
+  { theme: 'bg-amber-50/50 border-amber-200', tag: 'text-amber-800 bg-amber-100' },
 ];
 
 export default function PublicClassesPage() {
-  return (
-    <div className="min-h-screen bg-[var(--neutral-warm)] pb-[10vh]">
+  const [classes, setClasses] = useState<PublicClass[]>([]);
+  const [filteredClasses, setFilteredClasses] = useState<PublicClass[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
 
+  useEffect(() => {
+    // Load classes from localStorage
+    const saved = localStorage.getItem('masterclasses');
+    if (saved) {
+      const data = JSON.parse(saved);
+      // Filter only upcoming classes
+      const upcoming = data.filter((mc: any) => new Date(mc.date + ' ' + mc.time) > new Date());
+      setClasses(upcoming);
+      
+      // Extract unique categories
+      const uniqueCategories = [...new Set(upcoming.map((mc: any) => mc.category))];
+      setCategories(uniqueCategories as string[]);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    // Filter classes based on search and category
+    let filtered = classes;
+
+    if (searchTerm) {
+      filtered = filtered.filter(cls =>
+        cls.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cls.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cls.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (filterCategory) {
+      filtered = filtered.filter(cls => cls.category === filterCategory);
+    }
+
+    setFilteredClasses(filtered);
+  }, [classes, searchTerm, filterCategory]);
+
+  return (
+    <div className="min-h-screen bg-[#fdf8f3] pb-[10vh]">
       {/* Hero */}
-      <section className="py-[10vh] text-center bg-gradient-to-b from-white to-[var(--neutral-warm)]">
-        <div className="max-w-[1000px] mx-auto px-[5vw] md:px-[2vw]">
-          <div className="inline-flex items-center gap-2 px-[1.5vw] py-[0.5vh] rounded-[50px] bg-[var(--gold-lightest)] border border-[var(--ceramic)] text-[var(--gold)] text-[1.4rem] font-bold mb-[3vh] shadow-sm tracking-wide">
+      <section className="py-[10vh] text-center bg-gradient-to-b from-white to-[#fdf8f3]">
+        <div className="max-w-7xl mx-auto px-[5vw] md:px-[2vw]">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[1.4rem] font-bold mb-[3vh] shadow-sm">
             <Video className="w-5 h-5" />
-            Live Masterclasses
+            Free Public Classes
           </div>
-          <h1 className="display-text text-[var(--text-black)] mb-[2vh]">
-            Upcoming <span className="text-[var(--starbucks-green)]">Public Classes</span>
+          <h1 className="text-[3.5rem] md:text-[4rem] font-bold text-gray-800 mb-[2vh]">
+            Upcoming <span className="text-emerald-600">Public Classes</span>
           </h1>
-          <p className="body-text text-[1.8rem] text-[var(--text-black-soft)] max-w-2xl mx-auto leading-relaxed">
-            Experience the BhashaSchool methodology firsthand. Join our open sessions hosted by expert mentors and see why thousands choose our immersive ecosystem.
+          <p className="text-[1.6rem] md:text-[1.8rem] text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Join free live classes hosted by expert trainers. Learn from industry professionals and get a taste of BhashaSchool's teaching methodology.
           </p>
         </div>
       </section>
 
-      {/* Classes Grid */}
-      <section className="max-w-[1200px] mx-auto px-[5vw] md:px-[2vw] py-[4vh] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[4vw] md:gap-[2vw]">
-        {publicClasses.map((cls, idx) => (
-          <div key={idx} className={`content-card border ${cls.theme} shadow-sm hover:shadow-lg transition-transform hover:-translate-y-1`}>
-            <div className="flex justify-between items-start mb-[2vh]">
-              <span className={`text-[1.2rem] font-bold px-[1vw] py-[0.3vh] rounded-[4px] uppercase tracking-wider ${cls.tag}`}>
-                {cls.level}
-              </span>
-              {cls.fillingFast && (
-                <span className="text-[1.1rem] font-bold text-[var(--gold)] bg-[var(--gold-lightest)] px-[1vw] py-[0.3vh] rounded-[4px] animate-pulse">
-                  Filling Fast
-                </span>
-              )}
-            </div>
-            
-            <h2 className="h2-text text-[var(--text-black)] mb-[2vh] leading-snug">{cls.title}</h2>
-            
-            <div className="space-y-[1.5vh] mb-[4vh] p-[2vw] md:p-[1vw] bg-white rounded-[12px] border border-[var(--ceramic)]">
-              <div className="flex items-center gap-[1vw] body-text text-[var(--text-black-soft)] font-medium">
-                <Calendar className="w-5 h-5 text-[var(--starbucks-green)]" />
-                {cls.date}
-              </div>
-              <div className="flex items-center gap-[1vw] body-text text-[var(--text-black-soft)] font-medium">
-                <Clock className="w-5 h-5 text-[var(--starbucks-green)]" />
-                {cls.time} ({cls.duration})
-              </div>
-              <div className="flex items-center gap-[1vw] body-text text-[var(--text-black-soft)] font-medium">
-                <User className="w-5 h-5 text-[var(--starbucks-green)]" />
-                Host: {cls.instructor}
-              </div>
-              <div className="flex items-center gap-[1vw] body-text text-[var(--text-black-soft)] font-medium">
-                <Users className="w-5 h-5 text-[var(--starbucks-green)]" />
-                {cls.spots} Spots Remaining
-              </div>
-              <div className="flex items-center justify-between pt-[1.5vh] mt-[0.5vh] border-t border-[var(--ceramic)]">
-                <span className="body-text text-[var(--text-black-soft)] font-bold">Price</span>
-                <span className="h2-text text-[var(--starbucks-green)] flex items-center gap-0.5">
-                  <IndianRupee className="w-5 h-5" />
-                  {cls.price.toLocaleString('en-IN')}
-                </span>
-              </div>
-            </div>
-
-            <PayButton
-              amount={cls.price}
-              description={`${cls.title} — ${cls.date}, ${cls.time}`}
-              courseName={cls.title}
-              variant="card"
+      {/* Search & Filter */}
+      <section className="max-w-7xl mx-auto px-[5vw] md:px-6 py-[4vh]">
+        <div className="flex gap-4 flex-col md:flex-row">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search classes by title, instructor..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-[1.4rem]"
             />
           </div>
-        ))}
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-[1.4rem]"
+          >
+            <option value="">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
       </section>
 
-      {/* Admin Notice (For the User) */}
-      <section className="max-w-[800px] mx-auto px-[5vw] py-[8vh] mt-[5vh] text-center border-t border-[var(--ceramic)]">
-        <h3 className="h2-text text-[var(--text-black)] mb-[2vh]">Are you an Admin?</h3>
-        <p className="body-text text-[var(--text-black-soft)] mb-[3vh]">
-          Once authenticated in the backend pane, you will be able to dynamically publish and manage these public taster sessions mapped directly to your internal Live Classes engine.
+      {/* Classes Grid */}
+      <section className="max-w-7xl mx-auto px-[5vw] md:px-6 py-[4vh] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse h-96" />
+          ))
+        ) : filteredClasses.length === 0 ? (
+          <div className="col-span-full bg-white rounded-lg border border-gray-200 text-center py-12">
+            <Video className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">No classes found</h3>
+            <p className="text-gray-600">Check back soon — new classes are added regularly.</p>
+          </div>
+        ) : (
+          filteredClasses.map((cls, idx) => {
+            const t = themes[idx % themes.length];
+            const capacity = parseInt(cls.capacity) || 0;
+            const remaining = capacity > 0 ? capacity : 0;
+            const categoryShort = cls.category.split(' ')[0];
+
+            return (
+              <div key={cls.id} className={`bg-white rounded-lg border-2 ${t.theme} shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 p-6`}>
+                <div className="flex justify-between items-start mb-4">
+                  <span className={`text-[1.2rem] font-bold px-3 py-1 rounded-lg uppercase tracking-wider ${t.tag}`}>
+                    {categoryShort}
+                  </span>
+                  {remaining > 0 && remaining <= 3 && (
+                    <span className="text-[1rem] font-bold text-amber-700 bg-amber-100 px-3 py-1 rounded-lg animate-pulse">
+                      Filling Fast
+                    </span>
+                  )}
+                </div>
+
+                <h2 className="text-[1.8rem] font-bold text-gray-800 mb-2 line-clamp-2">{cls.title}</h2>
+
+                <p className="text-gray-600 mb-4 line-clamp-2 text-[1.4rem]">{cls.description}</p>
+
+                <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-3 text-gray-700 font-medium text-[1.4rem]">
+                    <Calendar className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <span>{cls.date}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-700 font-medium text-[1.4rem]">
+                    <Clock className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <span>{cls.time} IST • {cls.duration} min</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-700 font-medium text-[1.4rem]">
+                    <User className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <span>{cls.instructor}</span>
+                  </div>
+                  {remaining > 0 && (
+                    <div className="flex items-center gap-3 text-gray-700 font-medium text-[1.4rem] pt-2 border-t border-gray-300">
+                      <Users className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                      <span>{remaining} Spots Available</span>
+                    </div>
+                  )}
+                </div>
+
+                <Link
+                  href="/public-masterclasses"
+                  className="w-full px-6 py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors text-center text-[1.4rem] block"
+                >
+                  Register Now →
+                </Link>
+              </div>
+            );
+          })
+        )}
+      </section>
+
+      {/* Admin Section */}
+      <section className="max-w-2xl mx-auto px-[5vw] py-[8vh] mt-[5vh] text-center border-t border-gray-200">
+        <h3 className="text-[2.5rem] font-bold text-gray-800 mb-4">Are you an Admin?</h3>
+        <p className="text-[1.6rem] text-gray-600 mb-6">
+          Manage and publish public classes from your admin dashboard. Upload masterclass details and track all registrations.
         </p>
-        <Link href="/login" className="btn-outline w-max mx-auto text-[1.4rem]">Login to Admin Panel →</Link>
+        <div className="flex gap-4 justify-center flex-col sm:flex-row">
+          <Link href="/dashboard/admin/masterclasses" className="px-8 py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors text-[1.4rem]">
+            Manage Classes →
+          </Link>
+          <Link href="/dashboard/admin/leads" className="px-8 py-3 border-2 border-emerald-600 text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-colors text-[1.4rem]">
+            View Registrations →
+          </Link>
+        </div>
       </section>
-
     </div>
   );
 }

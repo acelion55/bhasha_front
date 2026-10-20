@@ -25,11 +25,11 @@ export default function Footer() {
         <div>
           <h4 className="font-bold text-[1.8rem] md:text-[1.6rem] text-[var(--text-black)] mb-4 tracking-wide uppercase">Courses</h4>
           <ul className="space-y-[1.5vh] text-[1.6rem] md:text-[1.4rem] text-[var(--text-black-soft)] font-medium">
-            <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">German for Beginners</Link></li>
-            <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">English Conversational</Link></li>
-            <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">Business German</Link></li>
-            <li><Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">Exam Preparation</Link></li>
-            <li><Link href="/classes" className="hover:text-[var(--starbucks-green)] transition-colors">Public Masterclasses</Link></li>
+            <li><Link href="/german-for-beginners" className="hover:text-[var(--starbucks-green)] transition-colors">German for Beginners</Link></li>
+            <li><Link href="/english-conversational" className="hover:text-[var(--starbucks-green)] transition-colors">English Conversational</Link></li>
+            <li><Link href="/german-language-for-business-professionals" className="hover:text-[var(--starbucks-green)] transition-colors">Business German</Link></li>
+            <li><Link href="/exam-preparation-for-geman-language" className="hover:text-[var(--starbucks-green)] transition-colors">Exam Preparation</Link></li>
+            <li><Link href="/public-masterclasses-for-german-language" className="hover:text-[var(--starbucks-green)] transition-colors">Public Masterclasses</Link></li>
           </ul>
         </div>
 
@@ -50,15 +50,15 @@ export default function Footer() {
           <ul className="space-y-[1.5vh] text-[1.6rem] md:text-[1.4rem] text-[var(--text-black-soft)] font-medium">
             <li className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-[var(--starbucks-green)] flex-shrink-0" />
-              <span>hello@bhashaschool.com</span>
+              <span>skoolbhasa11@gmail.com</span>
             </li>
             <li className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-[var(--starbucks-green)] flex-shrink-0" />
-              <span>+49 (0) 123 456 789</span>
+              <span>91053 26128</span>
             </li>
             <li className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-[var(--starbucks-green)] flex-shrink-0" />
-              <span>Berlin, Germany &amp; Online</span>
+              <span>Agra (India) &amp; Online</span>
             </li>
           </ul>
           {/* Language flags */}

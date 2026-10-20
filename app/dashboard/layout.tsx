@@ -15,7 +15,8 @@ import {
   Layers,
   BarChart3,
   CheckCircle2,
-  CreditCard
+  CreditCard,
+  BookOpen
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -62,6 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Users Engine', shortName: 'Users', path: '/dashboard/admin/users', icon: Users },
     { name: 'Analytics', shortName: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
     { name: 'Classes Studio', shortName: 'Classes', path: '/dashboard/admin/classes', icon: Layers },
+    { name: 'Courses & Fees', shortName: 'Courses', path: '/dashboard/admin/courses', icon: BookOpen },
     { name: 'Blog Posts', shortName: 'Blogs', path: '/dashboard/admin/blogs', icon: FileText },
   ];
 

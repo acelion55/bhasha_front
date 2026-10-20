@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { Layers, Plus, Trash2, Edit, Video, Clock, Users, GraduationCap, X, Check } from 'lucide-react';
+import { Layers, Plus, Trash2, Edit, Video, Clock, Users, GraduationCap, X, Check, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ClassItem {
@@ -19,6 +19,8 @@ interface ClassItem {
   maxStudents?: number;
   maxCapacity?: number;
   meetingLink?: string;
+  price?: number;
+  currency?: string;
   isPublic?: boolean;
   createdAt: string;
 }
@@ -49,6 +51,7 @@ export default function AdminClassesPage() {
     mentorId: '',
     maxStudents: 15,
     meetingLink: '',
+    price: 0,
     isPublic: true,
   });
 
@@ -141,6 +144,7 @@ export default function AdminClassesPage() {
       mentorId: mentors[0]?._id || '',
       maxStudents: 15,
       meetingLink: '',
+      price: 0,
       isPublic: true,
     });
     setShowModal(true);
@@ -163,6 +167,7 @@ export default function AdminClassesPage() {
       mentorId: mId,
       maxStudents: cls.maxStudents || cls.maxCapacity || 15,
       meetingLink: cls.meetingLink || '',
+      price: cls.price ?? 0,
       isPublic: cls.isPublic !== false,
     });
     setShowModal(true);
@@ -182,6 +187,8 @@ export default function AdminClassesPage() {
         maxStudents: Number(form.maxStudents) || 15,
         maxCapacity: Number(form.maxStudents) || 15,
         meetingLink: form.meetingLink || '',
+        price: Number(form.price) || 0,
+        currency: 'INR',
         isPublic: form.isPublic !== false,
       };
 
@@ -277,6 +284,13 @@ export default function AdminClassesPage() {
                   <div className="flex items-center gap-1.5 text-gray-500">
                     <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Mentor: {cls.mentor?.name || (typeof cls.mentorId === 'object' ? cls.mentorId?.name : null) || cls.mentorName || 'Unassigned'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{(cls.price ?? 0).toLocaleString('en-IN')}</span>
+                    {cls.isPublic === false && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Draft</span>
+                    )}
                   </div>
                   {cls.meetingLink && (
                     <div className="flex items-center gap-1.5 text-emerald-700 font-bold truncate">
@@ -412,6 +426,37 @@ export default function AdminClassesPage() {
                     <option value="Sat - Sun">Sat - Sun (Weekend)</option>
                     <option value="Daily">Daily (Mon - Sun)</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Price (INR)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-semibold transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Visibility
+                  </label>
+                  <label className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isPublic}
+                      onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
+                      className="w-4 h-4 accent-emerald-600"
+                    />
+                    Publish on website
+                  </label>
                 </div>
               </div>
 

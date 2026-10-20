@@ -7,12 +7,13 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useGoogleLogin } from '@react-oauth/google';
 import { toast } from 'sonner';
-import { ArrowRight, Lock, Phone } from 'lucide-react';
+import { ArrowRight, Lock, Phone, Eye, EyeOff } from 'lucide-react';
 import CompletePhoneModal from '@/components/complete-phone-modal';
 
 function LoginForm({ from }: { from: string }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPhonePrompt, setShowPhonePrompt] = useState(false);
   const [googleRole, setGoogleRole] = useState<string | undefined>(undefined);
@@ -115,14 +116,22 @@ function LoginForm({ from }: { from: string }) {
               <div className="relative flex items-center">
                 <Lock className="absolute left-[15px] w-6 h-6 text-[var(--starbucks-green)]" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   maxLength={4}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-[50px] pr-[15px] py-[1.7vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
+                  className="w-full pl-[50px] pr-[50px] py-[1.7vh] rounded-[12px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black)] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--starbucks-green)] text-[1.6rem] transition"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-[12px] p-1 text-[var(--text-black-soft)] hover:text-[var(--starbucks-green)] transition"
+                >
+                  {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+                </button>
               </div>
             </div>
 

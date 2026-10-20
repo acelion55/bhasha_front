@@ -13,7 +13,6 @@ import {
   GraduationCap, 
   IdCard,
   UserPlus,
-  Filter,
   RefreshCw,
   UserCheck,
   UserX
@@ -50,9 +49,6 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [levelFilter, setLevelFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
 
   // Edit User Modal
@@ -265,31 +261,12 @@ export default function AdminUsersPage() {
     });
   };
 
-  const getInitials = (name?: string, email?: string) => {
-    if (name && name.trim()) {
-      const parts = name.trim().split(' ');
-      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-      return name.slice(0, 2).toUpperCase();
-    }
-    if (email) return email.slice(0, 2).toUpperCase();
-    return 'U';
-  };
+  const filteredUsers = users;
 
-  const filteredUsers = users.filter((u) => {
-    if (roleFilter !== 'all' && u.role !== roleFilter) return false;
-    if (levelFilter !== 'all' && (u.category || 'A1') !== levelFilter) return false;
-    if (statusFilter === 'active' && u.isActive === false) return false;
-    if (statusFilter === 'inactive' && u.isActive !== false) return false;
-    return true;
-  });
-
-  const hasActiveFilters = search || roleFilter !== 'all' || levelFilter !== 'all' || statusFilter !== 'all';
+  const hasActiveFilters = Boolean(search);
 
   const resetFilters = () => {
     setSearch('');
-    setRoleFilter('all');
-    setLevelFilter('all');
-    setStatusFilter('all');
     setPagination((p) => ({ ...p, page: 1 }));
   };
 
@@ -319,78 +296,8 @@ export default function AdminUsersPage() {
           )}
         </div>
 
-        {/* Filter Controls Row */}
+        {/* Actions */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Role Filter */}
-          <div className="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-200/80">
-            <span className="text-[11px] font-bold text-gray-500 uppercase px-2">Role:</span>
-            {['all', 'student', 'mentor', 'admin'].map((r) => (
-              <button
-                key={r}
-                onClick={() => setRoleFilter(r)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
-                  roleFilter === r
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/80'
-                }`}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-
-          {/* CEFR Level Filter */}
-          <div className="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-200/80">
-            <span className="text-[11px] font-bold text-gray-500 uppercase px-2">Level:</span>
-            {['all', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((lvl) => (
-              <button
-                key={lvl}
-                onClick={() => setLevelFilter(lvl)}
-                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  levelFilter === lvl
-                    ? 'bg-amber-400 text-emerald-950 shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/80'
-                }`}
-              >
-                {lvl}
-              </button>
-            ))}
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-200/80">
-            <span className="text-[11px] font-bold text-gray-500 uppercase px-2">Status:</span>
-            {[
-              { key: 'all', label: 'All' },
-              { key: 'active', label: 'Active' },
-              { key: 'inactive', label: 'Inactive' },
-            ].map((s) => (
-              <button
-                key={s.key}
-                onClick={() => setStatusFilter(s.key)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  statusFilter === s.key
-                    ? s.key === 'inactive'
-                      ? 'bg-rose-500 text-white shadow-xs'
-                      : 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/80'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Reset Filters button */}
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200/60 transition-colors"
-            >
-              Clear Filters
-            </button>
-          )}
-
           {/* Refresh button */}
           <button
             onClick={fetchUsers}
@@ -459,7 +366,6 @@ export default function AdminUsersPage() {
               ) : (
                 filteredUsers.map((u, idx) => {
                   const studentUuid = formatStudentUuid(u, idx);
-                  const initials = getInitials(u.name, u.email);
                   return (
                     <tr key={u._id} className="hover:bg-emerald-50/30 transition-colors">
                       <td className="px-4 py-3.5">
@@ -469,15 +375,10 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                            {initials}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{u.name}</div>
-                            <div className="text-xs text-gray-400 truncate">
-                              {u.email || (u.phoneNumber ? `+${u.phoneNumber}` : 'No email')}
-                            </div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{u.name}</div>
+                          <div className="text-xs text-gray-400 truncate">
+                            {u.email || (u.phoneNumber ? `+${u.phoneNumber}` : 'No email')}
                           </div>
                         </div>
                       </td>

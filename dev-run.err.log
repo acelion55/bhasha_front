@@ -1,0 +1,42 @@
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+⨯ ReferenceError: Sparkles is not defined
+    at BottomNav (components\layout\bottom-nav.tsx:14:46)
+  12 |     { name: 'Courses', path: '/features', icon: BookOpen },
+  13 |     { name: 'Classes', path: '/classes', icon: Layers }, 
+> 14 |     { name: 'Method', path: '/method', icon: Sparkles },
+     |                                              ^
+  15 |   ];
+  16 |
+  17 |   return ( {
+  digest: '268752712'
+}
+[browser] Uncaught ReferenceError: Sparkles is not defined
+    at BottomNav (components/layout/bottom-nav.tsx:14:46)
+    at PublicLayout (app\(public)\layout.tsx:11:7)
+  12 |     { name: 'Courses', path: '/features', icon: BookOpen },
+  13 |     { name: 'Classes', path: '/classes', icon: Layers }, 
+> 14 |     { name: 'Method', path: '/method', icon: Sparkles },
+     |                                              ^
+  15 |   ];
+  16 |
+  17 |   return (
+[browser] Uncaught ReferenceError: Sparkles is not defined
+    at BottomNav (components/layout/bottom-nav.tsx:14:46)
+    at PublicLayout (app\(public)\layout.tsx:11:7)
+  12 |     { name: 'Courses', path: '/features', icon: BookOpen },
+  13 |     { name: 'Classes', path: '/classes', icon: Layers }, 
+> 14 |     { name: 'Method', path: '/method', icon: Sparkles },
+     |                                              ^
+  15 |   ];
+  16 |
+  17 |   return (
+⚠ Fast Refresh had to perform a full reload due to a runtime error.

@@ -10,9 +10,12 @@ import {
   LayoutGrid, Book, Settings, Check
 } from 'lucide-react';
 import GooeyBackground from '@/components/effects/GooeyBackground';
+import TrialBookingForm from '@/components/TrialBookingForm';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState('A1');
+  const [trialFormOpen, setTrialFormOpen] = useState(false);
+  const [mentorFormOpen, setMentorFormOpen] = useState(false);
 
   // Reusable animation variants
   const fadeIn: Variants = {
@@ -262,43 +265,6 @@ export default function HomePage() {
         </motion.div>
 
         {/* ── HIGHLIGHTED B1/B2 (DESKTOP FLEX) ── */}
-        <motion.div 
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}
-          className="content-card bg-[var(--white)] border border-[var(--ceramic)] shadow-md mt-[2vh] flex flex-col md:flex-row gap-[4vw] items-center p-[4vw]"
-        >
-          <div className="flex-1">
-            <span className="small-text font-bold text-[var(--house-green)] uppercase tracking-widest bg-[var(--gold)] px-[1vw] py-[0.5vh] rounded-[4px] inline-block mb-[2vh]">Highlighted for B1 & B2</span>
-            <h2 className="display-text text-[var(--text-black)] mb-2">Dedicated Speaking Practice</h2>
-            <p className="h2-text font-normal text-[var(--text-black-soft)] italic mb-[3vh]">
-              "From knowing the language to actually speaking it."
-            </p>
-            <div className="flex flex-wrap gap-[1vw] mb-[3vh]">
-              {[
-                { label: 'Everyday Communication', icon: MessageCircle },
-                { label: 'Group Discussions', icon: Users },
-                { label: 'Course Topic Debates', icon: BookOpen },
-                { label: 'Vocabulary Boost', icon: Zap },
-                { label: 'Fluency & Confidence', icon: Target },
-                { label: 'Real-life Scenarios', icon: Plane }
-              ].map((b, i) => (
-                 <span key={i} className="body-text text-[var(--text-black)] bg-[var(--neutral-warm)] border border-[var(--ceramic)] px-[1.5vw] py-[1vh] rounded-[50px] flex items-center gap-2">
-                   <b.icon className="w-4 h-4 text-[var(--starbucks-green)]" /> {b.label}
-                 </span>
-              ))}
-            </div>
-          </div>
-          <div className="flex-1 w-full bg-[var(--neutral-warm)] border border-[var(--ceramic)] p-[3vw] rounded-[16px] shadow-sm flex flex-col justify-center items-center text-center gap-[2vh]">
-            <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="w-[80px] h-[80px] bg-[var(--starbucks-green)] rounded-full flex items-center justify-center text-[var(--white)] shadow-inner mb-2">
-              <Mic className="w-10 h-10" />
-            </motion.div>
-            <div>
-              <p className="h2-text text-[var(--text-black)] m-0 mb-1">Daily Speaking Room #4</p>
-              <p className="body-text text-[var(--text-black-soft)] m-0 bg-[var(--white)] px-4 py-2 rounded-[50px] inline-flex font-medium border border-[var(--ceramic)]">Topic: Berufliche Zukunft in Deutschland</p>
-            </div>
-            <motion.button whileHover={{ scale: 1.05 }} className="btn-primary !bg-[var(--gold)] !border-[var(--gold)] !text-[var(--house-green)] px-[4vw] mt-2 shadow-lg">Join Live Room Now</motion.button>
-          </div>
-        </motion.div>
-
         {/* ── EXAM PREP MASTERCLASS (DESKTOP 4-GRID) ── */}
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="mt-[2vh]">
           <div className="flex justify-between items-end mb-2">
@@ -378,11 +344,11 @@ export default function HomePage() {
            
            <div className="flex-[0.8] w-full bg-[rgba(255,255,255,0.05)] p-[3vw] rounded-[16px] border border-[rgba(255,255,255,0.1)] backdrop-blur-md relative z-10">
              <div className="space-y-[2vh] w-full">
-               <motion.button whileHover={{ scale: 1.05 }} className="btn-primary !w-full !bg-[var(--gold)] !border-[var(--gold)] !text-[var(--house-green)] flex justify-between items-center px-[2vw] py-[2vh] text-[1.8rem] shadow-lg">
+               <motion.button onClick={() => setTrialFormOpen(true)} whileHover={{ scale: 1.05 }} className="btn-primary !w-full !bg-[var(--gold)] !border-[var(--gold)] !text-[var(--house-green)] flex justify-between items-center px-[2vw] py-[2vh] text-[1.8rem] shadow-lg cursor-pointer">
                  <span>Book Free Trial & Placement</span>
                  <span className="text-[2rem]">→</span>
                </motion.button>
-               <motion.button whileHover={{ scale: 1.05 }} className="btn-outline !w-full !text-[var(--white)] !border-[var(--white)] flex justify-center items-center gap-3 py-[2vh] text-[1.8rem] hover:bg-[rgba(255,255,255,0.1)]">
+               <motion.button onClick={() => setMentorFormOpen(true)} whileHover={{ scale: 1.05 }} className="btn-outline !w-full !text-[var(--white)] !border-[var(--white)] flex justify-center items-center gap-3 py-[2vh] text-[1.8rem] hover:bg-[rgba(255,255,255,0.1)] cursor-pointer">
                  <MessageCircle className="w-6 h-6" /> Chat with Academic Mentor
                </motion.button>
              </div>
@@ -395,6 +361,9 @@ export default function HomePage() {
         </motion.div>
 
       </div>
+
+      <TrialBookingForm type="trial" isOpen={trialFormOpen} onClose={() => setTrialFormOpen(false)} />
+      <TrialBookingForm type="mentor" isOpen={mentorFormOpen} onClose={() => setMentorFormOpen(false)} />
 
     </main>
   );
