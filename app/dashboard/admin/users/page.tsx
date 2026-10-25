@@ -14,8 +14,8 @@ import {
   IdCard,
   UserPlus,
   RefreshCw,
-  UserCheck,
-  UserX
+  Phone,
+  Languages
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -24,10 +24,12 @@ interface User {
   name: string;
   email?: string;
   phoneNumber?: string;
-  role: 'admin' | 'student' | 'mentor' | 'user';
+  role: 'admin' | 'student' | 'mentor' | 'teacher' | 'user';
   category?: string;
+  language?: string;
   studentId?: string;
   isActive?: boolean;
+  isSubscribed?: boolean;
   tenantId: string;
   createdAt: string;
   updatedAt: string;
@@ -53,14 +55,17 @@ export default function AdminUsersPage() {
 
   // Edit User Modal
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [saving, setSaving] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
     phoneNumber: '',
     role: 'student',
     category: 'A1',
+    language: 'German',
     studentId: '',
     isActive: true,
+    isSubscribed: false,
   });
 
   // Create User Modal
@@ -72,7 +77,9 @@ export default function AdminUsersPage() {
     password: '',
     role: 'student',
     category: 'A1',
+    language: 'German',
     studentId: '',
+    isSubscribed: false,
   });
   const [creating, setCreating] = useState(false);
 
@@ -128,44 +135,82 @@ export default function AdminUsersPage() {
       password: '',
       role: 'student',
       category: 'A1',
+      language: 'German',
       studentId: autogenUuid,
+      isSubscribed: false,
     });
     setShowCreateModal(true);
-  };
-
-  const handleRegenerateCreateUuid = () => {
-    const autogenUuid = generateNewStudentUuid();
-    setCreateForm((prev) => ({ ...prev, studentId: autogenUuid }));
-    toast.success('Generated new Student UUID: ' + autogenUuid);
   };
 
   const handleOpenEdit = (u: User, idx: number) => {
     setEditingUser(u);
     const defaultUuid = formatStudentUuid(u, idx);
+    const digits = (u.phoneNumber || '').replace(/\D/g, '');
     setEditForm({
       name: u.name,
       email: u.email || '',
-      phoneNumber: u.phoneNumber || '',
+      phoneNumber: digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits.slice(-10),
       role: u.role || 'student',
-      category: u.category || 'A1',
+      category: ['A1', 'A2', 'B1', 'B2', 'All'].includes(u.category || '') ? u.category! : (u.category || 'A1'),
+      language: u.language || 'German',
       studentId: u.studentId || defaultUuid,
       isActive: u.isActive !== false,
+      isSubscribed: u.isSubscribed === true,
     });
   };
 
   const handleUpdate = async () => {
     if (!editingUser) return;
-    if (!editForm.name.trim() || editForm.name.trim().length < 2 || editForm.name.trim().length > 50) {
+    const trimmedName = editForm.name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
       toast.error('Name must be between 2 and 50 characters');
       return;
     }
+    const trimmedEmail = editForm.email.trim();
+    if (trimmedEmail && (!trimmedEmail.includes('@') || trimmedEmail.length > 80)) {
+      toast.error('Enter a valid email address (max 80 characters)');
+      return;
+    }
+    if (editForm.phoneNumber && editForm.phoneNumber.length !== 10) {
+      toast.error('Phone number must be 10 digits');
+      return;
+    }
+
+    const payload: Record<string, unknown> = {
+      name: trimmedName,
+      email: trimmedEmail,
+      role: editForm.role,
+      category: editForm.category,
+      language: editForm.language,
+      studentId: editForm.studentId,
+      isActive: editForm.isActive,
+      isSubscribed: editForm.isSubscribed,
+    };
+    if (editForm.phoneNumber) payload.phoneNumber = editForm.phoneNumber;
+
+    setSaving(true);
     try {
-      await api.put(`/admin/users/${editingUser._id}`, editForm);
+      await api.put(`/admin/users/${editingUser._id}`, payload);
       toast.success('User updated successfully!');
       setEditingUser(null);
       fetchUsers();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update user');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleSubscription = async (u: User) => {
+    const nextSubscribed = u.isSubscribed !== true;
+    try {
+      await api.put(`/admin/users/${u._id}`, { isSubscribed: nextSubscribed });
+      setUsers((prev) =>
+        prev.map((item) => (item._id === u._id ? { ...item, isSubscribed: nextSubscribed } : item)),
+      );
+      toast.success(nextSubscribed ? 'Course subscription activated' : 'Course subscription deactivated');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update subscription status');
     }
   };
 
@@ -206,6 +251,7 @@ export default function AdminUsersPage() {
         email: trimmedEmail,
         phoneNumber: phoneDigits,
         studentId: studentIdToSend,
+        isSubscribed: createForm.isSubscribed,
       });
       toast.success('New user created successfully!');
       setShowCreateModal(false);
@@ -216,7 +262,9 @@ export default function AdminUsersPage() {
         password: '',
         role: 'student',
         category: 'A1',
+        language: 'German',
         studentId: '',
+        isSubscribed: false,
       });
       fetchUsers();
     } catch (err: any) {
@@ -326,8 +374,11 @@ export default function AdminUsersPage() {
               <tr>
                 <th className="px-4 py-3 w-[180px]">Student UUID</th>
                 <th className="px-4 py-3 min-w-[240px]">User Details</th>
+                <th className="px-4 py-3 w-[160px]">Phone Number</th>
                 <th className="px-4 py-3 w-[130px]">Role</th>
+                <th className="px-4 py-3 w-[120px]">Language</th>
                 <th className="px-4 py-3 w-[140px]">CEFR Level</th>
+                <th className="px-4 py-3 w-[145px]">Course Access</th>
                 <th className="px-4 py-3 w-[140px]">Joined Date</th>
                 <th className="px-4 py-3 w-[210px] text-right">Actions</th>
               </tr>
@@ -335,7 +386,7 @@ export default function AdminUsersPage() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-xs font-bold text-gray-400">
+                  <td colSpan={9} className="px-4 py-12 text-center text-xs font-bold text-gray-400">
                     <div className="flex flex-col items-center gap-2">
                       <RefreshCw className="w-5 h-5 text-emerald-600 animate-spin" />
                       <span>Loading user records...</span>
@@ -344,7 +395,7 @@ export default function AdminUsersPage() {
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center">
+                  <td colSpan={9} className="px-4 py-12 text-center">
                     <div className="max-w-xs mx-auto text-center space-y-2">
                       <p className="text-sm font-bold text-gray-800">No users found</p>
                       <p className="text-xs text-gray-400">
@@ -378,16 +429,26 @@ export default function AdminUsersPage() {
                         <div className="min-w-0">
                           <div className="font-bold text-gray-900 text-xs sm:text-sm truncate">{u.name}</div>
                           <div className="text-xs text-gray-400 truncate">
-                            {u.email || (u.phoneNumber ? `+${u.phoneNumber}` : 'No email')}
+                            {u.email || 'No email'}
                           </div>
                         </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        {u.phoneNumber ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 whitespace-nowrap">
+                            <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                            +{u.phoneNumber}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium text-gray-400">No phone</span>
+                        )}
                       </td>
                       <td className="px-4 py-3.5">
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded-md text-[11px] font-extrabold uppercase tracking-wide border ${
                             u.role === 'admin'
                               ? 'bg-purple-50 text-purple-700 border-purple-200'
-                              : u.role === 'mentor'
+                              : u.role === 'mentor' || u.role === 'teacher'
                               ? 'bg-amber-50 text-amber-900 border-amber-200'
                               : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           }`}
@@ -396,10 +457,63 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-100/70 text-emerald-900 font-bold text-xs">
-                          <GraduationCap className="w-3.5 h-3.5 text-emerald-700" />
-                          <span>{u.category || 'A1'}</span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-900 font-bold text-xs border border-sky-200">
+                          <Languages className="w-3.5 h-3.5 text-sky-700" />
+                          <span>{u.language || 'German'}</span>
                         </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-xs ${
+                            u.role === 'mentor' || u.role === 'teacher'
+                              ? 'bg-amber-100/90 text-amber-900 border border-amber-200'
+                              : 'bg-emerald-100/70 text-emerald-900'
+                          }`}
+                        >
+                          <GraduationCap
+                            className={`w-3.5 h-3.5 ${
+                              u.role === 'mentor' || u.role === 'teacher'
+                                ? 'text-amber-700'
+                                : 'text-emerald-700'
+                            }`}
+                          />
+                          <span>
+                            {u.role === 'mentor' || u.role === 'teacher'
+                              ? `${u.role === 'mentor' ? 'Mentor' : 'Teacher'}: ${
+                                  u.category === 'All' ? 'All Levels' : u.category || 'A1'
+                                }`
+                              : u.category || 'A1'}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={u.isSubscribed === true}
+                            onClick={() => handleToggleSubscription(u)}
+                            title={u.isSubscribed ? 'Deactivate course subscription' : 'Activate course subscription'}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none ${
+                              u.isSubscribed ? 'bg-emerald-600' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span
+                              className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                                u.isSubscribed ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                          <span
+                            className={`text-[11px] font-extrabold px-2 py-0.5 rounded ${
+                              u.isSubscribed
+                                ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                                : 'bg-gray-100 text-gray-500 border border-gray-200'
+                            }`}
+                          >
+                            {u.isSubscribed ? 'Paid Access' : 'Locked'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3.5 text-xs font-medium text-gray-600">
                         {formatDate(u.createdAt)}
@@ -575,32 +689,6 @@ export default function AdminUsersPage() {
                 />
               </div>
 
-              {/* Auto-generated Student UUID */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Student UUID <span className="text-red-500">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    required
-                    readOnly
-                    value={createForm.studentId}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 text-xs font-medium cursor-not-allowed"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRegenerateCreateUuid}
-                    className="shrink-0 px-3 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-                    title="Generate a new UUID"
-                    aria-label="Generate a new UUID"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </button>
-                </div>
-                <p className="mt-1 text-[11px] text-gray-400">Generated automatically. Admin cannot type this field.</p>
-              </div>
-
               {/* Role & Level */}
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
@@ -615,28 +703,99 @@ export default function AdminUsersPage() {
                   >
                     <option value="student">Student</option>
                     <option value="mentor">Mentor</option>
+                    <option value="teacher">Teacher</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Level <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center justify-between">
+                    <span>
+                      {createForm.role === 'mentor' || createForm.role === 'teacher'
+                        ? `${createForm.role === 'mentor' ? 'Mentor' : 'Teacher'} Level`
+                        : 'Level'}{' '}
+                      <span className="text-red-500">*</span>
+                    </span>
+                    {(createForm.role === 'mentor' || createForm.role === 'teacher') && (
+                      <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                        Target Cohort
+                      </span>
+                    )}
                   </label>
                   <select
                     required
                     value={createForm.category}
                     onChange={(e) => setCreateForm({ ...createForm, category: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-emerald-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-bold transition-all"
+                    className={`w-full px-3 py-2.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-1 ${
+                      createForm.role === 'mentor' || createForm.role === 'teacher'
+                        ? 'border-amber-300 bg-amber-50/50 text-amber-950 focus:border-amber-600 focus:ring-amber-200'
+                        : 'border-gray-200 bg-white text-emerald-900 focus:border-emerald-600 focus:ring-emerald-200'
+                    }`}
                   >
-                    <option value="A1">A1 Beginner</option>
+                    <option value="A1">A1 Beginner (Baustein & Basics)</option>
                     <option value="A2">A2 Elementary</option>
-                    <option value="B1">B1 Intermediate</option>
+                    <option value="B1">B1 Intermediate (Exam Prep)</option>
                     <option value="B2">B2 Upper Intermediate</option>
-                    <option value="C1">C1 Advanced</option>
-                    <option value="C2">C2 Mastery</option>
+                    <option value="All">All Levels (All Students)</option>
                   </select>
                 </div>
+              </div>
+              {(createForm.role === 'mentor' || createForm.role === 'teacher') && (
+                <p className="-mt-2 text-[11px] text-amber-800 font-semibold bg-amber-50/80 p-2 rounded-lg border border-amber-200/60">
+                  ⚡ Assigned to guide and mentor <strong>{createForm.category === 'All' ? 'All' : createForm.category} Level</strong> {createForm.language} students.
+                </p>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Course Language <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={createForm.language}
+                  onChange={(e) => setCreateForm({ ...createForm, language: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
+                >
+                  <option value="German">German</option>
+                  <option value="English">English</option>
+                  <option value="Spanish">Spanish</option>
+                </select>
+              </div>
+
+              {/* Subscription Paid Access Toggle */}
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50/40 px-3.5 py-3 shadow-2xs">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold text-gray-800">Paid Subscription</p>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                        createForm.isSubscribed
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200'
+                      }`}
+                    >
+                      {createForm.isSubscribed ? 'Active Access' : 'Locked'}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-gray-500">
+                    If enabled, user can view and join all live cohort batches immediately.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={createForm.isSubscribed}
+                  onClick={() => setCreateForm({ ...createForm, isSubscribed: !createForm.isSubscribed })}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none ${
+                    createForm.isSubscribed ? 'bg-emerald-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                      createForm.isSubscribed ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
 
@@ -644,7 +803,7 @@ export default function AdminUsersPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="px-4.5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors"
               >
                 Cancel
               </button>
@@ -663,11 +822,25 @@ export default function AdminUsersPage() {
       {/* EDIT USER MODAL */}
       {editingUser && (
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-emerald-100 rounded-2xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
-              <h3 className="text-base font-extrabold text-gray-900">Edit User</h3>
-              <button 
-                onClick={() => setEditingUser(null)} 
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUpdate();
+            }}
+            className="bg-white border border-emerald-100 rounded-2xl w-full max-w-2xl p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-gray-100 pb-3.5">
+              <div>
+                <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                  <Edit className="w-4 h-4 text-emerald-600" /> Edit User
+                </h3>
+                <p className="mt-0.5 text-[11px] font-medium text-gray-400">
+                  {editingUser.studentId || editForm.studentId}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
                 className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 aria-label="Close"
               >
@@ -676,23 +849,38 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="space-y-4">
-              {/* Full Name */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  minLength={2}
-                  maxLength={50}
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    minLength={2}
+                    maxLength={50}
+                    placeholder="Rahul Sharma"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    maxLength={80}
+                    placeholder="name@example.com"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  />
+                </div>
               </div>
 
-              {/* Phone Number (login) */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
                   Phone Number
@@ -702,18 +890,22 @@ export default function AdminUsersPage() {
                   <input
                     type="tel"
                     inputMode="numeric"
-                    maxLength={12}
+                    maxLength={10}
                     placeholder="98765 43210"
                     value={editForm.phoneNumber}
-                    onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        phoneNumber: e.target.value.replace(/\D/g, '').slice(0, 10),
+                      })
+                    }
                     className="w-full pl-11 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-gray-400">Leave blank to keep the current number.</p>
+                <p className="mt-1 text-[11px] text-gray-400">Used to log in.</p>
               </div>
 
-              {/* Role & Level */}
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1.5">
                     Role
@@ -722,66 +914,127 @@ export default function AdminUsersPage() {
                     required
                     value={editForm.role}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
                   >
                     <option value="student">Student</option>
                     <option value="mentor">Mentor</option>
+                    <option value="teacher">Teacher</option>
                     <option value="admin">Administrator</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Level
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5 flex items-center justify-between">
+                    <span>
+                      {editForm.role === 'mentor' || editForm.role === 'teacher'
+                        ? `${editForm.role === 'mentor' ? 'Mentor' : 'Teacher'} Level`
+                        : 'CEFR Level'}
+                    </span>
+                    {(editForm.role === 'mentor' || editForm.role === 'teacher') && (
+                      <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">
+                        Target Cohort
+                      </span>
+                    )}
                   </label>
                   <select
                     required
                     value={editForm.category}
                     onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-emerald-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-bold transition-all"
+                    className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all focus:outline-none focus:ring-1 ${
+                      editForm.role === 'mentor' || editForm.role === 'teacher'
+                        ? 'border-amber-300 bg-amber-50/50 text-amber-950 focus:border-amber-600 focus:ring-amber-200'
+                        : 'border-gray-200 bg-white text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-emerald-200'
+                    }`}
                   >
-                    <option value="A1">A1 Beginner</option>
+                    <option value="A1">A1 Beginner (Baustein & Basics)</option>
                     <option value="A2">A2 Elementary</option>
-                    <option value="B1">B1 Intermediate</option>
+                    <option value="B1">B1 Intermediate (Exam Prep)</option>
                     <option value="B2">B2 Upper Intermediate</option>
-                    <option value="C1">C1 Advanced</option>
-                    <option value="C2">C2 Mastery</option>
+                    <option value="All">All Levels (All Students & Cohorts)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Course Language
+                  </label>
+                  <select
+                    required
+                    value={editForm.language}
+                    onChange={(e) => setEditForm({ ...editForm, language: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
+                  >
+                    <option value="German">German</option>
+                    <option value="English">English</option>
+                    <option value="Spanish">Spanish</option>
                   </select>
                 </div>
               </div>
 
-              {/* Account Status */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Account Status
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditForm({ ...editForm, isActive: true })}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition-all ${
-                      editForm.isActive
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-200'
-                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    <UserCheck className="w-3.5 h-3.5" /> Active
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditForm({ ...editForm, isActive: false })}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition-all ${
-                      !editForm.isActive
-                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-200'
-                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    <UserX className="w-3.5 h-3.5" /> Inactive
-                  </button>
+              {(editForm.role === 'mentor' || editForm.role === 'teacher') && (
+                <div className="bg-amber-50/80 border border-amber-200/70 rounded-xl p-3 text-xs text-amber-900 font-medium">
+                  <span className="font-extrabold text-amber-950">Level Assignment:</span> This {editForm.role} is configured for <strong>{editForm.category === 'All' ? 'All' : editForm.category} Level</strong> {editForm.language} students. In their mentor studio, they will see and manage classes designated for this student level.
                 </div>
-                <p className="mt-1 text-[11px] text-gray-400">
-                  Inactive users cannot log in until reactivated.
-                </p>
+              )}
+
+              {/* Subscription Paid Access On/Off Button */}
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50/40 px-3.5 py-3 shadow-2xs">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold text-gray-800">Paid Course Subscription</p>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                        editForm.isSubscribed
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200'
+                      }`}
+                    >
+                      {editForm.isSubscribed ? 'Paid Access Active' : 'Locked / Unpaid'}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] text-gray-500">
+                    When turned ON, classes in Classes Studio will unlock and show up for this user.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={editForm.isSubscribed}
+                  onClick={() => setEditForm({ ...editForm, isSubscribed: !editForm.isSubscribed })}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                    editForm.isSubscribed ? 'bg-emerald-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute left-0.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                      editForm.isSubscribed ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 px-3.5 py-3">
+                <div>
+                  <p className="text-xs font-bold text-gray-800">Account Active</p>
+                  <p className="mt-0.5 text-[11px] text-gray-400">
+                    Inactive users cannot log in until reactivated.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={editForm.isActive}
+                  onClick={() => setEditForm({ ...editForm, isActive: !editForm.isActive })}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 ${
+                    editForm.isActive ? 'bg-emerald-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute left-0.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                      editForm.isActive ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
 
@@ -789,19 +1042,19 @@ export default function AdminUsersPage() {
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
-                className="px-4.5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
-                type="button"
-                onClick={handleUpdate}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm shadow-emerald-200 transition-all"
+                type="submit"
+                disabled={saving}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm shadow-emerald-200 disabled:opacity-50 transition-all"
               >
-                Save Changes
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </div>

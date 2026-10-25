@@ -14,9 +14,11 @@ import {
   Calendar,
   Layers,
   BarChart3,
+  Inbox,
   CheckCircle2,
   CreditCard,
-  BookOpen
+  BookOpen,
+  MessagesSquare
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Navigation tabs based on user role
   const studentNav = [
     { name: 'My Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
+    { name: 'Language Exchange', shortName: 'Chat', path: '/dashboard/student/chat', icon: MessagesSquare },
     { name: 'Completed Classes', shortName: 'Completed', path: '/dashboard/student/completed', icon: CheckCircle2 },
     { name: 'Payments & Plans', shortName: 'Payments', path: '/dashboard/student/payments', icon: CreditCard },
     { name: 'Profile & Category', shortName: 'Profile', path: '/dashboard/profile', icon: User },
@@ -63,6 +66,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Users Engine', shortName: 'Users', path: '/dashboard/admin/users', icon: Users },
     { name: 'Analytics', shortName: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
     { name: 'Classes Studio', shortName: 'Classes', path: '/dashboard/admin/classes', icon: Layers },
+    { name: 'Public Classes', shortName: 'Public', path: '/dashboard/admin/masterclasses', icon: Calendar },
+    { name: 'Leads', shortName: 'Leads', path: '/dashboard/admin/leads', icon: Inbox },
     { name: 'Courses & Fees', shortName: 'Courses', path: '/dashboard/admin/courses', icon: BookOpen },
     { name: 'Blog Posts', shortName: 'Blogs', path: '/dashboard/admin/blogs', icon: FileText },
   ];
@@ -70,12 +75,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   let navItems = studentNav;
   if (user.role === 'admin') {
     navItems = adminNav;
-  } else if (user.role === 'mentor') {
+  } else if (user.role === 'mentor' || user.role === 'teacher') {
     navItems = mentorNav;
   }
 
   return (
-    <div className={`h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] ${user.role === 'admin' ? 'admin-panel' : ''}`}>
+    <div className={`h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] dashboard-mobile-type ${user.role === 'admin' ? 'admin-panel' : user.role === 'mentor' || user.role === 'teacher' ? '' : 'student-panel'}`}>
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-screen overflow-hidden text-gray-200">
@@ -172,7 +177,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               key={item.path}
               href={item.path}
-              className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all ${
+              className={`flex flex-col items-center justify-center py-1 ${navItems.length > 5 ? 'px-1.5' : 'px-3'} rounded-xl transition-all ${
                 isActive
                   ? 'text-emerald-400 font-black'
                   : 'text-gray-400 hover:text-gray-200 font-bold'

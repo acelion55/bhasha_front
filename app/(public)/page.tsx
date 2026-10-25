@@ -36,7 +36,7 @@ export default function HomePage() {
     <main className="min-h-vh w-[100vw] flex flex-col items-center bg-[var(--neutral-warm)] pb-[10vh] overflow-x-hidden">
       
       {/* Main Container Wrapper */}
-      <div className="w-full max-w-[1200px] px-[5vw] md:px-[2vw] py-[4vh] flex flex-col gap-[6vh]">
+      <div className="w-full max-w-none px-[5vw] md:px-[3vw] lg:px-[4vw] py-[4vh] flex flex-col gap-[6vh]">
         
         {/* ── HERO & HIGHLIGHTS ROW (DESKTOP SPLIT) ── */}
         <div className="flex flex-col md:flex-row gap-[4vw] items-stretch">
@@ -62,7 +62,7 @@ export default function HomePage() {
             <motion.div variants={popIn} whileHover={{ y: -5 }} className="content-card bg-[var(--house-green)] border-none text-[var(--white)] relative overflow-hidden flex-1 shadow-xl">
               <GraduationCap className="absolute right-[-20px] top-[-20px] opacity-10 w-[200px] h-[200px] text-white" />
               <span className="small-text font-bold text-[var(--gold-light)] uppercase tracking-widest mb-1">Live Cohort System</span>
-              <h2 className="h1-text text-[var(--white)] mb-2">From Beginner to Career-Ready Fluency</h2>
+              <h2 className="h1-text mb-2" style={{ color: 'var(--white)' }}>From Beginner to Career-Ready Fluency</h2>
               <p className="body-text text-[var(--text-white-soft)] mb-6 max-w-[80%]">Next batch starts Monday • Small batches (max 10)</p>
               
               <div className="flex justify-between items-center relative z-10 w-full border-t border-[rgba(255,255,255,0.1)] pt-[2vh] mt-auto">

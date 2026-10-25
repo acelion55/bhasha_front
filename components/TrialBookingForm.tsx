@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, AlertCircle, Check } from 'lucide-react';
+import { X, AlertCircle, Check, CalendarCheck, MessageCircle } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -86,7 +86,6 @@ export default function TrialBookingForm({ type, isOpen, onClose }: { type: 'tri
     }
 
     try {
-      // Save to localStorage
       const leads = JSON.parse(localStorage.getItem('trial_mentor_leads') || '[]');
       const newLead = {
         id: Date.now().toString(),
@@ -124,8 +123,12 @@ export default function TrialBookingForm({ type, isOpen, onClose }: { type: 'tri
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--starbucks-green)] to-emerald-600 px-10 py-6 flex justify-between items-center rounded-t-2xl">
           <div>
-            <h2 className="text-3xl font-bold text-white">
-              {type === 'trial' ? '📅 Book Your Free Trial' : '💬 Chat with Academic Mentor'}
+            <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+              {type === 'trial' ? (
+                <><CalendarCheck className="w-7 h-7" /> Book Your Free Trial</>
+              ) : (
+                <><MessageCircle className="w-7 h-7" /> Chat with Academic Mentor</>
+              )}
             </h2>
             <p className="text-emerald-100 text-sm mt-1">Get personalized guidance from our experts</p>
           </div>
@@ -140,88 +143,94 @@ export default function TrialBookingForm({ type, isOpen, onClose }: { type: 'tri
         {/* Content */}
         <div className="p-8">
           {success ? (
-            <div className="text-center space-y-3 py-6">
+            <div className="text-center space-y-4 py-4">
               <div className="flex justify-center">
                 <div className="w-16 h-16 bg-[var(--green-light)] rounded-full flex items-center justify-center">
-                  <Check size={28} className="text-[var(--starbucks-green)]" />
+                  <Check size={32} className="text-[var(--starbucks-green)]" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-gray-800">Success! ✓</h3>
-              <p className="text-sm text-gray-600">
-                {type === 'trial'
-                  ? 'We\'ll contact you within 24 hours to confirm.'
-                  : 'A mentor will reach out to you soon!'}
-              </p>
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800">Success!</h3>
+                <p className="text-gray-600 mt-2">
+                  {type === 'trial'
+                    ? 'We\'ll contact you within 24 hours to confirm.'
+                    : 'A mentor will reach out to you soon!'}
+                </p>
+              </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded flex gap-3">
+                <div className="p-3 bg-red-50 border border-red-200 rounded flex gap-2">
                   <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
                   <span className="text-sm text-red-700">{error}</span>
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Your name"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Your name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Email *</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Phone (10 digits) *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Phone (10 digits) *</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="9876543210"
-                  maxLength="10"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Course *</label>
-                <select
-                  name="course"
-                  value={formData.course}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent bg-white"
-                >
-                  <option value="">Select course</option>
-                  {courses.map(course => (
-                    <option key={course} value={course}>{course}</option>
-                  ))}
-                </select>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Course *</label>
+                  <select
+                    name="course"
+                    value={formData.course}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent bg-white"
+                  >
+                    <option value="">Select course</option>
+                    {courses.map(course => (
+                      <option key={course} value={course}>{course}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {type === 'trial' && (
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Preferred Time *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Preferred Time *</label>
                   <select
                     name="preferredTime"
                     value={formData.preferredTime}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent bg-white"
                   >
                     <option value="">Select time</option>
                     {times.map(time => (
@@ -232,29 +241,29 @@ export default function TrialBookingForm({ type, isOpen, onClose }: { type: 'tri
               )}
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Message (Optional)</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Message (Optional)</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
                   placeholder="Tell us about your goals..."
-                  rows={3}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent resize-none"
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[var(--starbucks-green)] focus:border-transparent resize-none"
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-3 bg-[var(--starbucks-green)] text-white rounded-lg font-bold text-base hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-[var(--starbucks-green)] text-white rounded font-bold text-base hover:bg-emerald-700 transition-colors disabled:opacity-50"
                 >
                   {loading ? 'Submitting...' : 'Submit'}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-bold text-base hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded font-bold text-base hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>

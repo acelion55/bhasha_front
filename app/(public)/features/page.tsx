@@ -199,7 +199,7 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-[var(--neutral-warm)] pb-[10vh]">
       {/* Hero */}
       <section className="pt-[6vh] pb-[3vh] md:py-[8vh] text-center bg-gradient-to-b from-[var(--white)] to-[var(--neutral-warm)]">
-        <div className="max-w-[1200px] mx-auto px-[5vw] md:px-[2vw]">
+        <div className="max-w-none mx-auto px-[5vw] md:px-[3vw] lg:px-[4vw]">
           <div className="inline-flex items-center gap-2 px-[1.5vw] py-[0.5vh] rounded-[50px] bg-[var(--green-light)] border border-[var(--ceramic)] text-[var(--starbucks-green)] text-[1.4rem] font-bold mb-[3vh] shadow-sm">
             <BookOpen className="w-5 h-5" />
             German &amp; English Courses
@@ -215,7 +215,7 @@ export default function CoursesPage() {
       </section>
 
       {loading ? (
-        <section className="max-w-[1200px] mx-auto px-[5vw] md:px-[2vw] py-[4vh] grid grid-cols-1 md:grid-cols-2 gap-[4vw]">
+        <section className="max-w-none mx-auto px-[5vw] md:px-[3vw] lg:px-[4vw] py-[4vh] grid grid-cols-1 md:grid-cols-2 gap-[4vw]">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="content-card bg-white border border-[var(--ceramic)] animate-pulse h-[40vh]" />
           ))}
@@ -229,7 +229,7 @@ export default function CoursesPage() {
       ) : (
         <>
           {/* German structure */}
-          <section className="max-w-[1200px] mx-auto px-[5vw] md:px-[2vw] py-[4vh]">
+          <section className="max-w-none mx-auto px-[5vw] md:px-[3vw] lg:px-[4vw] py-[4vh]">
             <div className="flex items-center gap-[1.5vw] mb-[4vh]">
               <div className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center h2-text font-bold shadow-sm bg-[var(--green-light)] text-[var(--starbucks-green)] border-2 border-[var(--green-accent)]">
                 DE
@@ -293,7 +293,7 @@ export default function CoursesPage() {
 
           {/* English structure */}
           <section className="bg-[var(--white)] py-[8vh] mt-[5vh] border-y border-[var(--ceramic)]">
-            <div className="max-w-[1200px] mx-auto px-[5vw] md:px-[2vw]">
+            <div className="max-w-none mx-auto px-[5vw] md:px-[3vw] lg:px-[4vw]">
               <div className="flex items-center gap-[1.5vw] mb-[4vh]">
                 <div className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center h2-text font-bold shadow-sm bg-amber-100 text-amber-700 border-2 border-amber-300">
                   EN
@@ -336,7 +336,7 @@ export default function CoursesPage() {
 
       {/* CTA */}
       <section className="py-[10vh] text-center bg-[var(--neutral-warm)]">
-        <div className="max-w-xl mx-auto px-[5vw] md:px-[2vw]">
+        <div className="max-w-xl mx-auto px-[5vw] md:px-[3vw] lg:px-[4vw]">
           <h2 className="display-text text-[var(--text-black)] mb-[2vh] text-[4rem]">
             Not Sure Where to <span className="text-[var(--starbucks-green)]">Start?</span>
           </h2>

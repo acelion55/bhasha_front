@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { BarChart3, Check, Target, Timer } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'German for Beginners Online | Learn German from Scratch in India | BhashaSchool',
@@ -18,7 +19,7 @@ export default function GermanBeginnersPage() {
   return (
     <div className="min-h-screen bg-[#fdf8f3]">
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-[4vw] md:px-6 py-[8vh]">
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[6vh] items-center">
           <div className="space-y-[3vh]">
             <h1 className="text-[4rem] md:text-[3.5rem] font-bold text-[var(--text-black)] leading-tight">
@@ -43,7 +44,7 @@ export default function GermanBeginnersPage() {
       </section>
 
       {/* Course Highlights */}
-      <section className="max-w-7xl mx-auto px-[4vw] md:px-6 py-[8vh]">
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh]">
         <h2 className="text-[3rem] md:text-[2.5rem] font-bold text-[var(--text-black)] mb-[4vh]">What You'll Learn</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg border border-[var(--ceramic)] shadow-sm hover:shadow-md transition-shadow">
@@ -62,7 +63,7 @@ export default function GermanBeginnersPage() {
       </section>
 
       {/* Course Structure */}
-      <section className="max-w-7xl mx-auto px-[4vw] md:px-6 py-[8vh] bg-white rounded-lg my-[4vh]">
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh] bg-white rounded-lg my-[4vh]">
         <h2 className="text-[3rem] md:text-[2.5rem] font-bold text-[var(--text-black)] mb-[4vh]">Course Structure</h2>
         <div className="space-y-4">
           <div className="flex gap-4 items-start pb-4 border-b border-[var(--ceramic)]">
@@ -89,33 +90,69 @@ export default function GermanBeginnersPage() {
         </div>
       </section>
 
+      {/* German Learning Path */}
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh] bg-gradient-to-r from-[var(--starbucks-green)] to-emerald-600 text-white rounded-lg my-[4vh]">
+        <h2 className="text-[3rem] md:text-[2.5rem] font-bold mb-[4vh]">How the Full German Path Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[4vh]">
+          <div className="space-y-[2vh]">
+            <div>
+              <h3 className="text-[1.8rem] font-bold text-emerald-100">A1 Level</h3>
+              <p className="text-[1.4rem] mt-2 text-emerald-50">Completed in about <strong>30 days</strong>. Master basic vocabulary, greetings, and introductions.</p>
+            </div>
+            <div>
+              <h3 className="text-[1.8rem] font-bold text-emerald-100">A2 Level</h3>
+              <p className="text-[1.4rem] mt-2 text-emerald-50">Takes about <strong>40 days</strong>. Build on A1 with everyday conversations and expanded vocabulary.</p>
+            </div>
+            <div>
+              <h3 className="text-[1.8rem] font-bold text-emerald-100">B1 Level</h3>
+              <p className="text-[1.4rem] mt-2 text-emerald-50">Takes about <strong>50 days</strong> of training, plus <strong>10 days</strong> of exam preparation for B1 Telc or Goethe certification.</p>
+            </div>
+          </div>
+          <div className="space-y-[2vh] pt-[2vh]">
+            <div className="bg-white/10 backdrop-blur-sm border border-emerald-200/30 rounded-lg p-4">
+              <p className="flex items-center gap-2 text-[1.4rem] font-bold text-white mb-2"><BarChart3 className="w-4 h-4" /> Intermediate Path (A1–B1):</p>
+              <p className="text-[1.6rem] font-bold text-yellow-200">Roughly 150 days</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm border border-emerald-200/30 rounded-lg p-4">
+              <p className="flex items-center gap-2 text-[1.4rem] font-bold text-white mb-2"><Target className="w-4 h-4" /> B2 Certification:</p>
+              <p className="text-[1.4rem] text-emerald-50">Taught over 2 months in two parts — <strong>B2.1</strong> and <strong>B2.2</strong></p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm border border-emerald-200/30 rounded-lg p-4">
+              <p className="flex items-center gap-2 text-[1.4rem] font-bold text-white mb-2"><Timer className="w-4 h-4" /> Class Duration:</p>
+              <p className="text-[1.4rem] text-emerald-50"><strong>Baustein classes:</strong> 1 hour | <strong>Other classes:</strong> 1:30 hours</p>
+              <p className="text-[1.4rem] text-emerald-50 mt-2"><strong>Schedule:</strong> Monday to Friday</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Benefits */}
-      <section className="max-w-7xl mx-auto px-[4vw] md:px-6 py-[8vh]">
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh]">
         <h2 className="text-[3rem] md:text-[2.5rem] font-bold text-[var(--text-black)] mb-[4vh]">Why Choose BhashaSchool?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex gap-4 items-start">
-            <span className="text-[2rem] text-[var(--starbucks-green)]">✓</span>
+            <Check className="w-5 h-5 mt-1 flex-shrink-0 text-[var(--starbucks-green)]" />
             <div>
               <h3 className="text-[1.6rem] font-bold text-[var(--text-black)]">Certified Trainers from Germany</h3>
               <p className="text-[1.4rem] text-[var(--text-black-soft)] mt-2">Learn from native German speakers with international teaching credentials.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">
-            <span className="text-[2rem] text-[var(--starbucks-green)]">✓</span>
+            <Check className="w-5 h-5 mt-1 flex-shrink-0 text-[var(--starbucks-green)]" />
             <div>
               <h3 className="text-[1.6rem] font-bold text-[var(--text-black)]">Affordable Pricing for India</h3>
               <p className="text-[1.4rem] text-[var(--text-black-soft)] mt-2">Flexible payment plans designed for Indian learners. EMI options available.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">
-            <span className="text-[2rem] text-[var(--starbucks-green)]">✓</span>
+            <Check className="w-5 h-5 mt-1 flex-shrink-0 text-[var(--starbucks-green)]" />
             <div>
               <h3 className="text-[1.6rem] font-bold text-[var(--text-black)]">100% Online & Flexible</h3>
               <p className="text-[1.4rem] text-[var(--text-black-soft)] mt-2">Learn from anywhere in India. Recording of all classes available for revision.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">
-            <span className="text-[2rem] text-[var(--starbucks-green)]">✓</span>
+            <Check className="w-5 h-5 mt-1 flex-shrink-0 text-[var(--starbucks-green)]" />
             <div>
               <h3 className="text-[1.6rem] font-bold text-[var(--text-black)]">Certificate of Completion</h3>
               <p className="text-[1.4rem] text-[var(--text-black-soft)] mt-2">Internationally recognized certificate upon course completion.</p>
@@ -125,7 +162,7 @@ export default function GermanBeginnersPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-7xl mx-auto px-[4vw] md:px-6 py-[8vh] bg-[var(--starbucks-green)] text-white rounded-lg my-[4vh]">
+      <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh] bg-[var(--starbucks-green)] text-white rounded-lg my-[4vh]">
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Ready to Start Learning German?</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">Join thousands of Indian learners who have started their German language journey with BhashaSchool.</p>

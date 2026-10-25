@@ -1,12 +1,13 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Mail, Phone, MapPin, Clock, ChevronDown, ChevronUp, MessageSquare } from 'lucide-react';
+import { api } from '@/lib/api';
+import { ArrowRight, Mail, Phone, MapPin, Clock, ChevronDown, ChevronUp, MessageSquare, Award, Briefcase, GraduationCap, Landmark, MessageCircle, PartyPopper, ScrollText, ShieldCheck } from 'lucide-react';
 
 const campuses = [
-  { name: '🇩🇪 Berlin Schöneberg Campus', type: 'German + English', addr: 'Schöneberg, Berlin 10785', hours: 'Mon–Fri 08:00–20:00 CET', tag: 'Flagship', tagColor: 'bg-emerald-100 text-emerald-700' },
-  { name: '🇩🇪 Laufen Hub (Chiemsee)', type: 'Intensive German', addr: 'Laufen, Bavaria 83410', hours: 'Mon–Sat 07:30–19:00 CET', tag: 'Immersive', tagColor: 'bg-blue-100 text-blue-700' },
-  { name: '🇦🇹 Kufstein Advisory Studio', type: 'Business German', addr: 'Kufstein, Tirol 6330', hours: 'Tue–Sat 09:00–18:00 CET', tag: 'Advisory', tagColor: 'bg-emerald-100 text-emerald-700' },
+  { name: 'Berlin Schöneberg Campus', type: 'German + English', addr: 'Schöneberg, Berlin 10785', hours: 'Mon–Fri 08:00–20:00 CET', tag: 'Flagship', tagColor: 'bg-emerald-100 text-emerald-700' },
+  { name: 'Laufen Hub (Chiemsee)', type: 'Intensive German', addr: 'Laufen, Bavaria 83410', hours: 'Mon–Sat 07:30–19:00 CET', tag: 'Immersive', tagColor: 'bg-blue-100 text-blue-700' },
+  { name: 'Kufstein Advisory Studio', type: 'Business German', addr: 'Kufstein, Tirol 6330', hours: 'Tue–Sat 09:00–18:00 CET', tag: 'Advisory', tagColor: 'bg-emerald-100 text-emerald-700' },
 ];
 
 const faqs = [
@@ -18,14 +19,40 @@ const faqs = [
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', track: '', topic: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSending(true);
+    try {
+      await api.post('/leads', {
+        tenant_id: 'bhashaschool',
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        service_type: form.topic || 'General Enquiry',
+        lead_source: 'contact_us',
+        notes: form.track ? `Target: ${form.track}` : '',
+        message: form.message.trim(),
+      });
+      setSent(true);
+      setForm({ name: '', email: '', phone: '', track: '', topic: '', message: '' });
+    } catch {
+      setError('Could not send your message right now. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="bg-[#fdf8f3] overflow-x-hidden">
 
       {/* HERO */}
       <section style={{ minHeight: '38vh' }} className="hero-gradient flex items-center py-14 md:py-20">
-        <div style={{ maxWidth: '88vw' }} className="mx-auto px-4 w-full">
+        <div className="mx-auto px-4 md:px-8 lg:px-12 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-3">Get in Touch</p>
@@ -38,12 +65,12 @@ export default function ContactPage() {
             </div>
             <div className="hidden md:flex flex-col gap-3">
               {[
-                { icon: '📞', label: 'Call / WhatsApp Helpline', val: '+91 91053 26128' },
-                { icon: '💬', label: 'Student Admissions', val: '+91 91053 26128' },
-                { icon: '📬', label: 'Email Support', val: 'hello@bhashaschool.com' },
+                { icon: Phone, label: 'Call / WhatsApp Helpline', val: '+91 91053 26128' },
+                { icon: MessageCircle, label: 'Student Admissions', val: '+91 91053 26128' },
+                { icon: Mail, label: 'Email Support', val: 'hello@bhashaschool.com' },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-3 bg-white/70 backdrop-blur rounded-xl border border-emerald-100 px-4 py-3">
-                  <span className="text-xl">{item.icon}</span>
+                  <item.icon className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                   <div>
                     <p className="text-[10px] font-bold uppercase text-gray-400">{item.label}</p>
                     <p className="text-xs font-semibold text-gray-800">{item.val}</p>
@@ -57,7 +84,7 @@ export default function ContactPage() {
 
       {/* CONTACT FORM + LIVE SUPPORT */}
       <section style={{ minHeight: '65vh' }} className="bg-white py-14 md:py-20">
-        <div style={{ maxWidth: '90vw' }} className="mx-auto px-4 grid grid-cols-1 lg:grid-cols-5 gap-10">
+        <div className="mx-auto px-4 md:px-8 lg:px-12 grid grid-cols-1 lg:grid-cols-5 gap-10">
 
           {/* Form — 3 cols */}
           <div className="lg:col-span-3">
@@ -65,13 +92,13 @@ export default function ContactPage() {
             <h2 style={{ fontSize: 'clamp(1.3rem, 2.2vw, 2rem)' }} className="font-extrabold text-gray-900 font-[Plus_Jakarta_Sans] mb-6">Send us a Message</h2>
             {sent ? (
               <div className="card-soft p-10 text-center">
-                <div className="text-4xl mb-4">🎉</div>
+                <div className="mb-4 flex justify-center"><PartyPopper className="w-10 h-10 text-emerald-600" /></div>
                 <h3 className="font-extrabold text-gray-900 text-lg font-[Plus_Jakarta_Sans] mb-2">Message Sent!</h3>
                 <p className="text-sm text-gray-500">An academic advisor will contact you within 2 business hours.</p>
                 <button onClick={() => setSent(false)} className="mt-6 btn-outline px-5 py-2.5 rounded-xl text-sm font-bold">Send Another Message</button>
               </div>
             ) : (
-              <form className="space-y-4 card-soft p-7" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form className="space-y-4 card-soft p-7" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[11px] font-bold uppercase text-gray-500 mb-1.5 tracking-wider">Full Name *</label>
@@ -122,8 +149,13 @@ export default function ContactPage() {
                     placeholder="Tell us about your goals and current language level…"
                     className="w-full px-4 py-3 rounded-xl bg-emerald-50/60 border border-emerald-200 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 transition resize-none" />
                 </div>
-                <button type="submit" className="w-full flex items-center justify-center gap-2 py-4 rounded-xl btn-primary text-sm font-bold">
-                  Send Message to Academic Advisor <ArrowRight className="w-4 h-4" />
+                {error && (
+                  <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+                    {error}
+                  </p>
+                )}
+                <button type="submit" disabled={sending} className="w-full flex items-center justify-center gap-2 py-4 rounded-xl btn-primary text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed">
+                  {sending ? 'Sending...' : 'Send Message to Academic Advisor'} <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
             )}
@@ -141,12 +173,12 @@ export default function ContactPage() {
               <p className="text-emerald-100 text-xs mb-5">Avg. response time: under 3 minutes during working hours.</p>
               <div className="space-y-2.5 mb-5">
                 {[
-                  { icon: '💬', label: 'WhatsApp', val: '+91 91053 26128' },
-                  { icon: '📧', label: 'Email', val: 'hello@bhashaschool.com' },
-                  { icon: '📞', label: 'Phone', val: '+91 91053 26128' },
+                  { icon: MessageCircle, label: 'WhatsApp', val: '+91 91053 26128' },
+                  { icon: Mail, label: 'Email', val: 'hello@bhashaschool.com' },
+                  { icon: Phone, label: 'Phone', val: '+91 91053 26128' },
                 ].map((c) => (
                   <div key={c.label} className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3">
-                    <span className="text-lg">{c.icon}</span>
+                    <c.icon className="w-5 h-5 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-emerald-200 uppercase">{c.label}</p>
                       <p className="text-xs text-white font-semibold">{c.val}</p>
@@ -187,7 +219,7 @@ export default function ContactPage() {
 
       {/* FAQ */}
       <section style={{ minHeight: '45vh' }} className="cream-bg py-14 md:py-20">
-        <div style={{ maxWidth: '72vw' }} className="mx-auto px-4">
+        <div className="mx-auto px-4 md:px-8 lg:px-12">
           <div className="text-center mb-10">
             <p className="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">Common Questions</p>
             <h2 style={{ fontSize: 'clamp(1.3rem, 2.4vw, 2rem)' }} className="font-extrabold text-gray-900 font-[Plus_Jakarta_Sans]">
@@ -211,12 +243,21 @@ export default function ContactPage() {
 
       {/* TRUST BADGES */}
       <section className="bg-white py-10">
-        <div style={{ maxWidth: '88vw' }} className="mx-auto px-4">
+        <div className="mx-auto px-4 md:px-8 lg:px-12">
           <p className="text-center text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-6">Governed by Rigorous Institutional Standards</p>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-            {[['📜', 'CEFR Validated'], ['✓', 'ISO Certified'], ['🏅', 'TELC Partner'], ['🇩🇪', 'Goethe Institut'], ['💼', 'Corporate Clients'], ['🎓', 'DELTA Certified']].map(([icon, label]) => (
+            {[
+              { Icon: ScrollText, label: 'CEFR Validated' },
+              { Icon: ShieldCheck, label: 'ISO Certified' },
+              { Icon: Award, label: 'TELC Partner' },
+              { Icon: Landmark, label: 'Goethe Institut' },
+              { Icon: Briefcase, label: 'Corporate Clients' },
+              { Icon: GraduationCap, label: 'DELTA Certified' },
+            ].map(({ Icon, label }) => (
               <div key={label} className="text-center">
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl mx-auto mb-1.5">{icon}</div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-1.5">
+                  <Icon className="w-6 h-6 text-emerald-600" />
+                </div>
                 <p className="text-[10px] font-bold text-gray-500">{label}</p>
               </div>
             ))}

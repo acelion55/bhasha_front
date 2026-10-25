@@ -1,148 +1,232 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
-import { User, Save, CheckCircle2, Shield, GraduationCap } from 'lucide-react';
+import {
+  User,
+  Save,
+  CheckCircle2,
+  Shield,
+  GraduationCap,
+  Mail,
+  Phone,
+  CalendarDays,
+  Languages,
+  KeyRound,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const { user, fetchUser } = useAuth();
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
     if (user) {
       setName(user.name || '');
+      const digits = (user.phoneNumber || '').replace(/\D/g, '');
+      setPhone(digits.length >= 10 ? digits.slice(-10) : digits);
     }
   }, [user]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      toast.error('Name must be between 2 and 50 characters');
+      return;
+    }
+    if (phone && phone.length !== 10) {
+      toast.error('Phone number must be 10 digits');
+      return;
+    }
+
     setSaving(true);
     setSavedSuccess(false);
-
     try {
-      await api.post('/auth/profile', { name });
-      toast.success('Profile updated successfully!');
+      const payload: Record<string, string> = { name: trimmedName };
+      if (phone) payload.phoneNumber = phone;
+      await api.post('/auth/profile', payload);
+      toast.success('Profile updated');
       setSavedSuccess(true);
-      if (fetchUser) await fetchUser();
+      await fetchUser();
     } catch (err: any) {
-      console.error(err);
       toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
   };
 
-  return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 font-[Plus_Jakarta_Sans] pb-12">
-      
-      {/* Page Header */}
-      <div className="bg-white border border-emerald-100/90 p-6 sm:p-8 rounded-2xl shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-700">
-              <User className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-              Account Profile & Settings
-            </h1>
-          </div>
-          <p className="text-sm sm:text-base text-gray-600 font-medium">
-            Manage your personal profile details, enrolled level, and authentication account.
-          </p>
-        </div>
+  const initials = (user?.name || 'U')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
 
-        {user?.category && (
-          <div className="flex items-center gap-2 self-start sm:self-auto bg-emerald-50 border border-emerald-200/80 px-4 py-2 rounded-xl">
-            <GraduationCap className="w-4 h-4 text-emerald-700" />
-            <span className="text-sm font-black text-emerald-900">Level {user.category} Learner</span>
+  const roleLabel = (user?.role || 'student').replace(/^./, (c) => c.toUpperCase());
+  const joined = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : '—';
+
+  return (
+    <div className="w-full max-w-5xl mx-auto space-y-4 font-[Plus_Jakarta_Sans] pb-10">
+      {/* Profile header */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 p-6 sm:p-7 text-white shadow-sm">
+        <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/5" />
+        <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl sm:text-3xl font-black tracking-tight shrink-0">
+            {initials || 'U'}
           </div>
-        )}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">
+              {user?.name || 'Your Profile'}
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-emerald-100/80 truncate mt-0.5">
+              {user?.email || (user?.phoneNumber ? `+${user.phoneNumber}` : 'No contact added')}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+              <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
+                <Shield className="w-3 h-3" /> {roleLabel}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
+                <Languages className="w-3 h-3" /> {user?.language || 'German'}
+              </span>
+              {user?.category && (
+                <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
+                  <GraduationCap className="w-3 h-3" /> {user.category}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Settings Card */}
-      <div className="bg-white border border-emerald-100/90 rounded-2xl p-6 sm:p-9 shadow-xs">
-        <form onSubmit={handleSave} className="space-y-7">
-          
-          {/* User Name */}
-          <div className="space-y-2.5">
-            <label className="block text-xs sm:text-sm font-black text-gray-800 uppercase tracking-wider">
-              Full Name
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3.5 pl-12 text-gray-900 text-sm sm:text-base font-semibold placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-xs"
-                placeholder="Enter your full name"
-              />
-              <User className="w-5 h-5 text-gray-400 absolute left-4 top-4" />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Editable details */}
+        <div className="lg:col-span-2 bg-white border border-emerald-100/90 rounded-2xl p-5 sm:p-6 shadow-xs">
+          <h2 className="text-sm font-extrabold text-gray-900 mb-4">Personal details</h2>
 
-          {/* Email / Phone (Disabled) */}
-          <div className="space-y-2.5">
-            <label className="block text-xs sm:text-sm font-black text-gray-800 uppercase tracking-wider">
-              {user?.email ? 'Email Address' : 'Phone Number'}
-            </label>
-            <input
-              type={user?.email ? 'email' : 'text'}
-              value={user?.email || (user?.phoneNumber ? `+${user.phoneNumber}` : '')}
-              disabled
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-600 text-sm sm:text-base font-bold cursor-not-allowed"
-            />
-            <p className="text-xs sm:text-sm text-gray-500 font-medium">
-              Linked to your account authentication and cannot be changed directly.
-            </p>
-          </div>
-
-          {/* Role & Level Badges */}
-          <div className="p-5 sm:p-6 bg-gray-50/90 rounded-2xl border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-800 shrink-0">
-                <Shield className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Assigned Platform Role</div>
-                <div className="text-sm sm:text-base font-black text-emerald-950 uppercase mt-0.5">{user?.role || 'student'}</div>
+          <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  maxLength={50}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  placeholder="Your full name"
+                />
               </div>
             </div>
 
-            {user?.category && (
-              <div className="flex items-center gap-2 self-start sm:self-auto bg-amber-50 text-amber-900 font-black px-4 py-2.5 rounded-xl border border-amber-200 text-sm">
-                <GraduationCap className="w-4 h-4 text-amber-700" />
-                <span>Proficiency: Level {user.category}</span>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                Phone Number
+              </label>
+              <div className="relative flex items-center">
+                <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <span className="absolute left-9 text-gray-500 font-bold text-xs">+91</span>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  className="w-full pl-16 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-medium transition-all"
+                  placeholder="98765 43210"
+                />
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Submit Button */}
-          <div className="pt-2 flex flex-wrap items-center gap-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base px-8 py-3.5 rounded-xl shadow-xs transition-all disabled:opacity-50"
-            >
-              {saving ? (
-                <>Updating...</>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" /> Save Profile Settings
-                </>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm shadow-emerald-200 disabled:opacity-50 transition-all"
+              >
+                {saving ? (
+                  'Saving...'
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" /> Save Changes
+                  </>
+                )}
+              </button>
+              {savedSuccess && (
+                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                  <CheckCircle2 className="w-4 h-4" /> Saved
+                </span>
               )}
-            </button>
-            {savedSuccess && (
-              <span className="text-sm text-emerald-700 flex items-center gap-1.5 font-bold bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Profile saved successfully!
-              </span>
+            </div>
+          </form>
+        </div>
+
+        {/* Account summary */}
+        <div className="bg-white border border-emerald-100/90 rounded-2xl p-5 sm:p-6 shadow-xs">
+          <h2 className="text-sm font-extrabold text-gray-900 mb-4">Account</h2>
+          <div className="space-y-3.5">
+            {user?.email && (
+              <div className="flex items-start gap-3">
+                <Mail className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Email</p>
+                  <p className="text-xs font-bold text-gray-800 truncate">{user.email}</p>
+                </div>
+              </div>
             )}
+            <div className="flex items-start gap-3">
+              <KeyRound className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Login</p>
+                <p className="text-xs font-bold text-gray-800">
+                  {user?.phoneNumber ? `+${user.phoneNumber}` : user?.email || '—'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Languages className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Course</p>
+                <p className="text-xs font-bold text-gray-800">{user?.language || 'German'}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <GraduationCap className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Level</p>
+                <p className="text-xs font-bold text-gray-800">{user?.category || 'A1'}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <CalendarDays className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Member Since</p>
+                <p className="text-xs font-bold text-gray-800">{joined}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-2 mt-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">
+                Account Active
+              </span>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

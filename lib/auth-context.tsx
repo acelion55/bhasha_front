@@ -11,6 +11,8 @@ interface User {
   tenantId: string;
   role: string;
   category?: string;
+  language?: string;
+  createdAt?: string;
   userWhatsappNumber?: string;
 }
 
@@ -46,6 +48,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           tenantId: res.data.tenantId,
           role: res.data.role,
           category: res.data.category,
+          language: res.data.language,
+          createdAt: res.data.createdAt,
           userWhatsappNumber: res.data.userWhatsappNumber,
         });
       }

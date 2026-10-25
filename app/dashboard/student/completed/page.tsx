@@ -95,7 +95,7 @@ export default function CompletedClassesPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-7 font-[Plus_Jakarta_Sans]">
+    <div className="w-full max-w-none mx-auto space-y-6 sm:space-y-7 font-[Plus_Jakarta_Sans]">
       {/* Clean Status & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-emerald-100/90 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
         <div className="flex flex-wrap items-center gap-2.5 text-base sm:text-lg font-bold text-gray-800">

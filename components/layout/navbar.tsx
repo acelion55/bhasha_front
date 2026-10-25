@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 const navLinks = [
   { href: '/features', label: 'Courses' },
   { href: '/classes', label: 'Classes' },
+  { href: '/blog', label: 'Blog' },
   { href: '/about', label: 'About Us' },
 ];
 
@@ -14,7 +15,7 @@ export default function Navbar() {
 
   return (
     <nav style={{ height: '70px' }} className="bg-white/95 backdrop-blur-md border-b border-[var(--ceramic)] sticky top-0 z-50 shadow-sm flex items-center">
-      <div style={{ maxWidth: '92vw' }} className="w-full mx-auto flex items-center justify-between h-full px-4">
+        <div className="w-full mx-auto flex items-center justify-between h-full px-4 md:px-8 lg:px-12">
 
         {/* Logo */}
         <Link href="/" className="flex items-center flex-shrink-0" onClick={() => setOpen(false)}>
@@ -39,10 +40,16 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
-        <button className="md:hidden p-[0.8vh] rounded-[6px] hover:bg-emerald-50 transition-colors" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-          {open ? <X className="w-[24px] h-[24px] text-gray-700" /> : <Menu className="w-[24px] h-[24px] text-gray-700" />}
-        </button>
+        {/* Mobile login + hamburger */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link href="/login" onClick={() => setOpen(false)}
+            className="px-3 py-1.5 rounded-full border border-[var(--starbucks-green)] text-[1.3rem] font-bold text-[var(--starbucks-green)] hover:bg-emerald-50 transition-colors">
+            Log In
+          </Link>
+          <button className="p-[0.8vh] rounded-[6px] hover:bg-emerald-50 transition-colors" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+            {open ? <X className="w-[24px] h-[24px] text-gray-700" /> : <Menu className="w-[24px] h-[24px] text-gray-700" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -56,7 +63,6 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex flex-col gap-[1.5vh] pt-[1.5vh]">
-              <Link href="/login" onClick={() => setOpen(false)} className="py-[1.5vh] text-[1.6rem] font-bold text-[var(--starbucks-green)] text-center border border-[var(--ceramic)] rounded-[10px] hover:bg-emerald-50 transition-colors">Log In</Link>
               <Link href="/register" onClick={() => setOpen(false)} className="py-[1.5vh] btn-primary rounded-[10px] text-[1.6rem] font-bold text-center !bg-[var(--starbucks-green)]">Start Free Trial</Link>
             </div>
           </div>

@@ -21,7 +21,8 @@ import {
   X,
   History,
   Check,
-  RotateCcw
+  RotateCcw,
+  Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -56,28 +57,19 @@ interface ClassItem {
   createdAt: string;
 }
 
-// Live timer component that runs continuously upon enrollment
-function EnrolledTimer({ classId, userId }: { classId: string; userId?: string }) {
+// Live timer that starts when the student clicks "Join Class"
+function EnrolledTimer({ startMs }: { startMs: number }) {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    const key = `enroll_start_${classId}_${userId || 'default'}`;
-    let startTime = localStorage.getItem(key);
-    if (!startTime) {
-      startTime = Date.now().toString();
-      localStorage.setItem(key, startTime);
-    }
-    const startMs = parseInt(startTime, 10);
-
     const updateTimer = () => {
-      const diff = Math.max(0, Math.floor((Date.now() - startMs) / 1000));
-      setSeconds(diff);
+      setSeconds(Math.max(0, Math.floor((Date.now() - startMs) / 1000)));
     };
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [classId, userId]);
+  }, [startMs]);
 
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -93,10 +85,10 @@ function EnrolledTimer({ classId, userId }: { classId: string; userId?: string }
         </div>
         <div>
           <span className="text-xs sm:text-sm font-black uppercase text-emerald-950 tracking-wide flex items-center gap-1.5">
-            <Timer className="w-4 h-4 text-emerald-700" /> Active Batch Timer
+            <Timer className="w-4 h-4 text-emerald-700" /> Active Class Timer
           </span>
           <p className="text-xs sm:text-sm font-bold text-emerald-800">
-            Enrolled Session Running
+            Session joined — timer running
           </p>
         </div>
       </div>
@@ -114,15 +106,17 @@ function EnrolledTimer({ classId, userId }: { classId: string; userId?: string }
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
-  const isMentor = user?.role === 'mentor' || user?.role === 'admin';
+  const isMentor = user?.role === 'mentor' || user?.role === 'teacher' || user?.role === 'admin';
 
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    user?.role === 'mentor' ? 'All' : (user?.category || 'A1')
+    user?.role === 'mentor' || user?.role === 'teacher' ? 'All' : (user?.category || 'A1')
   );
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [sessionStarts, setSessionStarts] = useState<Record<string, number>>({});
+  const [hasCourseAccess, setHasCourseAccess] = useState<boolean | null>(null);
 
   // Mentor controls
   const [mentorTab, setMentorTab] = useState<'active' | 'previous'>('active');
@@ -140,7 +134,7 @@ export default function StudentDashboardPage() {
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.role !== 'mentor' && user?.category) {
+    if (user?.role !== 'mentor' && user?.role !== 'teacher' && user?.category) {
       setSelectedCategory(user.category);
     }
   }, [user]);
@@ -157,6 +151,33 @@ export default function StudentDashboardPage() {
     fetchClasses();
   }, [selectedCategory, user]);
 
+  useEffect(() => {
+    const userId = user?.id || (user as any)?._id;
+    if (isMentor || !userId) {
+      setHasCourseAccess(true);
+      return;
+    }
+    if ((user as any)?.isSubscribed === true) {
+      setHasCourseAccess(true);
+      return;
+    }
+    api
+      .get('/subscriptions/me')
+      .then((res) => setHasCourseAccess(Array.isArray(res.data) && res.data.length > 0))
+      .catch(() => setHasCourseAccess(false));
+  }, [user, isMentor]);
+
+  useEffect(() => {
+    const userId = user?.id || (user as any)?._id;
+    if (!userId) return;
+    const starts: Record<string, number> = {};
+    classes.forEach((cls) => {
+      const stored = localStorage.getItem(`class_join_start_${cls._id}_${userId}`);
+      if (stored) starts[cls._id] = parseInt(stored, 10);
+    });
+    setSessionStarts(starts);
+  }, [classes, user]);
+
   const fetchClasses = async () => {
     try {
       setLoading(true);
@@ -164,8 +185,38 @@ export default function StudentDashboardPage() {
       if (selectedCategory !== 'All') {
         params.category = selectedCategory;
       }
+      const userId = user?.id || (user as any)?._id;
+      // If mentor or teacher, query classes by their mentorId
+      if (user?.role === 'mentor' || user?.role === 'teacher') {
+        if (userId) {
+          params.mentorId = userId;
+        }
+      }
       const res = await api.get<ClassItem[]>('/classes', { params });
-      setClasses(res.data || []);
+      let list = res.data || [];
+
+      // Strict fail-safe: mentor only sees classes where they are the assigned mentor
+      if (user?.role === 'mentor' || user?.role === 'teacher') {
+        list = list.filter((cls) => {
+          const mId =
+            cls.mentor?._id ||
+            (typeof cls.mentorId === 'object' ? cls.mentorId?._id : cls.mentorId);
+          const mName =
+            cls.mentor?.name ||
+            (typeof cls.mentorId === 'object' ? cls.mentorId?.name : null) ||
+            cls.mentorName;
+
+          const matchesId = Boolean(mId && userId && String(mId) === String(userId));
+          const matchesName = Boolean(
+            mName &&
+              user?.name &&
+              mName.trim().toLowerCase() === user.name.trim().toLowerCase()
+          );
+          return matchesId || matchesName;
+        });
+      }
+
+      setClasses(list);
     } catch {
       toast.error('Failed to load classes');
     } finally {
@@ -173,23 +224,41 @@ export default function StudentDashboardPage() {
     }
   };
 
-  const handleJoinClass = async (classId: string) => {
+  const handleJoinClass = async (cls: ClassItem) => {
     try {
-      setJoiningId(classId);
+      setJoiningId(cls._id);
       const userId = user?.id || (user as any)?._id;
-      await api.post(`/classes/${classId}/join`, { studentId: userId });
-      
-      // Initialize live study timer on enrollment
+      await api.post(`/classes/${cls._id}/join`, { studentId: userId });
+
       if (userId) {
-        localStorage.setItem(`enroll_start_${classId}_${userId}`, Date.now().toString());
+        const start = Date.now();
+        localStorage.setItem(`class_join_start_${cls._id}_${userId}`, start.toString());
+        setSessionStarts((prev) => ({ ...prev, [cls._id]: start }));
       }
-      
-      toast.success('Successfully enrolled! Live batch timer started.');
+
+      toast.success('Joined class! Live class timer has started.');
       fetchClasses();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to join class');
     } finally {
       setJoiningId(null);
+    }
+  };
+
+  const handleStartSession = (cls: ClassItem) => {
+    const userId = user?.id || (user as any)?._id;
+    if (!userId) return;
+
+    const key = `class_join_start_${cls._id}_${userId}`;
+    const stored = localStorage.getItem(key);
+    const start = stored ? parseInt(stored, 10) : Date.now();
+    if (!stored) localStorage.setItem(key, start.toString());
+    setSessionStarts((prev) => ({ ...prev, [cls._id]: start }));
+
+    if (cls.meetingLink) {
+      window.open(cls.meetingLink, '_blank', 'noopener,noreferrer');
+    } else {
+      toast.success('Class timer started. Your mentor will share the meeting link shortly.');
     }
   };
 
@@ -203,8 +272,14 @@ export default function StudentDashboardPage() {
       localStorage.setItem(`completed_classes_${userId}`, JSON.stringify(stored));
       setCompletedIds([...stored]);
     }
+    localStorage.removeItem(`class_join_start_${classId}_${userId}`);
+    setSessionStarts((prev) => {
+      const next = { ...prev };
+      delete next[classId];
+      return next;
+    });
 
-    toast.success(`🎉 Batch "${title}" marked as completed!`);
+    toast.success(`Batch "${title}" marked as completed!`);
   };
 
   const handleCreateClass = async (e: React.FormEvent) => {
@@ -265,34 +340,36 @@ export default function StudentDashboardPage() {
     : classes;
 
   const categories = isMentor 
-    ? ['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'] 
-    : ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    ? ['All', 'A1', 'A2', 'B1', 'B2'] 
+    : ['A1', 'A2', 'B1', 'B2'];
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-5 sm:space-y-6 font-[Plus_Jakarta_Sans]">
+    <div className={`w-full max-w-none mx-auto font-[Plus_Jakarta_Sans] ${isMentor ? 'space-y-4' : 'space-y-5 sm:space-y-6'}`}>
 
       {/* Top Header & Status Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 bg-white border border-emerald-100/90 p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-xs">
-        <div className="flex flex-wrap items-center gap-2.5 text-base sm:text-lg font-bold text-gray-800">
-          <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" />
+      <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-emerald-100/90 shadow-xs ${
+        isMentor ? 'p-3.5 sm:p-4 rounded-2xl' : 'p-4 sm:p-5 rounded-2xl sm:rounded-3xl'
+      }`}>
+        <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base font-bold text-gray-800">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
           <span>
             {isMentor ? (
               <>
-                Mentor Studio <strong className="text-emerald-950 font-black text-lg sm:text-xl">{user?.name || 'Instructor'}</strong>
+                Mentor Studio <strong className="text-emerald-950 font-black">{user?.name || 'Instructor'}</strong>
+                {user?.category && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-extrabold bg-amber-100 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md">
+                    Level: {user.category === 'All' ? 'All Levels' : user.category}
+                  </span>
+                )}
               </>
             ) : (
               <>
-                Category <strong className="text-emerald-950 font-black text-lg sm:text-xl">Level {selectedCategory}</strong> Batches
-                {selectedCategory === user?.category && (
-                  <span className="ml-2 text-xs sm:text-sm text-emerald-800 font-black bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
-                    Your Current Level
-                  </span>
-                )}
+                My Classes
               </>
             )}
           </span>
           <span className="text-gray-300 hidden sm:inline">|</span>
-          <span className="text-sm sm:text-base font-black text-emerald-800 bg-emerald-50/70 px-3 py-1 rounded-lg">
+          <span className="text-xs sm:text-sm font-extrabold text-emerald-800 bg-emerald-50/70 px-2.5 py-0.5 rounded-lg">
             {isMentor 
               ? `${activeBatches.length} Active / ${previousBatches.length} Previous`
               : `${classes.length} ${classes.length === 1 ? 'Batch Available' : 'Batches Available'}`
@@ -300,14 +377,14 @@ export default function StudentDashboardPage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {/* If mentor, show Create Batch button; If student, show Completed link */}
           {isMentor ? (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 shrink-0"
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm shadow-emerald-600/20 transition-all flex items-center gap-1.5 shrink-0"
             >
-              <Plus className="w-5 h-5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Create Class Batch</span>
             </button>
           ) : (
@@ -321,14 +398,14 @@ export default function StudentDashboardPage() {
             </Link>
           )}
 
-          {categories.map((cat) => {
+          {isMentor && categories.map((cat) => {
             const isSelected = selectedCategory === cat;
             const isUserCat = user?.category === cat;
             return (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl text-base font-black transition-all relative shrink-0 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all relative shrink-0 ${
                   isSelected
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'text-gray-700 hover:text-emerald-800 hover:bg-emerald-50 border border-gray-200 bg-gray-50/70'
@@ -336,7 +413,7 @@ export default function StudentDashboardPage() {
               >
                 {cat === 'All' ? 'All' : cat}
                 {isUserCat && (
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 absolute top-1.5 right-1.5 ring-2 ring-white" />
+                  <span className="w-2 h-2 rounded-full bg-amber-400 absolute top-1 right-1 ring-1 ring-white" />
                 )}
               </button>
             );
@@ -345,45 +422,63 @@ export default function StudentDashboardPage() {
           <button
             onClick={fetchClasses}
             disabled={loading}
-            className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition-colors disabled:opacity-50 ml-1 shrink-0"
+            className="p-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition-colors disabled:opacity-50 ml-1 shrink-0"
             title="Refresh Classes"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-emerald-600' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-emerald-600' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Mentor Specific: Active Batches vs Previous Batches Tabs */}
       {isMentor && (
-        <div className="flex items-center gap-3 bg-white border border-emerald-100/90 p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl shadow-xs">
+        <div className="flex items-center gap-2 bg-white border border-emerald-100/90 p-1.5 rounded-2xl shadow-xs">
           <button
             onClick={() => setMentorTab('active')}
-            className={`flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 ${
+            className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 ${
               mentorTab === 'active'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-900'
             }`}
           >
-            <GraduationCap className="w-5 h-5" />
+            <GraduationCap className="w-4 h-4" />
             <span>Active Batches ({activeBatches.length})</span>
           </button>
 
           <button
             onClick={() => setMentorTab('previous')}
-            className={`flex-1 py-3 px-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base transition-all flex items-center justify-center gap-2.5 ${
+            className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 ${
               mentorTab === 'previous'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-900'
             }`}
           >
-            <History className="w-5 h-5" />
+            <History className="w-4 h-4" />
             <span>Previous Classes / History ({previousBatches.length})</span>
           </button>
         </div>
       )}
 
       {/* Class Batches Grid */}
-      {loading ? (
+      {!isMentor && hasCourseAccess === false ? (
+        <div className="bg-white border border-emerald-100/90 rounded-3xl p-10 sm:p-16 text-center space-y-4 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto">
+            <Lock className="w-7 h-7 text-emerald-600" />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+            Classes are locked
+          </h3>
+          <p className="text-sm sm:text-base text-gray-500 max-w-sm mx-auto font-medium">
+            Purchase any course plan to unlock live Classes Studio batches.
+          </p>
+          <Link
+            href="/dashboard/student/payments"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-md shadow-emerald-600/20 transition-all"
+          >
+            View Course Plans <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      ) : loading || (!isMentor && hasCourseAccess === null) ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <div
@@ -398,18 +493,18 @@ export default function StudentDashboardPage() {
           <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
             {isMentor
               ? (mentorTab === 'active' ? 'No active batches currently running' : 'No previous/completed classes recorded yet')
-              : `No active batches in Category ${selectedCategory}`}
+              : 'No active batches yet'}
           </h3>
           <p className="text-base sm:text-lg text-gray-500 max-w-md mx-auto font-medium leading-relaxed">
             {isMentor
               ? (mentorTab === 'active'
                   ? 'Click "+ Create Class Batch" button above to publish your first cohort.'
                   : 'Completed classes and finished cohorts will automatically appear in this historical archive.')
-              : 'Our academic mentors are scheduling new interactive sessions for this proficiency level soon.'}
+              : 'New interactive sessions will appear here soon.'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${isMentor ? 'gap-3.5 sm:gap-4' : 'gap-5 sm:gap-6'}`}>
           {displayedClasses.map((cls) => {
             const userId = user?.id || (user as any)?._id;
             const studentIds = cls.enrolledStudents || cls.students || [];
@@ -424,40 +519,46 @@ export default function StudentDashboardPage() {
             return (
               <div
                 key={cls._id}
-                className={`bg-white border rounded-3xl p-6 sm:p-7 shadow-xs hover:shadow-md transition-all flex flex-col justify-between gap-5 relative overflow-hidden ${
+                className={`bg-white border transition-all flex flex-col justify-between relative overflow-hidden shadow-xs hover:shadow-md ${
+                  isMentor ? 'rounded-2xl p-4 sm:p-5 gap-3.5' : 'rounded-3xl p-6 sm:p-7 gap-5'
+                } ${
                   isCompleted
                     ? 'border-emerald-300 bg-emerald-50/20'
                     : isEnrolled
-                    ? 'border-emerald-400 ring-4 ring-emerald-500/10'
+                    ? 'border-emerald-400 ring-2 ring-emerald-500/10'
                     : 'border-emerald-100/90 hover:border-emerald-300'
                 }`}
               >
                 {/* Completed Ribbon if Finished */}
                 {isCompleted && (
-                  <div className="absolute top-0 right-0 bg-emerald-700 text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-bl-xl shadow-xs uppercase tracking-wider flex items-center gap-1">
+                  <div className="absolute top-0 right-0 bg-emerald-700 text-white text-[10px] font-black px-3 py-0.5 rounded-bl-lg shadow-xs uppercase tracking-wider flex items-center gap-1">
                     <Sparkles className="w-3 h-3" /> Completed Cohort
                   </div>
                 )}
 
-                <div className="space-y-4">
+                <div className={isMentor ? 'space-y-3' : 'space-y-4'}>
                   {/* Category Pill and Seat Counter */}
                   <div className="flex items-center justify-between">
-                    <span className="px-4 py-1.5 rounded-xl text-sm sm:text-base font-black bg-emerald-100 text-emerald-900 shadow-2xs">
+                    <span className={`font-black bg-emerald-100 text-emerald-900 ${
+                      isMentor ? 'px-2.5 py-1 rounded-lg text-xs' : 'px-4 py-1.5 rounded-xl text-sm sm:text-base shadow-2xs'
+                    }`}>
                       Level {cls.category}
                     </span>
-                    <span className="text-sm sm:text-base font-black text-gray-700 flex items-center gap-2">
-                      <Users className="w-5 h-5 text-emerald-600" /> {enrolledCount} / {maxCapacity} Students
+                    <span className={`font-bold text-gray-700 flex items-center gap-1.5 ${
+                      isMentor ? 'text-xs' : 'text-sm sm:text-base'
+                    }`}>
+                      <Users className={isMentor ? 'w-4 h-4 text-emerald-600' : 'w-5 h-5 text-emerald-600'} /> {enrolledCount} / {maxCapacity} Students
                     </span>
                   </div>
 
                   {/* Enrollment Stats Card for Mentor */}
                   {isMentor && (
-                    <div className="bg-emerald-50/60 border border-emerald-100/80 rounded-2xl p-3 sm:p-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-xs sm:text-sm font-black text-gray-700">
-                        <span className="uppercase tracking-wider text-emerald-900">Student Enrollment</span>
-                        <span className="text-emerald-800">{enrolledCount} of {maxCapacity} Enrolled ({percentFilled}%)</span>
+                    <div className="bg-emerald-50/60 border border-emerald-100/80 rounded-xl p-2.5 space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-black text-gray-700">
+                        <span className="uppercase tracking-wider text-emerald-900 text-[11px]">Enrollment</span>
+                        <span className="text-emerald-800 text-[11px]">{enrolledCount}/{maxCapacity} ({percentFilled}%)</span>
                       </div>
-                      <div className="w-full h-2 rounded-full bg-emerald-200/60 overflow-hidden">
+                      <div className="w-full h-1.5 rounded-full bg-emerald-200/60 overflow-hidden">
                         <div 
                           className="h-full bg-emerald-600 rounded-full transition-all duration-300" 
                           style={{ width: `${percentFilled}%` }} 
@@ -468,32 +569,38 @@ export default function StudentDashboardPage() {
 
                   {/* Title & Description */}
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-snug">
+                    <h3 className={`font-black text-gray-900 tracking-tight leading-snug ${
+                      isMentor ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl'
+                    }`}>
                       {cls.title}
                     </h3>
-                    <p className="text-base sm:text-lg text-gray-700 line-clamp-3 mt-2 font-medium leading-relaxed">
+                    <p className={`text-gray-600 line-clamp-2 mt-1.5 font-medium leading-relaxed ${
+                      isMentor ? 'text-xs sm:text-sm' : 'text-base sm:text-lg'
+                    }`}>
                       {cls.description || 'Interactive live language sessions with native exercises.'}
                     </p>
                   </div>
 
                   {/* Info Box */}
-                  <div className="bg-gray-50/90 border border-gray-100 p-4 sm:p-5 rounded-2xl space-y-2.5 text-base text-gray-800">
-                    <div className="flex items-center gap-3 font-black text-gray-900">
-                      <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" />
-                      <span className="text-base sm:text-lg">{cls.timing || 'Schedule TBA'}</span>
+                  <div className={`border border-gray-100 text-gray-800 ${
+                    isMentor ? 'bg-gray-50/80 p-3 rounded-xl space-y-1.5 text-xs' : 'bg-gray-50/90 p-4 sm:p-5 rounded-2xl space-y-2.5 text-base'
+                  }`}>
+                    <div className="flex items-center gap-2 font-black text-gray-900">
+                      <Clock className={`${isMentor ? 'w-4 h-4' : 'w-5 h-5 sm:w-6 sm:h-6'} text-emerald-600 shrink-0`} />
+                      <span className={isMentor ? 'text-xs sm:text-sm' : 'text-base sm:text-lg'}>{cls.timing || 'Schedule TBA'}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-gray-800 font-bold">
-                      <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" />
-                      <span className="text-base sm:text-lg">Mentor: {mentorName}</span>
+                    <div className="flex items-center gap-2 text-gray-800 font-bold">
+                      <GraduationCap className={`${isMentor ? 'w-4 h-4' : 'w-5 h-5 sm:w-6 sm:h-6'} text-emerald-600 shrink-0`} />
+                      <span className={isMentor ? 'text-xs sm:text-sm' : 'text-base sm:text-lg'}>Mentor: {mentorName}</span>
                     </div>
                     {cls.meetingLink && isMentor && (
-                      <div className="flex items-center gap-3 text-emerald-800 font-bold">
-                        <Video className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0" />
+                      <div className="flex items-center gap-2 text-emerald-800 font-bold">
+                        <Video className="w-4 h-4 text-emerald-600 shrink-0" />
                         <a
                           href={cls.meetingLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-base sm:text-lg underline truncate"
+                          className="text-xs sm:text-sm underline truncate"
                         >
                           {cls.meetingLink}
                         </a>
@@ -501,24 +608,24 @@ export default function StudentDashboardPage() {
                     )}
                   </div>
 
-                  {/* Live Timer if Student is Enrolled & Active */}
-                  {!isMentor && isEnrolled && !isCompleted && (
-                    <EnrolledTimer classId={cls._id} userId={userId} />
+                  {/* Live Timer once the student joins the class */}
+                  {!isMentor && isEnrolled && !isCompleted && sessionStarts[cls._id] && (
+                    <EnrolledTimer startMs={sessionStarts[cls._id]} />
                   )}
                 </div>
 
                 {/* Bottom Buttons / Actions */}
-                <div className="pt-4 border-t border-gray-100">
+                <div className={`border-t border-gray-100 ${isMentor ? 'pt-3' : 'pt-4'}`}>
                   {isMentor ? (
                     /* Mentor Actions */
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {/* View Student Roster */}
                       <button
                         onClick={() => setSelectedClassForStudents(cls)}
-                        className="w-full py-3.5 sm:py-4 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-200 font-black text-base sm:text-lg flex items-center justify-center gap-2.5 transition-colors"
+                        className="w-full py-2.5 px-3 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors"
                       >
-                        <Users className="w-5 h-5 text-emerald-600" />
-                        <span>View Enrolled Roster ({enrolledCount} Students)</span>
+                        <Users className="w-4 h-4 text-emerald-600" />
+                        <span>View Enrolled Roster ({enrolledCount})</span>
                       </button>
 
                       {/* Start Live Class (for active batches) */}
@@ -527,9 +634,9 @@ export default function StudentDashboardPage() {
                           href={cls.meetingLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2.5"
+                          className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2"
                         >
-                          <Video className="w-5 h-5 sm:w-6 sm:h-6" /> Start Live Class
+                          <Video className="w-4 h-4" /> Start Live Class
                         </a>
                       )}
 
@@ -537,7 +644,7 @@ export default function StudentDashboardPage() {
                       <button
                         onClick={() => handleToggleBatchStatus(cls._id, cls.status)}
                         disabled={updatingStatusId === cls._id}
-                        className={`w-full py-3 rounded-2xl font-black text-sm sm:text-base border transition-colors flex items-center justify-center gap-2 ${
+                        className={`w-full py-2 px-3 rounded-xl font-bold text-xs border transition-colors flex items-center justify-center gap-1.5 ${
                           cls.status === 'completed'
                             ? 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700'
                             : 'bg-emerald-50 hover:bg-emerald-100/80 border-emerald-200 text-emerald-900'
@@ -545,11 +652,11 @@ export default function StudentDashboardPage() {
                       >
                         {cls.status === 'completed' ? (
                           <>
-                            <RotateCcw className="w-4 h-4 text-gray-600" /> Reactivate / Move to Active Batches
+                            <RotateCcw className="w-3.5 h-3.5 text-gray-600" /> Reactivate / Move to Active
                           </>
                         ) : (
                           <>
-                            <Check className="w-4 h-4 text-emerald-700" /> Mark Batch as Completed (End Cohort)
+                            <Check className="w-3.5 h-3.5 text-emerald-700" /> Mark as Completed (End Cohort)
                           </>
                         )}
                       </button>
@@ -574,18 +681,15 @@ export default function StudentDashboardPage() {
                           <div className="flex items-center justify-center gap-2 text-base font-black text-emerald-800 bg-emerald-50 py-3 rounded-2xl border border-emerald-200">
                             <CheckCircle2 className="w-5 h-5 text-emerald-600" /> Enrolled in Batch
                           </div>
-                          {cls.meetingLink ? (
-                            <a
-                              href={cls.meetingLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg shadow-md shadow-emerald-600/20 transition-all"
-                            >
-                              <Video className="w-5 h-5 sm:w-6 sm:h-6" /> Join Live Class
-                            </a>
-                          ) : (
-                            <p className="text-xs sm:text-sm text-center text-gray-400 font-medium py-1">
-                              Meeting link active before class
+                          <button
+                            onClick={() => handleStartSession(cls)}
+                            className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg shadow-md shadow-emerald-600/20 transition-all"
+                          >
+                            <Video className="w-5 h-5 sm:w-6 sm:h-6" /> Join Class
+                          </button>
+                          {!cls.meetingLink && (
+                            <p className="text-xs sm:text-sm text-center text-gray-400 font-medium">
+                              Timer will start now. Meeting link will be shared by your mentor.
                             </p>
                           )}
                           <button
@@ -604,11 +708,11 @@ export default function StudentDashboardPage() {
                         </button>
                       ) : (
                         <button
-                          onClick={() => handleJoinClass(cls._id)}
+                          onClick={() => handleJoinClass(cls)}
                           disabled={joiningId === cls._id}
                           className="w-full py-4 sm:py-4.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base sm:text-lg shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
                         >
-                          {joiningId === cls._id ? 'Joining Batch...' : 'Enroll in Batch'}
+                          {joiningId === cls._id ? 'Joining Class...' : 'Join Class'}
                           <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                       )}
@@ -659,7 +763,7 @@ export default function StudentDashboardPage() {
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-emerald-600 text-base font-medium"
                   >
-                    {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((cat) => (
+                    {['A1', 'A2', 'B1', 'B2'].map((cat) => (
                       <option key={cat} value={cat}>Category {cat}</option>
                     ))}
                   </select>

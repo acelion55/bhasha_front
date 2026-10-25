@@ -17,6 +17,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const fieldClass =
+  'w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 font-semibold text-gray-900 transition focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100';
+const labelClass = 'mb-1.5 block text-xs font-bold text-gray-600';
+const sectionTitle = 'text-[11px] font-black uppercase tracking-wider text-emerald-700';
+
 interface CourseItem {
   _id: string;
   title: string;
@@ -267,221 +272,252 @@ export default function AdminCoursesPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
-              <h2 className="text-sm font-black text-gray-900 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-emerald-600" />
-                {editingId ? 'Edit Course' : 'Add Course'}
-              </h2>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="flex max-h-[92vh] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-5">
+              <div>
+                <h2 className="flex items-center gap-2 text-base font-black text-gray-900">
+                  <GraduationCap className="h-5 w-5 text-emerald-600" />
+                  {editingId ? 'Edit Course' : 'Add Course'}
+                </h2>
+                <p className="mt-1 text-xs font-medium text-gray-500">
+                  {editingId
+                    ? 'Update the fees, duration and details shown to learners.'
+                    : 'Create a new course and publish it to the website.'}
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={() => setShowModal(false)}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-5 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Course Title *</label>
-                  <input
-                    type="text"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    placeholder="e.g. Baustein + A1"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+              <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
+                <section>
+                  <h3 className={sectionTitle}>Basics</h3>
+                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className={labelClass}>Course Title *</label>
+                      <input
+                        type="text"
+                        value={form.title}
+                        onChange={(e) => setForm({ ...form, title: e.target.value })}
+                        placeholder="e.g. Baustein + A1"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Language *</label>
-                  <select
-                    value={form.language}
-                    onChange={(e) => setForm({ ...form, language: e.target.value as 'German' | 'English' })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600"
-                  >
-                    <option value="German">German</option>
-                    <option value="English">English</option>
-                  </select>
-                </div>
+                    <div>
+                      <label className={labelClass}>Language *</label>
+                      <select
+                        value={form.language}
+                        onChange={(e) =>
+                          setForm({ ...form, language: e.target.value as 'German' | 'English' })
+                        }
+                        className={fieldClass}
+                      >
+                        <option value="German">German</option>
+                        <option value="English">English</option>
+                      </select>
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Level</label>
-                  <input
-                    type="text"
-                    value={form.level}
-                    onChange={(e) => setForm({ ...form, level: e.target.value })}
-                    placeholder="e.g. A1, B1, Intermediate"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Level</label>
+                      <input
+                        type="text"
+                        value={form.level}
+                        onChange={(e) => setForm({ ...form, level: e.target.value })}
+                        placeholder="e.g. A1, B1, Intermediate"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Description</label>
-                  <textarea
-                    rows={3}
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    placeholder="What this course covers..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 resize-none"
-                  />
-                </div>
+                    <div className="sm:col-span-2">
+                      <label className={labelClass}>Description</label>
+                      <textarea
+                        rows={3}
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        placeholder="What this course covers..."
+                        className={`${fieldClass} resize-none`}
+                      />
+                    </div>
+                  </div>
+                </section>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Price (INR)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={form.price}
-                    onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                <section className="border-t border-gray-100 pt-5">
+                  <h3 className={sectionTitle}>Pricing</h3>
+                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Price (INR)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.price}
+                        onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Billing</label>
-                  <select
-                    value={form.billingPeriod}
-                    onChange={(e) =>
-                      setForm({ ...form, billingPeriod: e.target.value as 'one-time' | 'monthly' })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600"
-                  >
-                    <option value="one-time">One-time</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </div>
+                    <div>
+                      <label className={labelClass}>Billing</label>
+                      <select
+                        value={form.billingPeriod}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            billingPeriod: e.target.value as 'one-time' | 'monthly',
+                          })
+                        }
+                        className={fieldClass}
+                      >
+                        <option value="one-time">One-time</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                    </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Fee note</label>
-                  <input
-                    type="text"
-                    value={form.feeNote}
-                    onChange={(e) => setForm({ ...form, feeNote: e.target.value })}
-                    placeholder="e.g. ₹10,000 (45 days)"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div className="sm:col-span-2">
+                      <label className={labelClass}>Fee note</label>
+                      <input
+                        type="text"
+                        value={form.feeNote}
+                        onChange={(e) => setForm({ ...form, feeNote: e.target.value })}
+                        placeholder="e.g. â‚¹10,000 (45 days)"
+                        className={fieldClass}
+                      />
+                    </div>
+                  </div>
+                </section>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Duration (days)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={form.durationDays}
-                    onChange={(e) => setForm({ ...form, durationDays: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                <section className="border-t border-gray-100 pt-5">
+                  <h3 className={sectionTitle}>Duration & details</h3>
+                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Duration (days)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.durationDays}
+                        onChange={(e) => setForm({ ...form, durationDays: Number(e.target.value) })}
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Duration label</label>
-                  <input
-                    type="text"
-                    value={form.durationLabel}
-                    onChange={(e) => setForm({ ...form, durationLabel: e.target.value })}
-                    placeholder="e.g. 45 days"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Duration label</label>
+                      <input
+                        type="text"
+                        value={form.durationLabel}
+                        onChange={(e) => setForm({ ...form, durationLabel: e.target.value })}
+                        placeholder="e.g. 45 days"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Class duration</label>
-                  <input
-                    type="text"
-                    value={form.classDuration}
-                    onChange={(e) => setForm({ ...form, classDuration: e.target.value })}
-                    placeholder="e.g. 1:30 hours"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Class duration</label>
+                      <input
+                        type="text"
+                        value={form.classDuration}
+                        onChange={(e) => setForm({ ...form, classDuration: e.target.value })}
+                        placeholder="e.g. 1:30 hours"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Schedule</label>
-                  <input
-                    type="text"
-                    value={form.schedule}
-                    onChange={(e) => setForm({ ...form, schedule: e.target.value })}
-                    placeholder="e.g. Monday to Friday"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Schedule</label>
+                      <input
+                        type="text"
+                        value={form.schedule}
+                        onChange={(e) => setForm({ ...form, schedule: e.target.value })}
+                        placeholder="e.g. Monday to Friday"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Exam prep</label>
-                  <input
-                    type="text"
-                    value={form.examPrep}
-                    onChange={(e) => setForm({ ...form, examPrep: e.target.value })}
-                    placeholder="e.g. 10 days Telc / Goethe prep"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Exam prep</label>
+                      <input
+                        type="text"
+                        value={form.examPrep}
+                        onChange={(e) => setForm({ ...form, examPrep: e.target.value })}
+                        placeholder="e.g. 10 days Telc / Goethe prep"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Certificate</label>
-                  <input
-                    type="text"
-                    value={form.certificate}
-                    onChange={(e) => setForm({ ...form, certificate: e.target.value })}
-                    placeholder="e.g. Certificate after B1"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClass}>Certificate</label>
+                      <input
+                        type="text"
+                        value={form.certificate}
+                        onChange={(e) => setForm({ ...form, certificate: e.target.value })}
+                        placeholder="e.g. Certificate after B1"
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Features (one per line)
-                  </label>
-                  <textarea
-                    rows={5}
-                    value={form.features}
-                    onChange={(e) => setForm({ ...form, features: e.target.value })}
-                    placeholder={'Baustein: 15-day basic structure syllabus\nA1 completed in about 30 days'}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 resize-none"
-                  />
-                </div>
+                    <div className="sm:col-span-2">
+                      <label className={labelClass}>Features (one per line)</label>
+                      <textarea
+                        rows={5}
+                        value={form.features}
+                        onChange={(e) => setForm({ ...form, features: e.target.value })}
+                        placeholder={'Baustein: 15-day basic structure syllabus\nA1 completed in about 30 days'}
+                        className={`${fieldClass} resize-none`}
+                      />
+                    </div>
+                  </div>
+                </section>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Display order</label>
-                  <input
-                    type="number"
-                    value={form.order}
-                    onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 text-xs font-semibold focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200"
-                  />
-                </div>
+                <section className="border-t border-gray-100 pt-5">
+                  <h3 className={sectionTitle}>Settings</h3>
+                  <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Display order</label>
+                      <input
+                        type="number"
+                        value={form.order}
+                        onChange={(e) => setForm({ ...form, order: Number(e.target.value) })}
+                        className={fieldClass}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">Visibility</label>
-                  <label className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isPublic}
-                      onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
-                      className="w-4 h-4 accent-emerald-600"
-                    />
-                    Show on website
-                  </label>
-                </div>
+                    <div>
+                      <label className={labelClass}>Visibility</label>
+                      <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={form.isPublic}
+                          onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
+                          className="h-4 w-4 accent-emerald-600"
+                        />
+                        Show on website
+                      </label>
+                    </div>
+                  </div>
+                </section>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-2 border-t border-gray-100 bg-white px-6 py-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50"
+                  className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 disabled:opacity-60"
+                  className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  <Check className="w-4 h-4" /> {saving ? 'Saving...' : editingId ? 'Update Course' : 'Create Course'}
+                  <Check className="h-4 w-4" /> {saving ? 'Saving...' : editingId ? 'Update Course' : 'Create Course'}
                 </button>
               </div>
             </form>

@@ -28,8 +28,8 @@ export default function BottomNav() {
                 isActive ? 'text-[var(--starbucks-green)]' : 'text-[var(--text-black-soft)]'
               }`}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className="text-[1.1rem] font-bold tracking-wide">{item.name}</span>
+              <Icon className="w-6 h-6 flex-shrink-0" />
+              <span className="text-[1.2rem] font-bold tracking-wide">{item.name}</span>
             </Link>
           );
         })}

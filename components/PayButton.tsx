@@ -90,7 +90,7 @@ export default function PayButton({
         theme: { color: '#059669' },
         onSuccess: (result: any) => {
           setStatus('success');
-          toast.success('Payment successful! 🎉');
+          toast.success('Payment successful!');
           onSuccess?.(result);
           setTimeout(() => setStatus('idle'), 3000);
         },
@@ -165,7 +165,7 @@ export default function PayButton({
       ) : status === 'success' ? (
         <>
           <CheckCircle2 className="w-5 h-5" />
-          <span>Paid ✓</span>
+          <span>Paid</span>
         </>
       ) : status === 'failed' ? (
         <>

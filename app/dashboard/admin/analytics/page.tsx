@@ -111,7 +111,7 @@ export default function AdminAnalyticsPage() {
   // Compute metrics dynamically
   const userList = users.length > 0 ? users : [];
   const studentsList = userList.filter(u => u.role === 'student');
-  const mentorsList = userList.filter(u => u.role === 'mentor');
+  const mentorsList = userList.filter(u => u.role === 'mentor' || u.role === 'teacher');
 
   const totalStudents = stats?.totalStudents ?? (studentsList.length > 0 ? studentsList.length : (stats?.totalRegularUsers || 0));
   const totalClasses = classes.length;
@@ -126,8 +126,6 @@ export default function AdminAnalyticsPage() {
     A2: 0,
     B1: 0,
     B2: 0,
-    C1: 0,
-    C2: 0,
   };
 
   if (stats?.levelCounts) {
@@ -150,8 +148,6 @@ export default function AdminAnalyticsPage() {
     { key: 'A2', label: 'A2 Elementary', color: 'bg-teal-500', barColor: 'bg-teal-500' },
     { key: 'B1', label: 'B1 Intermediate', color: 'bg-amber-500', barColor: 'bg-amber-500' },
     { key: 'B2', label: 'B2 Upper Intermediate', color: 'bg-indigo-500', barColor: 'bg-indigo-500' },
-    { key: 'C1', label: 'C1 Advanced', color: 'bg-purple-500', barColor: 'bg-purple-500' },
-    { key: 'C2', label: 'C2 Mastery', color: 'bg-rose-500', barColor: 'bg-rose-500' },
   ];
 
   const totalAssignedInLevels = Object.values(levelCounts).reduce((a, b) => a + b, 0) || totalStudents || 1;
@@ -336,8 +332,10 @@ export default function AdminAnalyticsPage() {
                         <span>{act.name}</span>
                         {act.role === 'admin' ? (
                           <span className="text-[10px] bg-purple-100 text-purple-700 font-bold px-1.5 py-0.2 rounded">Admin</span>
-                        ) : act.role === 'mentor' ? (
-                          <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.2 rounded">Mentor</span>
+                        ) : act.role === 'mentor' || act.role === 'teacher' ? (
+                          <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.2 rounded">
+                            {act.role === 'teacher' ? 'Teacher' : 'Mentor'}
+                          </span>
                         ) : (
                           <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.2 rounded">
                             {act.category || 'A1'}

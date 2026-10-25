@@ -14,7 +14,7 @@ export default function DashboardPage() {
         router.push('/login');
       } else if (user.role === 'admin') {
         router.push('/dashboard/admin');
-      } else if (user.role === 'mentor') {
+      } else if (user.role === 'mentor' || user.role === 'teacher') {
         router.push('/dashboard/mentor');
       } else {
         router.push('/dashboard/student');

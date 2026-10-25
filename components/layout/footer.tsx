@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Heart, Languages, Mail, MapPin, Phone } from 'lucide-react';
 
 export default function Footer() {
   return (
     <footer className="w-full border-t border-[var(--ceramic)] bg-[#fdf8f3] py-[6vh] mt-[4vh]">
-      <div className="max-w-7xl mx-auto px-[4vw] md:px-6 grid grid-cols-1 md:grid-cols-4 gap-[6vh] md:gap-[4vw]">
+      <div className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 grid grid-cols-1 md:grid-cols-4 gap-[6vh] md:gap-[4vw]">
 
         {/* Brand */}
         <div className="col-span-1 space-y-[2vh]">
@@ -63,15 +63,15 @@ export default function Footer() {
           </ul>
           {/* Language flags */}
           <div className="flex items-center gap-3 mt-6">
-            <span className="text-[1.4rem] font-bold bg-[var(--white)] border border-[var(--ceramic)] px-3 py-1 rounded-[4px] shadow-sm">🇩🇪 Deutsch</span>
-            <span className="text-[1.4rem] font-bold bg-[var(--white)] border border-[var(--ceramic)] px-3 py-1 rounded-[4px] shadow-sm">🇬🇧 English</span>
+            <span className="text-[1.4rem] font-bold bg-[var(--white)] border border-[var(--ceramic)] px-3 py-1 rounded-[4px] shadow-sm flex items-center gap-1.5"><Languages className="w-4 h-4" /> Deutsch</span>
+            <span className="text-[1.4rem] font-bold bg-[var(--white)] border border-[var(--ceramic)] px-3 py-1 rounded-[4px] shadow-sm flex items-center gap-1.5"><Languages className="w-4 h-4" /> English</span>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-[4vw] md:px-6 mt-[6vh] pt-[3vh] border-t border-[var(--ceramic)] text-[1.4rem] text-[var(--text-black-soft)] font-medium flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 mt-[6vh] pt-[3vh] border-t border-[var(--ceramic)] text-[1.4rem] text-[var(--text-black-soft)] font-medium flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
         <span>© {new Date().getFullYear()} BhashaSchool. All rights reserved.</span>
-        <span className="flex items-center gap-2">Made with ❤️ for language learners worldwide</span>
+        <span className="flex items-center gap-2">Made with <Heart className="w-4 h-4 fill-red-500 text-red-500" /> for language learners worldwide</span>
       </div>
     </footer>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { Layers, Plus, Trash2, Edit, Video, Clock, Users, GraduationCap, X, Check, IndianRupee } from 'lucide-react';
+import { Layers, Plus, Trash2, Edit, Video, Clock, Users, GraduationCap, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ClassItem {
@@ -11,6 +11,8 @@ interface ClassItem {
   category: string;
   description: string;
   timing: string;
+  startDate?: string;
+  startTime?: string;
   mentorName?: string;
   mentor?: { _id: string; name: string; email: string };
   mentorId?: any;
@@ -39,20 +41,16 @@ export default function AdminClassesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const [scheduleDays, setScheduleDays] = useState('Mon - Fri');
+  const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('19:00');
-  const [endTime, setEndTime] = useState('20:00');
 
   const [form, setForm] = useState({
     title: '',
     category: 'A1',
     description: '',
-    timing: 'Mon - Fri | 7:00 PM - 8:00 PM',
     mentorId: '',
     maxStudents: 15,
     meetingLink: '',
-    price: 0,
-    isPublic: true,
   });
 
   const formatTo12Hour = (time24: string) => {
@@ -65,50 +63,24 @@ export default function AdminClassesPage() {
     return `${h}:${m} ${ampm}`;
   };
 
-  const parseExistingTiming = (timingStr: string) => {
-    let days = 'Mon - Fri';
-    let start = '19:00';
-    let end = '20:00';
+  const formatDateLabel = (dateStr: string) => {
+    if (!dateStr) return '';
+    return new Date(`${dateStr}T00:00:00`).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
-    if (!timingStr) return { days, start, end };
-
-    const lower = timingStr.toLowerCase();
-    if (lower.includes('mon, wed, fri') || lower.includes('mwf')) {
-      days = 'Mon, Wed, Fri';
-    } else if (lower.includes('tue, thu, sat') || lower.includes('tts')) {
-      days = 'Tue, Thu, Sat';
-    } else if (lower.includes('sat') && lower.includes('sun')) {
-      days = 'Sat - Sun';
-    } else if (lower.includes('daily') || lower.includes('mon - sun')) {
-      days = 'Daily';
-    } else if (lower.includes('mon') && lower.includes('fri')) {
-      days = 'Mon - Fri';
-    }
-
-    const timeRegex = /(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/gi;
-    const matches = Array.from(timingStr.matchAll(timeRegex)).filter(m => m[3] || m[2]);
-
-    if (matches.length > 0) {
-      const parseMatch = (m: RegExpMatchArray) => {
-        let h = parseInt(m[1], 10);
-        const min = m[2] || '00';
-        const ampm = m[3] ? m[3].toUpperCase() : null;
-        if (ampm === 'PM' && h < 12) h += 12;
-        if (ampm === 'AM' && h === 12) h = 0;
-        return `${h.toString().padStart(2, '0')}:${min}`;
-      };
-
-      start = parseMatch(matches[0]);
-      if (matches.length > 1) {
-        end = parseMatch(matches[1]);
-      } else {
-        const [h, m] = start.split(':').map(Number);
-        const endH = (h + 1) % 24;
-        end = `${endH.toString().padStart(2, '0')}:${(m || 0).toString().padStart(2, '0')}`;
-      }
-    }
-
-    return { days, start, end };
+  const parseStartTime = (timingStr: string) => {
+    const match = (timingStr || '').match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+    if (!match) return '19:00';
+    let h = parseInt(match[1], 10);
+    const min = match[2] || '00';
+    const ampm = match[3].toUpperCase();
+    if (ampm === 'PM' && h < 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return `${h.toString().padStart(2, '0')}:${min}`;
   };
 
   useEffect(() => {
@@ -123,7 +95,7 @@ export default function AdminClassesPage() {
         api.get<{ users: User[] }>('/admin/users?limit=100'),
       ]);
       setClasses(clsRes.data);
-      setMentors((userRes.data.users || []).filter((u) => u.role === 'mentor' || u.role === 'admin'));
+      setMentors((userRes.data.users || []).filter((u) => u.role === 'mentor' || u.role === 'teacher' || u.role === 'admin'));
     } catch (err: any) {
       toast.error('Failed to load classes or mentors');
     } finally {
@@ -133,29 +105,23 @@ export default function AdminClassesPage() {
 
   const handleOpenCreate = () => {
     setEditingId(null);
-    setScheduleDays('Mon - Fri');
+    setStartDate('');
     setStartTime('19:00');
-    setEndTime('20:00');
     setForm({
       title: '',
       category: 'A1',
       description: '',
-      timing: 'Mon - Fri | 7:00 PM - 8:00 PM',
       mentorId: mentors[0]?._id || '',
       maxStudents: 15,
       meetingLink: '',
-      price: 0,
-      isPublic: true,
     });
     setShowModal(true);
   };
 
   const handleOpenEdit = (cls: ClassItem) => {
     setEditingId(cls._id);
-    const parsed = parseExistingTiming(cls.timing || '');
-    setScheduleDays(parsed.days);
-    setStartTime(parsed.start);
-    setEndTime(parsed.end);
+    setStartDate(cls.startDate || '');
+    setStartTime(cls.startTime || parseStartTime(cls.timing || ''));
 
     const mId = cls.mentor?._id || (typeof cls.mentorId === 'object' ? cls.mentorId?._id : cls.mentorId) || '';
 
@@ -163,12 +129,9 @@ export default function AdminClassesPage() {
       title: cls.title,
       category: cls.category || 'A1',
       description: cls.description || '',
-      timing: cls.timing || `${parsed.days} | ${formatTo12Hour(parsed.start)} - ${formatTo12Hour(parsed.end)}`,
       mentorId: mId,
       maxStudents: cls.maxStudents || cls.maxCapacity || 15,
       meetingLink: cls.meetingLink || '',
-      price: cls.price ?? 0,
-      isPublic: cls.isPublic !== false,
     });
     setShowModal(true);
   };
@@ -177,19 +140,19 @@ export default function AdminClassesPage() {
     e.preventDefault();
     try {
       const selectedMentor = mentors.find((m) => m._id === form.mentorId);
-      const formattedTiming = `${scheduleDays} | ${formatTo12Hour(startTime)} - ${formatTo12Hour(endTime)}`;
-      
+      const formattedTiming = `${formatDateLabel(startDate)} | ${formatTo12Hour(startTime)}`;
+
       const payload: any = {
         title: form.title,
         category: form.category,
         description: form.description,
         timing: formattedTiming,
+        startDate,
+        startTime,
         maxStudents: Number(form.maxStudents) || 15,
         maxCapacity: Number(form.maxStudents) || 15,
         meetingLink: form.meetingLink || '',
-        price: Number(form.price) || 0,
         currency: 'INR',
-        isPublic: form.isPublic !== false,
       };
 
       if (form.mentorId) {
@@ -285,13 +248,6 @@ export default function AdminClassesPage() {
                     <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Mentor: {cls.mentor?.name || (typeof cls.mentorId === 'object' ? cls.mentorId?.name : null) || cls.mentorName || 'Unassigned'}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{(cls.price ?? 0).toLocaleString('en-IN')}</span>
-                    {cls.isPublic === false && (
-                      <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Draft</span>
-                    )}
-                  </div>
                   {cls.meetingLink && (
                     <div className="flex items-center gap-1.5 text-emerald-700 font-bold truncate">
                       <Video className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -327,7 +283,7 @@ export default function AdminClassesPage() {
         <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <form
             onSubmit={handleSubmit}
-            className="bg-white border border-emerald-100 rounded-2xl w-full max-w-lg p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto"
+            className="bg-white border border-emerald-100 rounded-2xl w-full max-w-2xl p-6 sm:p-7 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
               <h3 className="text-base font-extrabold text-gray-900">
@@ -366,14 +322,12 @@ export default function AdminClassesPage() {
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-emerald-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-bold transition-all"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
                   >
                     <option value="A1">A1 Beginner</option>
                     <option value="A2">A2 Elementary</option>
                     <option value="B1">B1 Intermediate</option>
                     <option value="B2">B2 Upper Intermediate</option>
-                    <option value="C1">C1 Advanced</option>
-                    <option value="C2">C2 Mastery</option>
                   </select>
                 </div>
 
@@ -413,57 +367,21 @@ export default function AdminClassesPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Days Schedule
-                  </label>
-                  <select
-                    value={scheduleDays}
-                    onChange={(e) => setScheduleDays(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 bg-white text-xs font-semibold transition-all"
-                  >
-                    <option value="Mon - Fri">Mon - Fri (Weekdays)</option>
-                    <option value="Mon, Wed, Fri">Mon, Wed, Fri (MWF)</option>
-                    <option value="Tue, Thu, Sat">Tue, Thu, Sat (TTS)</option>
-                    <option value="Sat - Sun">Sat - Sun (Weekend)</option>
-                    <option value="Daily">Daily (Mon - Sun)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Price (INR)
+                    Batch Date
                   </label>
                   <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={form.price}
-                    onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-semibold transition-all"
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-bold transition-all bg-white"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                    Visibility
-                  </label>
-                  <label className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isPublic}
-                      onChange={(e) => setForm({ ...form, isPublic: e.target.checked })}
-                      className="w-4 h-4 accent-emerald-600"
-                    />
-                    Publish on website
-                  </label>
                 </div>
               </div>
 
-              {/* Timing Selector */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Batch Timing
+                  Batch Start Time
                 </label>
                 <div className="grid grid-cols-2 gap-3.5">
                   <div>
@@ -474,18 +392,7 @@ export default function AdminClassesPage() {
                       onChange={(e) => setStartTime(e.target.value)}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-bold transition-all bg-white"
                     />
-                    <span className="block text-[10px] text-gray-400 font-medium mt-1">Start: {formatTo12Hour(startTime)}</span>
-                  </div>
-
-                  <div>
-                    <input
-                      type="time"
-                      required
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-200 text-xs font-bold transition-all bg-white"
-                    />
-                    <span className="block text-[10px] text-gray-400 font-medium mt-1">End: {formatTo12Hour(endTime)}</span>
+                    <span className="block text-[10px] text-gray-400 font-medium mt-1">Starts: {formatTo12Hour(startTime)}</span>
                   </div>
                 </div>
               </div>
@@ -508,7 +415,7 @@ export default function AdminClassesPage() {
                   Description
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   placeholder="Batch objectives and syllabus notes..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
