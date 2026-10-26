@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import TrialBookingForm from '@/components/TrialBookingForm';
 import HeroSection from '@/components/home/HeroSection';
+import CefrJourneyScroll from '@/components/home/CefrJourneyScroll';
 
 const CEFR_STEPS = [
   { level: 'Baustein', title: 'Foundation (15 Days)', desc: 'Pronunciation, core alphabet, basic sentence architecture, and phonetics.' },
@@ -114,6 +115,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ── CEFR SCROLL-TRIGGER JOURNEY: FROM SQUARE TO CIRCLE (A1 -> B2) ── */}
+        <CefrJourneyScroll />
 
         {/* ── 3. TWO-COLUMN FEATURE CARDS (CEFR PATHWAY & SPEAKING COMMUNITY) ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-[2.5vh] md:gap-[2.5vw] items-stretch">
