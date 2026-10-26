@@ -301,7 +301,7 @@ function renderContent(content: string) {
       return (
         <div
           key={index}
-          className="my-6 rounded-2xl border-l-4 border-emerald-600 bg-emerald-50/70 p-5 sm:p-6 shadow-xs"
+          className="my-6 rounded-2xl border-l-2 border-emerald-600 bg-emerald-50/70 p-5 sm:p-6 shadow-xs"
         >
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />

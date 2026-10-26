@@ -32,30 +32,30 @@
 
 @layer base {
   :root {
-    /* Starbucks-inspired design tokens based on design.md */
-    --starbucks-green: #006241;
-    --green-accent: #00754A;
-    --house-green: #1E3932;
-    --green-uplift: #2b5148;
-    --green-light: #d4e9e2;
-    --gold: #cba258;
-    --gold-light: #dfc49d;
-    --gold-lightest: #faf6ee;
+    /* European-Indian Academic Authority Design Tokens */
+    --starbucks-green: #0F2A4A; /* Prussian Deep Navy */
+    --green-accent: #173E65;   /* Academic Oxford Blue */
+    --house-green: #0A192F;    /* Midnight Navy */
+    --green-uplift: #1E4E7A;
+    --green-light: #E2EDF8;    /* Crisp Ice Blue Tint */
+    --gold: #D97706;           /* Warm Ochre / Saffron Gold */
+    --gold-light: #FCD34D;
+    --gold-lightest: #FEF3C7;
     
     --white: #ffffff;
-    --neutral-cool: #f9f9f9;
-    --neutral-warm: #f2f0eb; /* Primary canvas */
-    --ceramic: #edebe9;
-    --black: #000000;
+    --neutral-cool: #f8fafc;
+    --neutral-warm: #f8fafc; /* Crisp Slate Canvas */
+    --ceramic: #e2e8f0;
+    --black: #0f172a;
     
-    --text-black: #111827;
-    --text-black-soft: #4b5563;
+    --text-black: #0f172a;
+    --text-black-soft: #475569;
     --text-white: #ffffff;
-    --text-white-soft: #d1d5db;
-    --rewards-green: #33433d;
+    --text-white-soft: #cbd5e1;
+    --rewards-green: #1e293b;
     
-    --error-red: #c82014;
-    --warning-yellow: #fbbc05;
+    --error-red: #dc2626;
+    --warning-yellow: #f59e0b;
 
     /* Sizing values */
     --space-1: 0.4rem;
@@ -71,13 +71,13 @@
     --card-radius: 12px;
     --pill-radius: 50px;
 
-    /* Base Layout variables using vh/vw */
+    /* Base Layout variables */
     --vh: 1vh;
     --vw: 1vw;
 
     --background: var(--neutral-warm);
     --foreground: var(--text-black);
-    --primary: var(--green-accent);
+    --primary: var(--starbucks-green);
     --primary-foreground: var(--white);
     --card: var(--white);
     --border: var(--ceramic);
@@ -91,12 +91,12 @@
   body {
     background-color: var(--neutral-warm);
     color: var(--text-black);
-    font-family: 'SoDoSans', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-jakarta), 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.01em;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    min-height: calc(100 * var(--vh));
-    width: calc(100 * var(--vw));
+    min-height: 100vh;
+    width: 100%;
   }
 }
 

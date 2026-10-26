@@ -7,13 +7,50 @@ import {
   Shield, Medal, Globe, GraduationCap, FileText, 
   Radio, Headphones, MessageCircle, Users, BookOpen, 
   Zap, Target, Plane, Mic, PenTool, Timer,
-  LayoutGrid, Book, Settings, Check
+  LayoutGrid, Book, Settings, Check, ArrowRight, Sparkles, Award
 } from 'lucide-react';
 import GooeyBackground from '@/components/effects/GooeyBackground';
 import TrialBookingForm from '@/components/TrialBookingForm';
 
+const CEFR_DATA: Record<string, {
+  title: string;
+  duration: string;
+  desc: string;
+  badges: string[];
+  target: string;
+}> = {
+  A1: {
+    title: 'Foundations of German (A1 Beginner)',
+    duration: '80 Hours • 8–10 Weeks',
+    desc: 'Master phonetics, alphabet, sentence order, and daily survival German: self-introductions, ordering food, basic shopping, and asking for directions.',
+    badges: ['Phonetics & Pronunciation Drills', 'Nominativ & Akkusativ', 'Daily Routines & Time', 'Official Goethe A1 Exam Prep'],
+    target: 'Survive and converse in simple daily scenarios with native German speakers.'
+  },
+  A2: {
+    title: 'Elementary Fluency (A2 Elementary)',
+    duration: '90 Hours • 9–11 Weeks',
+    desc: 'Express past events (Perfekt & Präteritum), give directions, describe feelings, and navigate workplace dialogues and social situations.',
+    badges: ['Perfekt & Dativ Verbs', 'Modal Verbs in Past', 'Workplace Dialogues', 'Official Goethe A2 Exam Prep'],
+    target: 'Handle regular situations in German work and travel environments with ease.'
+  },
+  B1: {
+    title: 'Intermediate Mastery (B1 - German Visa & Citizenship)',
+    duration: '110 Hours • 12–14 Weeks',
+    desc: 'Speak spontaneously on familiar topics, defend opinions, express abstract concepts, and master the official Goethe/telc B1 certification for German residency.',
+    badges: ['Konjunktiv II & Subordinate Clauses', 'Official B1 Essay Drafting', 'Spontaneous Debate Drills', 'Goethe B1 Visa Ready'],
+    target: 'Full qualification for German Ausbildung, university pathway, and job visas.'
+  },
+  B2: {
+    title: 'Advanced Professional Fluency (B2 - Work & Medical)',
+    duration: '130 Hours • 14–16 Weeks',
+    desc: 'Engage in complex technical discussions, formal presentations, nuances, idiomatic German, and professional workplace negotiation.',
+    badges: ['Complex Connectors & Passiv', 'Professional Presentations', 'Medical & Tech Terminology', 'Goethe/telc B2 Certified'],
+    target: 'Direct employment eligibility for nursing, engineering, and German corporations.'
+  }
+};
+
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState('A1');
+  const [activeTab, setActiveTab] = useState<'A1' | 'A2' | 'B1' | 'B2'>('A1');
   const [trialFormOpen, setTrialFormOpen] = useState(false);
   const [mentorFormOpen, setMentorFormOpen] = useState(false);
 
@@ -24,7 +61,7 @@ export default function HomePage() {
   };
   
   const popIn: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, scale: 0.95 },
     visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
   };
 
@@ -32,332 +69,437 @@ export default function HomePage() {
     visible: { transition: { staggerChildren: 0.2 } }
   };
 
+  const currentLevel = CEFR_DATA[activeTab] || CEFR_DATA.A1;
+
   return (
-    <main className="min-h-vh w-[100vw] flex flex-col items-center bg-[var(--neutral-warm)] pb-[10vh] overflow-x-hidden">
+    <main className="min-h-screen w-full flex flex-col items-center bg-[var(--neutral-warm)] pb-24 overflow-x-hidden">
       
       {/* Main Container Wrapper */}
-      <div className="w-full max-w-none px-[5vw] md:px-[3vw] lg:px-[4vw] py-[4vh] flex flex-col gap-[6vh]">
+      <div className="w-full max-w-none px-4 md:px-8 lg:px-12 py-8 md:py-12 flex flex-col gap-14 md:gap-18">
         
-        {/* ── HERO & HIGHLIGHTS ROW (DESKTOP SPLIT) ── */}
-        <div className="flex flex-col md:flex-row gap-[4vw] items-stretch">
+        {/* ── BOLDER HERO & HIGHLIGHTS ROW ── */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch pt-4">
           
-          {/* Left Text */}
+          {/* Left Text Column */}
           <motion.div 
             initial="hidden" animate="visible" variants={fadeIn}
-            className="flex-1 space-y-[2vh] flex flex-col justify-center"
+            className="flex-1 space-y-6 flex flex-col justify-center"
           >
-            <h2 className="body-text font-bold text-[var(--gold)] tracking-widest uppercase">Learn. Practice. Progress. Achieve.</h2>
-            <h1 className="display-text mb-2 text-[var(--text-black)]">A Structured Language<br/>Learning Experience</h1>
-            <p className="body-text text-[var(--text-black-soft)] max-w-xl text-[1.6rem] leading-relaxed">
-              Not only teaching grammar, but empowering confident real-world German communication.
+            <div className="inline-flex items-center gap-2 self-start bg-[var(--gold-lightest)] border border-[var(--gold-light)] text-[var(--gold)] px-4 py-1.5 rounded-full">
+              <Sparkles className="w-4 h-4 text-[var(--gold)]" />
+              <span className="text-xs font-bold uppercase tracking-wider">European-Indian Language Academy</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[var(--text-black)] tracking-tight leading-[1.15]">
+              Pass Your German CEFR Exam On The <span className="text-[var(--gold)]">First Attempt.</span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-[var(--text-black-soft)] max-w-2xl leading-relaxed">
+              Small-batch live cohorts (max 10 students) taught by certified Goethe mentors. Master genuine conversational reflexes through our proprietary <strong>Peer-Ladder</strong> practice system.
             </p>
+
+            {/* Bolder Primary CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <motion.button 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setTrialFormOpen(true)}
+                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[var(--gold)] hover:bg-[#b45309] text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-200 cursor-pointer"
+              >
+                <span>Book Free 30-Min Demo & Placement</span>
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+
+              <a 
+                href="#curriculum"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-white border border-[var(--ceramic)] hover:bg-slate-50 text-[var(--text-black)] font-bold text-base rounded-xl transition-all duration-200 shadow-sm"
+              >
+                <span>Explore CEFR Ladder</span>
+              </a>
+            </div>
+
+            {/* Trust Proof Metrics */}
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--ceramic)]">
+              <div>
+                <p className="text-2xl font-black text-[var(--text-black)]">98.4%</p>
+                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Goethe First-Pass Rate</p>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-[var(--text-black)]">Max 10</p>
+                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Students Per Cohort</p>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-[var(--text-black)]">A1 to B2</p>
+                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Full Visa Roadmap</p>
+              </div>
+            </div>
           </motion.div>
 
           {/* Right Cards Stack */}
           <motion.div 
             initial="hidden" animate="visible" variants={staggerVariants}
-            className="flex-1 flex flex-col gap-[2vh]"
+            className="flex-1 flex flex-col justify-center"
           >
             {/* ── LIVE COHORT CARD ── */}
-            <motion.div variants={popIn} whileHover={{ y: -5 }} className="content-card bg-[var(--house-green)] border-none text-[var(--white)] relative overflow-hidden flex-1 shadow-xl">
-              <GraduationCap className="absolute right-[-20px] top-[-20px] opacity-10 w-[200px] h-[200px] text-white" />
-              <span className="small-text font-bold text-[var(--gold-light)] uppercase tracking-widest mb-1">Live Cohort System</span>
-              <h2 className="h1-text mb-2" style={{ color: 'var(--white)' }}>From Beginner to Career-Ready Fluency</h2>
-              <p className="body-text text-[var(--text-white-soft)] mb-6 max-w-[80%]">Next batch starts Monday • Small batches (max 10)</p>
+            <motion.div 
+              variants={popIn} 
+              whileHover={{ y: -4 }} 
+              className="bg-[var(--house-green)] border border-[rgba(255,255,255,0.1)] text-white p-8 sm:p-10 rounded-2xl relative overflow-hidden shadow-2xl flex flex-col justify-between"
+            >
+              <GraduationCap className="absolute right-[-20px] top-[-20px] opacity-10 w-56 h-56 text-white pointer-events-none" />
               
-              <div className="flex justify-between items-center relative z-10 w-full border-t border-[rgba(255,255,255,0.1)] pt-[2vh] mt-auto">
-                <div className="flex -space-x-4">
-                  <div className="w-[40px] h-[40px] bg-[var(--ceramic)] border-[3px] border-[var(--house-green)] rounded-full"></div>
-                  <div className="w-[40px] h-[40px] bg-[var(--gold)] border-[3px] border-[var(--house-green)] rounded-full"></div>
-                  <div className="w-[40px] h-[40px] bg-[var(--green-accent)] border-[3px] border-[var(--house-green)] rounded-full flex items-center justify-center small-text font-bold">+480</div>
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest bg-[rgba(255,255,255,0.08)] px-3 py-1 rounded-full">Live Cohort System</span>
+                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Next Batch: Monday
+                  </span>
                 </div>
-                <span className="body-text font-bold text-[var(--green-light)]">98.4% Goethe Pass Rate</span>
+                
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">From Absolute Beginner to Career-Ready Fluency</h2>
+                <p className="text-base text-[var(--text-white-soft)] mb-8 max-w-md leading-relaxed">
+                  Structured interactive sessions with real-time feedback, daily speaking drills, and dedicated Goethe exam preparation.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 w-full border-t border-[rgba(255,255,255,0.1)] pt-6 gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-3">
+                    <div className="w-10 h-10 bg-amber-200 border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-amber-900">DE</div>
+                    <div className="w-10 h-10 bg-sky-200 border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-sky-900">IN</div>
+                    <div className="w-10 h-10 bg-[var(--gold)] border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-white">+480</div>
+                  </div>
+                  <span className="text-xs font-semibold text-[var(--text-white-soft)]">Students enrolled this month</span>
+                </div>
+
+                <button 
+                  onClick={() => setTrialFormOpen(true)}
+                  className="text-sm font-bold text-[var(--gold)] hover:text-white transition flex items-center gap-1 cursor-pointer"
+                >
+                  Join Next Cohort <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </motion.div>
-
           </motion.div>
         </div>
 
-        {/* ── CURRICULUM FRAMEWORK & DUAL SUPPORT (DESKTOP ROW) ── */}
+        {/* ── CURRICULUM FRAMEWORK & DUAL SUPPORT ── */}
         <motion.div 
+          id="curriculum"
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
-          className="flex flex-col md:flex-row gap-[4vw] items-stretch mt-[2vh]"
+          className="flex flex-col lg:flex-row gap-8 items-stretch"
         >
-          {/* Framework */}
-          <div className="flex-[3]">
-            <span className="small-text font-bold text-[var(--gold)] uppercase tracking-widest">Curriculum Framework</span>
-            <h2 className="h1-text text-[var(--text-black)] mb-2 mt-1">How Our Learning System Works</h2>
-            <p className="body-text text-[var(--text-black-soft)] mb-[3vh]">Structured step-by-step ladder mapped directly to official CEFR standards.</p>
-            
-            <div className="flex gap-[1vw] overflow-x-auto pb-[1vh] mb-[2vh] hide-scrollbar border-b border-[var(--ceramic)]">
-              {['A1 Beginner', 'A2 Elementary', 'B1 Intermediate', 'B2 Advanced'].map((lvl) => (
-                 <button 
-                  key={lvl}
-                  onClick={() => setActiveTab(lvl.split(' ')[0])}
-                  className={`flex-shrink-0 body-text px-[2vw] py-[1vh] rounded-t-[8px] font-bold transition-all border-b-[4px] ${
-                    activeTab === lvl.split(' ')[0] 
-                      ? 'bg-[var(--house-green)] text-[var(--white)] border-[var(--gold)]' 
-                      : 'bg-transparent text-[var(--text-black-soft)] border-transparent hover:bg-[var(--ceramic)]'
-                  }`}
-                >
-                  {lvl}
-                </button>
-              ))}
+          {/* Framework Left */}
+          <div className="flex-[3] flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Official CEFR Framework</span>
+              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mb-2 mt-1">Structured Language Ladder</h2>
+              <p className="text-base text-[var(--text-black-soft)] mb-6">Each level maps directly to certified CEFR standards with measurable speaking and grammar outcomes.</p>
+              
+              {/* Level Tabs */}
+              <div className="flex gap-2 overflow-x-auto pb-2 mb-4 hide-scrollbar border-b border-[var(--ceramic)]">
+                {(['A1', 'A2', 'B1', 'B2'] as const).map((lvl) => (
+                  <button 
+                    key={lvl}
+                    onClick={() => setActiveTab(lvl)}
+                    className={`flex-shrink-0 text-sm md:text-base px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      activeTab === lvl 
+                        ? 'bg-[var(--house-green)] text-white shadow-md ring-1 ring-white/20' 
+                        : 'bg-white text-[var(--text-black-soft)] hover:bg-slate-100 border border-[var(--ceramic)]'
+                    }`}
+                  >
+                    {lvl} • {lvl === 'A1' ? 'Beginner' : lvl === 'A2' ? 'Elementary' : lvl === 'B1' ? 'Intermediate' : 'Advanced'}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <motion.div key={activeTab} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="content-card shadow-lg flex flex-col md:flex-row gap-[2vw]">
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-[2vh]">
-                  <div className="flex gap-[1vw] items-center">
-                    <div className="w-[60px] h-[60px] border-[4px] border-[var(--starbucks-green)] bg-[var(--white)] text-[var(--starbucks-green)] rounded-full flex justify-center items-center display-text">{activeTab}</div>
-                    <div>
-                      <h3 className="h1-text text-[var(--text-black)] mb-0">Foundations of German</h3>
-                      <p className="body-text font-medium text-[var(--text-black-soft)]">80 Hours • 8-10 Weeks</p>
-                    </div>
+            {/* Dynamic Active Tab Card */}
+            <motion.div 
+              key={activeTab} 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl border border-[var(--ceramic)] p-6 md:p-8 shadow-lg flex flex-col md:flex-row gap-6"
+            >
+              <div className="flex-1 space-y-4">
+                <div className="flex gap-4 items-center">
+                  <div className="w-16 h-16 border-4 border-[var(--gold)] bg-[var(--gold-lightest)] text-[var(--gold)] rounded-2xl flex justify-center items-center font-black text-2xl shadow-sm">
+                    {activeTab}
+                  </div>
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-bold text-[var(--text-black)] mb-1">{currentLevel.title}</h3>
+                    <p className="text-sm font-semibold text-[var(--gold)]">{currentLevel.duration}</p>
                   </div>
                 </div>
-                <p className="body-text text-[var(--text-black-soft)] text-[1.6rem] mb-[2vh]">
-                  Build phonetics, present tense conjugation, daily introductions, shopping dialogues, and basic sentence architecture with native-level clarity.
+
+                <p className="text-base text-[var(--text-black-soft)] leading-relaxed">
+                  {currentLevel.desc}
                 </p>
-              </div>
-              <div className="flex-1 border-l border-[var(--ceramic)] pl-[2vw] flex flex-col justify-center">
-                <div className="flex justify-between items-center mb-2">
-                  <p className="small-text font-bold uppercase tracking-widest text-[var(--starbucks-green)] m-0">Key Outcomes</p>
-                  <span className="small-text font-bold uppercase bg-[var(--gold-lightest)] text-[var(--gold)] px-3 py-1 rounded-[4px]">Official CEFR</span>
+
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Target Milestone</p>
+                  <p className="text-sm font-semibold text-[var(--text-black)]">{currentLevel.target}</p>
                 </div>
-                <div className="flex flex-wrap gap-[1vw]">
-                  {['Pronunciation Drills', 'Nominativ & Akkusativ', 'Daily Routines', `${activeTab} Exam Readiness`].map((badge) => (
-                     <span key={badge} className="body-text font-medium bg-[var(--neutral-cool)] border border-[var(--ceramic)] px-[1vw] py-[0.5vh] rounded-[8px] text-[var(--text-black-soft)]">{badge}</span>
+              </div>
+
+              <div className="flex-1 border-t md:border-t-0 md:border-l border-[var(--ceramic)] pt-4 md:pt-0 md:pl-6 flex flex-col justify-center">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--house-green)] m-0">Core Focus Modules</p>
+                  <span className="text-xs font-bold uppercase bg-[var(--gold-lightest)] text-[var(--gold)] px-2.5 py-1 rounded">Goethe / telc</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {currentLevel.badges.map((badge) => (
+                    <div key={badge} className="flex items-center gap-2 p-2.5 bg-[var(--neutral-warm)] border border-[var(--ceramic)] rounded-lg text-xs font-semibold text-[var(--text-black)]">
+                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>{badge}</span>
+                    </div>
                   ))}
                 </div>
               </div>
             </motion.div>
           </div>
 
-          {/* Pedagogy Support */}
-          <div className="flex-[2] flex flex-col pt-[1vh]">
-            <span className="small-text font-bold text-[var(--gold)] uppercase tracking-widest">Pedagogy Architecture</span>
-            <h2 className="h1-text text-[var(--text-black)] mb-1 mt-1">Dual Support System</h2>
-            <p className="body-text text-[var(--text-black-soft)] mb-[2.5vh]">One system for conceptual mastery. Another for daily accountability.</p>
+          {/* Pedagogy Support Right */}
+          <div className="flex-[2] flex flex-col justify-between pt-1">
+            <div>
+              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Pedagogy Support</span>
+              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mb-2 mt-1">Dual Support System</h2>
+              <p className="text-base text-[var(--text-black-soft)] mb-6">Master formal grammar with faculty. Build reflex fluency with mentors.</p>
+            </div>
 
-            <div className="space-y-[2vh] h-full flex flex-col justify-between">
-              <motion.div whileHover={{ scale: 1.02 }} className="content-card relative overflow-hidden flex-1 justify-center shadow-md border border-[var(--ceramic)]">
-                 <div className="absolute top-0 right-0 w-[6px] h-full bg-[var(--starbucks-green)]"></div>
-                 <div className="flex items-center gap-[1.5vw] mb-[1.5vh]">
-                   <div className="w-[50px] h-[50px] rounded-[12px] bg-[var(--green-light)] flex justify-center items-center text-[var(--starbucks-green)]">
-                     <Radio className="w-8 h-8" />
-                   </div>
-                   <div>
-                     <h3 className="h2-text text-[var(--text-black)] mb-0">Certified Faculty</h3>
-                     <p className="small-text font-bold text-[var(--starbucks-green)] m-0">Classroom Architects</p>
-                   </div>
-                 </div>
-                 <ul className="body-text font-medium text-[var(--text-black-soft)] space-y-[1vh]">
-                   <li className="flex gap-3 items-center"><Check className="w-5 h-5 text-[var(--starbucks-green)]" /> Formal grammar breakdown</li>
-                   <li className="flex gap-3 items-center"><Check className="w-5 h-5 text-[var(--starbucks-green)]" /> Curriculum progression</li>
-                 </ul>
+            <div className="space-y-4 h-full flex flex-col justify-between">
+              <motion.div whileHover={{ y: -2 }} className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-md relative overflow-hidden flex-1 flex flex-col justify-center">
+                <div className="absolute top-0 right-0 w-2 h-full bg-[var(--house-green)]"></div>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-[var(--green-light)] flex justify-center items-center text-[var(--house-green)]">
+                    <Radio className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-[var(--text-black)] mb-0">Certified Faculty</h3>
+                    <p className="text-xs font-bold text-[var(--house-green)] m-0">Goethe-Certified Native Educators</p>
+                  </div>
+                </div>
+                <ul className="text-sm text-[var(--text-black-soft)] space-y-2">
+                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-600" /> Complete grammar breakdown & syntax</li>
+                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-600" /> Structured syllabus progression mapped to CEFR</li>
+                </ul>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.02 }} className="content-card relative overflow-hidden flex-1 justify-center shadow-md border border-[var(--ceramic)]">
-                 <div className="absolute top-0 right-0 w-[6px] h-full bg-[var(--gold)]"></div>
-                 <div className="flex items-center gap-[1.5vw] mb-[1.5vh]">
-                   <div className="w-[50px] h-[50px] rounded-[12px] bg-[var(--gold-lightest)] flex justify-center items-center text-[var(--gold)]">
-                     <Headphones className="w-8 h-8" />
-                   </div>
-                   <div>
-                     <h3 className="h2-text text-[var(--text-black)] mb-0">Dedicated Mentors</h3>
-                     <p className="small-text font-bold text-[var(--gold)] m-0">Daily Fluency Partners</p>
-                   </div>
-                 </div>
-                 <ul className="body-text font-medium text-[var(--text-black-soft)] space-y-[1vh]">
-                   <li className="flex gap-3 items-center"><Check className="w-5 h-5 text-[var(--gold)]" /> 1-on-1 personalized drill check-ins</li>
-                   <li className="flex gap-3 items-center"><Check className="w-5 h-5 text-[var(--gold)]" /> Weekly habit coaching</li>
-                 </ul>
+              <motion.div whileHover={{ y: -2 }} className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-md relative overflow-hidden flex-1 flex flex-col justify-center">
+                <div className="absolute top-0 right-0 w-2 h-full bg-[var(--gold)]"></div>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-12 h-12 rounded-xl bg-[var(--gold-lightest)] flex justify-center items-center text-[var(--gold)]">
+                    <Headphones className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-[var(--text-black)] mb-0">Dedicated Speaking Mentors</h3>
+                    <p className="text-xs font-bold text-[var(--gold)] m-0">Daily Fluency & Drill Partners</p>
+                  </div>
+                </div>
+                <ul className="text-sm text-[var(--text-black-soft)] space-y-2">
+                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-[var(--gold)]" /> 1-on-1 personalized pronunciation check-ins</li>
+                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-[var(--gold)]" /> Weekly speaking habit & fluency coaching</li>
+                </ul>
               </motion.div>
             </div>
           </div>
         </motion.div>
 
-        {/* ── SIGNATURE INNOVATION (Peer Ladder - FULL WIDTH) ── */}
+        {/* ── BOLDER SIGNATURE INNOVATION (Peer Ladder) ── */}
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={popIn}
-          className="feature-band rounded-[16px] px-[5vw] py-[6vh] mt-[2vh] !w-full !ml-0 shadow-2xl relative overflow-hidden"
+          className="bg-[var(--house-green)] rounded-3xl p-8 sm:p-12 lg:p-16 shadow-2xl relative overflow-hidden text-white"
         >
-           <MessageCircle className="absolute left-[50px] bottom-[-50px] opacity-10 w-[400px] h-[400px] text-white" />
-           <div className="relative z-10">
-             <div className="flex flex-col items-center mb-[4vh] text-center">
-               <span className="small-text font-bold text-[var(--gold-light)] uppercase tracking-widest mb-2">Signature Innovation</span>
-               <h2 className="display-text text-[var(--white)] mb-3">Learn With Your Level — Practice Beyond Your Level</h2>
-               <p className="body-text text-[var(--text-white-soft)] max-w-2xl text-[1.6rem]">
-                 Our peer ladder connects you with seniors so you master conversational reflexes faster without anxiety.
-               </p>
-             </div>
+          <MessageCircle className="absolute right-[-30px] bottom-[-30px] opacity-10 w-96 h-96 text-white pointer-events-none" />
+          
+          <div className="relative z-10 w-full">
+            <div className="flex flex-col items-center mb-10 text-center">
+              <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest mb-3 bg-[rgba(255,255,255,0.08)] px-4 py-1.5 rounded-full">Proprietary Pedagogy</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight">
+                Learn With Your Level — Practice Beyond Your Level
+              </h2>
+              <p className="text-base sm:text-lg text-[var(--text-white-soft)] max-w-2xl leading-relaxed">
+                The #1 barrier to language fluency is speaking intimidation. Our Peer Ladder pairs you with senior learners so you build conversational instincts without judgment.
+              </p>
+            </div>
 
-             {/* Flow chart visually structured as requested: A1->A2 on top, B1->B2 below */}
-             <div className="flex flex-col mb-[6vh] bg-[rgba(0,0,0,0.2)] p-[5vw] md:p-[4vw] rounded-[16px] items-center">
-               
-               {/* Top Row: A1 -> A2 */}
-               <div className="flex flex-row items-center gap-[4vw] md:gap-[8vw]">
-                 <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-[3vw] md:gap-[1.5vw] cursor-default">
-                   <div className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full flex items-center justify-center h2-text md:h1-text m-0 shadow-lg bg-[var(--white)] text-[var(--house-green)] border-4 border-[rgba(255,255,255,0.2)]">A1</div>
-                   <span className="body-text font-bold text-[var(--white)] uppercase tracking-widest whitespace-nowrap">Junior</span>
-                 </motion.div>
-
-                 <span className="text-[var(--gold)] font-bold text-[2.5rem] md:text-[3rem] leading-none">→</span>
-
-                 <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-[3vw] md:gap-[1.5vw] cursor-default">
-                   <div className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full flex items-center justify-center h2-text md:h1-text m-0 shadow-lg bg-[var(--white)] text-[var(--house-green)] border-4 border-[rgba(255,255,255,0.2)]">A2</div>
-                   <span className="body-text font-bold text-[var(--white)] uppercase tracking-widest whitespace-nowrap">Partner</span>
-                 </motion.div>
-               </div>
-
-               {/* Connecting Vertical Arrow */}
-               <div className="py-[1.5vh]">
-                 <span className="text-[var(--white)] opacity-30 font-bold text-[2rem] leading-none">↓</span>
-               </div>
-
-               {/* Bottom Row: B1 -> B2 */}
-               <div className="flex flex-row items-center gap-[4vw] md:gap-[8vw]">
-                 <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-[3vw] md:gap-[1.5vw] cursor-default">
-                   <div className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full flex items-center justify-center h2-text md:h1-text m-0 shadow-lg bg-[var(--white)] text-[var(--house-green)] border-4 border-[rgba(255,255,255,0.2)]">B1</div>
-                   <span className="body-text font-bold text-[var(--white)] uppercase tracking-widest whitespace-nowrap">Mentor</span>
-                 </motion.div>
-
-                 <span className="text-[var(--gold)] font-bold text-[2.5rem] md:text-[3rem] leading-none">→</span>
-
-                 <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-[3vw] md:gap-[1.5vw] cursor-default">
-                   <div className="w-[50px] h-[50px] md:w-[60px] md:h-[60px] rounded-full flex items-center justify-center h2-text md:h1-text m-0 shadow-lg bg-[var(--gold)] text-[var(--house-green)]">B2</div>
-                   <span className="body-text font-bold text-[var(--white)] uppercase tracking-widest whitespace-nowrap">Fluent</span>
-                 </motion.div>
-               </div>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-[2vw]">
-               <motion.div whileHover={{ y: -5 }} className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-[2vw] flex flex-col rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors">
-                 <div className="flex justify-between items-center mb-[2vh]">
-                   <h3 className="h2-text text-[var(--white)]">A1 ⇄ A2 Dynamic</h3>
-                   <span className="bg-[var(--gold)] text-[var(--house-green)] px-3 py-1 rounded-[4px] small-text font-bold uppercase tracking-wider">Active</span>
-                 </div>
-                 <p className="body-text text-[var(--text-white-soft)] leading-relaxed">A1 learners practice guided dialogues with A2 seniors, reinforcing real interaction before entering complex grammar.</p>
-               </motion.div>
-               
-               <motion.div whileHover={{ y: -5 }} className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-[2vw] flex flex-col rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors">
-                 <div className="flex justify-between items-center mb-[2vh]">
-                   <h3 className="h2-text text-[var(--white)]">A2 ⇄ B1 Labs</h3>
-                   <span className="bg-[rgba(255,255,255,0.1)] text-[var(--white)] border border-[rgba(255,255,255,0.2)] px-3 py-1 rounded-[4px] small-text font-bold uppercase tracking-wider">2x Week</span>
-                 </div>
-                 <p className="body-text text-[var(--text-white-soft)] leading-relaxed">A2 speakers bridge into spontaneous descriptions of past experiences, guided by B1 learners polishing their narration.</p>
-               </motion.div>
-
-               <motion.div whileHover={{ y: -5 }} className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-[2vw] flex flex-col rounded-[12px] hover:bg-[rgba(255,255,255,0.1)] transition-colors">
-                 <div className="flex justify-between items-center mb-[2vh]">
-                   <h3 className="h2-text text-[var(--white)]">B1 ⇄ B2 Discourse</h3>
-                   <span className="bg-[rgba(255,255,255,0.1)] text-[var(--white)] border border-[rgba(255,255,255,0.2)] px-3 py-1 rounded-[4px] small-text font-bold uppercase tracking-wider">Daily</span>
-                 </div>
-                 <p className="body-text text-[var(--text-white-soft)] leading-relaxed">Expressing opinions, professional topics, counter-arguments, and complex connectors seamlessly.</p>
-               </motion.div>
-             </div>
-
-             <div className="mt-[4vh] text-[var(--gold-light)] italic h2-text text-center font-normal px-[5vw]">
-               "Senior learners support junior learners while revising and strengthening their own fluency."
-             </div>
-           </div>
-        </motion.div>
-
-        {/* ── HIGHLIGHTED B1/B2 (DESKTOP FLEX) ── */}
-        {/* ── EXAM PREP MASTERCLASS (DESKTOP 4-GRID) ── */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="mt-[2vh]">
-          <div className="flex justify-between items-end mb-2">
-             <span className="small-text font-bold text-[var(--gold)] uppercase tracking-widest">Certification Success</span>
-             <span className="bg-[var(--green-light)] text-[var(--starbucks-green)] small-text font-bold px-[1vw] py-[0.5vh] rounded-[8px]">Goethe & telc Certified</span>
-          </div>
-          <h2 className="display-text text-[var(--text-black)] mb-2">Exam Preparation Masterclass</h2>
-          <p className="body-text text-[var(--text-black-soft)] mb-[4vh] text-[1.6rem]">Four modular exam pillars engineered for high scores and visa compliance.</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-[2vw] mb-[3vh]">
-            <motion.div whileHover={{ y: -10 }} className="content-card shadow-sm border border-[var(--ceramic)]">
-              <div className="flex justify-between items-start mb-[2vh]">
-                <BookOpen className="w-10 h-10 text-[var(--starbucks-green)]" />
-                <span className="small-text font-bold bg-[var(--neutral-warm)] px-3 py-1 rounded-[4px] text-[var(--text-black-soft)] border border-[var(--ceramic)]">Teil 1-5</span>
+            {/* Visual Step Ladder */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">A1</div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Junior Learner</span>
+                <p className="text-xs text-[var(--text-white-soft)] mt-2">Build initial phonetic confidence with guided partner drills</p>
               </div>
-              <h3 className="h2-text text-[var(--text-black)] mb-2">Lesen</h3>
-              <p className="body-text text-[var(--text-black-soft)] m-0 leading-relaxed">Speed comprehension & text inference traps designed for test environments.</p>
-            </motion.div>
-            
-            <motion.div whileHover={{ y: -10 }} className="content-card shadow-sm border border-[var(--ceramic)]">
-              <div className="flex justify-between items-start mb-[2vh]">
-                <Headphones className="w-10 h-10 text-[var(--gold)]" />
-                <span className="small-text font-bold bg-[var(--gold-lightest)] px-3 py-1 rounded-[4px] text-[var(--gold)] border border-[var(--gold-light)]">Audio Drills</span>
-              </div>
-              <h3 className="h2-text text-[var(--text-black)] mb-2">Hören</h3>
-              <p className="body-text text-[var(--text-black-soft)] m-0 leading-relaxed">Dialects, accents, and selective listening tips mapping exact exam audio profiles.</p>
-            </motion.div>
-            
-            <motion.div whileHover={{ y: -10 }} className="content-card shadow-sm border border-[var(--ceramic)]">
-              <div className="flex justify-between items-start mb-[2vh]">
-                <PenTool className="w-10 h-10 text-[var(--text-black)]" />
-                <span className="small-text font-bold bg-[var(--neutral-warm)] px-3 py-1 rounded-[4px] text-[var(--text-black-soft)] border border-[var(--ceramic)]">Templates</span>
-              </div>
-              <h3 className="h2-text text-[var(--text-black)] mb-2">Schreiben</h3>
-              <p className="body-text text-[var(--text-black-soft)] m-0 leading-relaxed">Formal emails, argumentative essays & vocabulary review blueprints.</p>
-            </motion.div>
-            
-            <motion.div whileHover={{ y: -10 }} className="content-card shadow-sm border border-[var(--ceramic)]">
-              <div className="flex justify-between items-start mb-[2vh]">
-                <Users className="w-10 h-10 text-[var(--starbucks-green)]" />
-                <span className="small-text font-bold bg-[var(--green-light)] px-3 py-1 rounded-[4px] text-[var(--starbucks-green)] border border-[var(--green-accent)]">Pair Drills</span>
-              </div>
-              <h3 className="h2-text text-[var(--text-black)] mb-2">Sprechen</h3>
-              <p className="body-text text-[var(--text-black-soft)] m-0 leading-relaxed">Presentations, planning sessions & rebuttals timed with examiners.</p>
-            </motion.div>
-          </div>
 
-          <div className="bg-[var(--neutral-warm)] border border-[var(--ceramic)] rounded-[16px] p-[3vw] flex flex-col md:flex-row justify-between items-center gap-[2vw] shadow-inner">
-             <div className="flex items-center gap-[2vw]">
-               <div className="bg-[var(--white)] p-4 rounded-full shadow-sm border border-[var(--ceramic)]">
-                 <Timer className="w-12 h-12 text-[var(--text-black)]" />
-               </div>
-               <div>
-                 <h4 className="h2-text text-[var(--text-black)] mb-1">Simulated Full-length Mock Exams</h4>
-                 <p className="body-text text-[var(--text-black-soft)] m-0">Timed test conditions with certified Goethe evaluator grading.</p>
-               </div>
-             </div>
-             <motion.button whileHover={{ scale: 1.05 }} className="btn-outline !bg-[var(--white)] w-full md:w-auto px-[3vw]">View Schedule</motion.button>
+              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">A2</div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Practice Partner</span>
+                <p className="text-xs text-[var(--text-white-soft)] mt-2">Engage in spontaneous role-play and past tense stories</p>
+              </div>
+
+              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">B1</div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Cohort Mentor</span>
+                <p className="text-xs text-[var(--text-white-soft)] mt-2">Defend viewpoints, mentor juniors & reinforce personal fluency</p>
+              </div>
+
+              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
+                <div className="w-14 h-14 rounded-2xl bg-[var(--gold)] text-white font-black text-xl flex items-center justify-center mb-3 shadow-lg">B2</div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-lightest)]">Professional Fluent</span>
+                <p className="text-xs text-[var(--text-white-soft)] mt-2">Lead discourse, master complex nuances & pass Goethe B2</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-bold text-white">A1 ⇄ A2 Dynamic</h3>
+                  <span className="bg-[var(--gold)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">Daily Drills</span>
+                </div>
+                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">A1 learners practice guided dialogues with A2 seniors, reinforcing real interaction before entering complex grammar.</p>
+              </div>
+              
+              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-bold text-white">A2 ⇄ B1 Labs</h3>
+                  <span className="bg-[rgba(255,255,255,0.15)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">2x Weekly</span>
+                </div>
+                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">A2 speakers bridge into spontaneous descriptions of past experiences, guided by B1 learners polishing their narration.</p>
+              </div>
+
+              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-bold text-white">B1 ⇄ B2 Discourse</h3>
+                  <span className="bg-[rgba(255,255,255,0.15)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">Live Sessions</span>
+                </div>
+                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">Expressing opinions, professional topics, counter-arguments, and complex connectors seamlessly.</p>
+              </div>
+            </div>
+
+            <p className="mt-8 text-center text-sm sm:text-base font-medium text-[var(--gold-light)] italic">
+              "By teaching and conversing with juniors, senior students strengthen their own mastery while juniors learn in a safe, anxiety-free setting."
+            </p>
           </div>
         </motion.div>
 
-        {/* ── OUR PHILOSOPHY / FOOTER (DESKTOP) ── */}
+        {/* ── EXAM PREP MASTERCLASS ── */}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-2">
+            <div>
+              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Certification Success</span>
+              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mt-1">Goethe & telc Exam Preparation</h2>
+            </div>
+            <span className="bg-[var(--green-light)] text-[var(--house-green)] text-xs font-bold px-3 py-1 rounded-full border border-slate-200">
+              Official Four Pillars
+            </span>
+          </div>
+
+          <p className="text-base text-[var(--text-black-soft)] mb-8">Four modular exam pillars engineered for high band scores and embassy visa approval.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
+              <div className="flex justify-between items-start mb-4">
+                <BookOpen className="w-8 h-8 text-[var(--house-green)]" />
+                <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded">Teil 1–5</span>
+              </div>
+              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Lesen (Reading)</h3>
+              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Speed comprehension, inference cues, and vocabulary traps modeled directly on actual test sheets.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
+              <div className="flex justify-between items-start mb-4">
+                <Headphones className="w-8 h-8 text-[var(--gold)]" />
+                <span className="text-xs font-bold bg-[var(--gold-lightest)] text-[var(--gold)] px-2.5 py-1 rounded">Audio Drills</span>
+              </div>
+              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Hören (Listening)</h3>
+              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Regional accents, fast speech patterns, and selective listening techniques to catch essential clues.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
+              <div className="flex justify-between items-start mb-4">
+                <PenTool className="w-8 h-8 text-[var(--text-black)]" />
+                <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded">Templates</span>
+              </div>
+              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Schreiben (Writing)</h3>
+              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Formal letter structures, complaint emails, opinion essays, and certified examiner grading checklists.</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
+              <div className="flex justify-between items-start mb-4">
+                <Users className="w-8 h-8 text-[var(--house-green)]" />
+                <span className="text-xs font-bold bg-[var(--green-light)] text-[var(--house-green)] px-2.5 py-1 rounded">Pair Drills</span>
+              </div>
+              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Sprechen (Speaking)</h3>
+              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Structured 2-person dialogues, partner presentations, and counter-questions with mock examiners.</p>
+            </div>
+          </div>
+
+          <div className="bg-white border border-[var(--ceramic)] rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-[var(--text-black)] flex-shrink-0">
+                <Timer className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-[var(--text-black)] mb-0.5">Full-Length Goethe Simulation Tests</h4>
+                <p className="text-sm text-[var(--text-black-soft)] m-0">Strict exam conditions with scored evaluation and individual correction notes.</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setTrialFormOpen(true)}
+              className="w-full md:w-auto px-6 py-3.5 bg-[var(--house-green)] hover:bg-[#132c4d] text-white font-bold text-sm rounded-xl transition cursor-pointer flex-shrink-0"
+            >
+              Check Mock Test Schedule
+            </button>
+          </div>
+        </motion.div>
+
+        {/* ── BOLDER BOTTOM CONVERSION BANNER ── */}
         <motion.div 
           initial="hidden" whileInView="visible" viewport={{ once: true }} variants={popIn}
-          className="feature-band rounded-[16px] p-[6vw] mt-[4vh] mb-[8vh] !w-full !ml-0 flex flex-col md:flex-row gap-[6vw] items-center text-center md:text-left shadow-2xl relative overflow-hidden"
+          className="bg-[var(--house-green)] rounded-3xl p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row gap-8 items-center text-center lg:text-left shadow-2xl relative overflow-hidden"
         >
-           {/* Liquid Morphing Background Array */}
-           <GooeyBackground />
-           
-           <div className="flex-1 relative z-10 pointer-events-none">
-             <span className="small-text font-bold text-[var(--gold-light)] uppercase tracking-widest mb-2 block">Our Philosophy</span>
-             <h2 className="display-text text-[var(--white)] text-[4.8rem] line-height-[1.1] leading-none mb-6 drop-shadow-md">Structured.<br/>Practical.<br/>Accessible.</h2>
-             <p className="body-text text-[var(--text-white-soft)] text-[1.6rem] m-0 max-w-xl backdrop-blur-sm bg-[rgba(0,0,0,0.1)] p-2 rounded-lg">
-               Whether preparing for studies in Munich, an engineering transfer, or vocational training (Ausbildung), master German with unshakeable confidence.
-             </p>
-           </div>
-           
-           <div className="flex-[0.8] w-full bg-[rgba(255,255,255,0.05)] p-[3vw] rounded-[16px] border border-[rgba(255,255,255,0.1)] backdrop-blur-md relative z-10">
-             <div className="space-y-[2vh] w-full">
-               <motion.button onClick={() => setTrialFormOpen(true)} whileHover={{ scale: 1.05 }} className="btn-primary !w-full !bg-[var(--gold)] !border-[var(--gold)] !text-[var(--house-green)] flex justify-between items-center px-[2vw] py-[2vh] text-[1.8rem] shadow-lg cursor-pointer">
-                 <span>Book Free Trial & Placement</span>
-                 <span className="text-[2rem]">→</span>
-               </motion.button>
-               <motion.button onClick={() => setMentorFormOpen(true)} whileHover={{ scale: 1.05 }} className="btn-outline !w-full !text-[var(--white)] !border-[var(--white)] flex justify-center items-center gap-3 py-[2vh] text-[1.8rem] hover:bg-[rgba(255,255,255,0.1)] cursor-pointer">
-                 <MessageCircle className="w-6 h-6" /> Chat with Academic Mentor
-               </motion.button>
-             </div>
+          <GooeyBackground />
+          
+          <div className="flex-1 relative z-10">
+            <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest mb-3 block">BhashaSchool Commitment</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
+              Structured. Practical. Career-Focused.
+            </h2>
+            <p className="text-base text-[var(--text-white-soft)] max-w-xl leading-relaxed">
+              Whether you are preparing for higher education in Munich, an engineering visa, or a nursing transfer, acquire German proficiency with complete confidence.
+            </p>
+          </div>
+          
+          <div className="flex-1 w-full max-w-md bg-[rgba(255,255,255,0.06)] p-8 rounded-2xl border border-[rgba(255,255,255,0.12)] backdrop-blur-md relative z-10">
+            <div className="space-y-4">
+              <motion.button 
+                onClick={() => setTrialFormOpen(true)} 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-[var(--gold)] hover:bg-[#b45309] text-white font-bold flex justify-between items-center px-6 py-4 rounded-xl text-lg shadow-lg cursor-pointer transition"
+              >
+                <span>Book Free Trial & Assessment</span>
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
 
-             <div className="flex flex-wrap justify-between mt-[4vh] pt-[3vh] border-t border-[rgba(255,255,255,0.1)]">
-               <span className="body-text font-bold text-[var(--green-light)] flex items-center gap-2"><Check className="w-4 h-4" /> No Obligation</span>
-               <span className="body-text font-bold text-[var(--green-light)] flex items-center gap-2"><Check className="w-4 h-4" /> Level Assessment Included</span>
-             </div>
-           </div>
+              <motion.button 
+                onClick={() => setMentorFormOpen(true)} 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold flex justify-center items-center gap-2 py-3.5 rounded-xl text-base border border-white/20 cursor-pointer transition"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Talk to Academic Advisor</span>
+              </motion.button>
+            </div>
+
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-[rgba(255,255,255,0.1)] text-xs font-semibold text-emerald-400">
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> No Credit Card Required</span>
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> 30-Min Instant Placement</span>
+            </div>
+          </div>
         </motion.div>
 
       </div>
