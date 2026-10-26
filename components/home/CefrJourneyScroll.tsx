@@ -26,7 +26,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Discovery',
     italicTitle: '& Phonetics',
     desc: 'We map the rigid angles before we smooth them out. Master phonetics, alphabet, sentence order, and initial survival dialogues.',
-    initialHeight: 560, // Starts at full height
+    initialHeight: 620, // Starts at full height
   },
   {
     num: '02',
@@ -34,7 +34,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Connected',
     italicTitle: '& Dialogues',
     desc: 'Angles begin rounding out into rhythm. Form past tense (Perfekt), navigate everyday social settings, and ask questions without freezing.',
-    initialHeight: 360, // Rises to 560px
+    initialHeight: 400, // Rises to 620px
   },
   {
     num: '03',
@@ -42,7 +42,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Spontaneous',
     italicTitle: '& Debate',
     desc: 'Rapid momentum and complex sentence flow. Defend opinions, master Konjunktiv II, and prepare for official Goethe & telc visa exams.',
-    initialHeight: 290, // Rises to 560px
+    initialHeight: 320, // Rises to 620px
   },
   {
     num: '04',
@@ -50,17 +50,16 @@ const LEVELS: LevelConfig[] = [
     title: 'Effortless',
     italicTitle: '& Fluency',
     desc: 'The perfect circle: complete linguistic velocity. Lead workplace presentations, participate in technical debates, and speak instinctively.',
-    initialHeight: 220, // Rises to 560px
+    initialHeight: 250, // Rises to 620px
   },
 ];
 
-const FULL_HEIGHT = 560;
-const HALF_SIDE = 32;                   // Half-length of square side (side length S = 64px)
-const BALL_RADIUS = Math.round(HALF_SIDE * Math.SQRT2); // 45px (center to corner of square)
-const BUMP_PERIOD = 64;                 // Each bump width matches square side length S = 64px!
-const CREST_Y = 254;                    // Fixed Y coordinate of bump crests
-const BALL_CENTER_Y = CREST_Y - HALF_SIDE; // 222px (fixed horizontal center baseline)
-const MAX_BUMP_AMP = 22;                // Max bump depth (troughs dip by 22px)
+const FULL_HEIGHT = 620;
+const BALL_RADIUS = 44;                 // 88px diameter
+const Y_TROUGH = 260;                   // Fixed Y coordinate of road troughs (and straight flat line when A=0)
+const BALL_CENTER_Y = Y_TROUGH - BALL_RADIUS; // 216px (dashed line position)
+const BUMP_PERIOD = 72;                 // Width of each bump
+const MAX_BUMP_AMP = 26;                // Initial bump height (26px tall arches!)
 
 // Dynamic shape sides: increases one-by-one
 function getShapeInfo(p: number) {
@@ -132,13 +131,13 @@ export default function CefrJourneyScroll() {
   const cardHeights = useMemo(() => {
     const h1 = FULL_HEIGHT;
     const t2 = Math.max(0, Math.min(1, (p - 0.05) / 0.27));
-    const h2 = Math.round(360 + t2 * (FULL_HEIGHT - 360));
+    const h2 = Math.round(400 + t2 * (FULL_HEIGHT - 400));
 
     const t3 = Math.max(0, Math.min(1, (p - 0.32) / 0.30));
-    const h3 = Math.round(290 + t3 * (FULL_HEIGHT - 290));
+    const h3 = Math.round(320 + t3 * (FULL_HEIGHT - 320));
 
     const t4 = Math.max(0, Math.min(1, (p - 0.62) / 0.30));
-    const h4 = Math.round(220 + t4 * (FULL_HEIGHT - 220));
+    const h4 = Math.round(250 + t4 * (FULL_HEIGHT - 250));
 
     return [h1, h2, h3, h4];
   }, [p]);
@@ -149,8 +148,7 @@ export default function CefrJourneyScroll() {
   }, [p]);
 
   // ── 3. MATHEMATICAL BUMP AMPLITUDE TIED TO POLYGON SIDES ──
-  // For an N-sided polygon, required bump height is proportional to (1 - cos(pi / N)).
-  // For Square (N=4), amplitude is max (22px). For Circle, amplitude decays to 0px!
+  // Amplitude decays from MAX_BUMP_AMP (26px) down to 0px (Circle)
   const currentAmp = useMemo(() => {
     const N = currentShape.sides;
     const denom = 1 - Math.cos(Math.PI / 4); // Square baseline
@@ -159,17 +157,18 @@ export default function CefrJourneyScroll() {
   }, [currentShape.sides]);
 
   // ── 4. CONTINUOUS BUMP TRACK SVG ──
-  // Bump width BUMP_PERIOD (64px) matches the square's side length (64px).
-  // Cusps (troughs) are at i * BUMP_PERIOD, crests are at (i + 0.5) * BUMP_PERIOD.
-  // The square's corner fits right into the trough between bumps!
+  // Troughs dip to Y_TROUGH (260px).
+  // Arches rise up to Y_TROUGH - currentAmp (peak at 234px when A=26).
+  // When A=0 (Circle), the entire line is a flat line at Y_TROUGH = 260px!
+  // The bottom of the circle is at BALL_CENTER_Y + BALL_RADIUS = 216 + 44 = 260px,
+  // resting on top of the line with 0px overlap!
   const smoothTrackPath = useMemo(() => {
     const W = containerWidth || 1200;
     const numWaves = Math.ceil(W / BUMP_PERIOD);
     const segments: string[] = [];
 
-    // Trough Y: CREST_Y + currentAmp
-    const yTrough = CREST_Y + currentAmp;
-    segments.push(`M 0,${yTrough.toFixed(1)}`);
+    // Start at initial trough
+    segments.push(`M 0,${Y_TROUGH.toFixed(1)}`);
 
     for (let i = 0; i < numWaves; i++) {
       const x0 = i * BUMP_PERIOD;
@@ -178,29 +177,29 @@ export default function CefrJourneyScroll() {
 
       if (currentAmp < 0.4) {
         // Flat straight line
-        segments.push(`L ${x1.toFixed(1)},${CREST_Y}`);
+        segments.push(`L ${x1.toFixed(1)},${Y_TROUGH}`);
       } else {
-        // Arch curves UP: crest touches CREST_Y (yCtrl = CREST_Y - currentAmp)
-        // Cusps dip down to yTrough
-        const yCtrl = CREST_Y - currentAmp;
-        segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${yTrough.toFixed(1)}`);
+        // Quadratic bezier arch:
+        // Starts at Y_TROUGH, control point at Y_TROUGH - 2*currentAmp, ends at Y_TROUGH.
+        // Midpoint apex reaches exactly Y_TROUGH - currentAmp!
+        const yCtrl = Y_TROUGH - 2 * currentAmp;
+        segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${Y_TROUGH.toFixed(1)}`);
       }
     }
 
     return segments.join(' ');
   }, [containerWidth, currentAmp]);
 
-  // ── 5. ROLLING SHAPE POSITION & PHYSICAL SYNCHRONIZED ROTATION ──
-  // Width bounds:
+  // ── 5. ROLLING SHAPE POSITION & SYNCHRONIZED ROTATION ──
   const W = containerWidth || 1200;
-  // Start position X0 is aligned so square corner is centered right between bumps (at a trough):
-  const startX = 32;
-  const endX = W - 54;
+  // Starting position X0 is centered over a trough (corner dips into the dip between bumps)
+  const startX = 36;
+  const endX = W - 60;
   const currentX = startX + p * (endX - startX);
 
   // Synchronized rolling rotation:
-  // Traveling one bump width (64px) rotates the square by exactly 90 degrees (pi / 2)!
-  // At startX (p=0), initial rotation is 45 deg (pi / 4) so bottom corner dips straight into the trough!
+  // Traveling one bump (72px) rotates the shape by 90 deg (pi / 2).
+  // At startX (p=0), initial rotation is 45 deg (pi / 4) so bottom corner points straight into the trough!
   const traveledDistance = currentX - startX;
   const rotation = (Math.PI / 4) + (traveledDistance / BUMP_PERIOD) * (Math.PI / 2);
 
@@ -253,7 +252,7 @@ export default function CefrJourneyScroll() {
               </span>
             </p>
             <p className="text-[1.25rem] text-[#626B73]">
-              Square side matches bump surface • Corners dip between bumps • Sides increase step-by-step
+              Corner dips between bumps • Shape covers each bump • Rest on top of the road
             </p>
           </div>
         </div>
@@ -275,7 +274,7 @@ export default function CefrJourneyScroll() {
                   height: `${currentHeight}px`,
                   transition: 'height 0.12s ease-out, box-shadow 0.2s ease',
                 }}
-                className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[1.8vw] flex flex-col justify-between overflow-hidden shadow-md ${
+                className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[2vw] flex flex-col justify-between overflow-hidden shadow-md ${
                   isActive ? 'ring-2 ring-white/80 shadow-2xl' : 'opacity-95'
                 }`}
               >
@@ -286,7 +285,7 @@ export default function CefrJourneyScroll() {
                   </span>
                   <div className="flex items-center gap-2">
                     {isActive && (
-                      <span className="text-[1.1rem] font-mono text-white/90 font-bold bg-white/20 px-2 py-0.5 rounded-full">
+                      <span className="text-[1.1rem] font-mono text-white/90 font-bold bg-white/20 px-2.5 py-0.5 rounded-full">
                         {currentShape.label}
                       </span>
                     )}
@@ -296,25 +295,25 @@ export default function CefrJourneyScroll() {
                   </div>
                 </div>
 
-                {/* ── BOTTOM EDITORIAL TYPOGRAPHY (WELL BELOW FIXED TRACK) ── */}
-                <div className="z-10 mt-auto pt-[2vh]">
-                  <div className="mb-[1vh]">
-                    <div className="text-[1.2rem] font-mono uppercase tracking-wider text-white/70 mb-1">
+                {/* ── BOTTOM EDITORIAL TYPOGRAPHY (PROMINENT & UNCLIPPED) ── */}
+                <div className="z-10 mt-auto pt-[4vh] pb-[1vh]">
+                  <div className="mb-[1.5vh]">
+                    <div className="text-[1.15rem] font-mono uppercase tracking-wider text-white/70 mb-1">
                       {idx === activeIndex ? currentShape.name : idx === 0 ? 'Square' : idx === 1 ? 'Octagon' : idx === 2 ? 'Dodecagon' : 'Circle'}
                     </div>
-                    <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold tracking-tight leading-none text-white">
+                    <h3 className="text-[2.6rem] sm:text-[3rem] font-extrabold tracking-tight leading-none text-white">
                       {lvl.title}
                     </h3>
-                    <div className="text-[2rem] sm:text-[2.3rem] font-serif italic text-white/95 leading-tight">
+                    <div className="text-[2.2rem] sm:text-[2.6rem] font-serif italic text-white/95 leading-tight">
                       {lvl.italicTitle}
                     </div>
                   </div>
 
-                  <p className="text-[1.3rem] text-white/85 leading-relaxed font-normal line-clamp-3">
+                  <p className="text-[1.35rem] text-white/90 leading-relaxed font-normal">
                     {lvl.desc}
                   </p>
 
-                  <div className="mt-[1.5vh] pt-[1.2vh] border-t border-white/20 flex items-center justify-between text-[1.1rem] font-mono text-white/70">
+                  <div className="mt-[2vh] pt-[1.5vh] border-t border-white/20 flex items-center justify-between text-[1.15rem] font-mono text-white/70">
                     <span>STAGE {idx + 1} OF 4</span>
                     {isActive && (
                       <span className="flex items-center gap-1 text-white font-bold animate-pulse">
@@ -340,38 +339,38 @@ export default function CefrJourneyScroll() {
 
             {/* Continuous SVG track line: bumps flatten as polygon gains more sides */}
             <svg 
-              className="absolute inset-0 w-full h-full overflow-visible text-white/85 stroke-current fill-none stroke-[2.2]"
+              className="absolute inset-0 w-full h-full overflow-visible text-white/85 stroke-current fill-none stroke-[2.4]"
               style={{ pointerEvents: 'none' }}
             >
               <path d={smoothTrackPath} />
             </svg>
           </div>
 
-          {/* ── ROLLING SHAPE OVERLAY (PHYSICALLY SYNCHRONIZED ON TRACK) ── */}
+          {/* ── ROLLING SHAPE OVERLAY (RESTS PERFECTLY ON THE ROAD) ── */}
           <div 
             className="absolute inset-x-0 pointer-events-none hidden md:block z-20"
             style={{ top: `${BALL_CENTER_Y}px` }}
           >
             <div 
-              className="absolute -top-[45px] -ml-[45px] will-change-transform"
+              className="absolute -top-[44px] -ml-[44px] will-change-transform"
               style={{
                 left: `${currentX}px`,
               }}
             >
-              <svg width="90" height="90" viewBox="-45 -45 90 90" className="overflow-visible drop-shadow-md">
+              <svg width="88" height="88" viewBox="-44 -44 88 88" className="overflow-visible drop-shadow-md">
                 {shapeData.isCircle ? (
                   <circle
                     cx="0"
                     cy="0"
                     r={BALL_RADIUS}
-                    fill="rgba(255,255,255,0.12)"
+                    fill="rgba(255,255,255,0.15)"
                     stroke="#FFFFFF"
                     strokeWidth="2.5"
                   />
                 ) : (
                   <polygon
                     points={shapeData.points}
-                    fill="rgba(255,255,255,0.12)"
+                    fill="rgba(255,255,255,0.15)"
                     stroke="#FFFFFF"
                     strokeWidth="2.5"
                   />
