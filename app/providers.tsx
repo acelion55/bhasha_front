@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from '@/lib/auth-context';
 import { Toaster } from 'sonner';
+import { ReactLenis } from 'lenis/react';
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <BackendKeepAlive />
-          {children}
+          <ReactLenis
+            root
+            options={{
+              lerp: 0.08,
+              duration: 1.2,
+              smoothWheel: true,
+              wheelMultiplier: 1,
+              touchMultiplier: 1.5,
+              infinite: false,
+            }}
+          >
+            {children}
+          </ReactLenis>
           <Toaster position="top-right" richColors theme="dark" />
         </AuthProvider>
       </QueryClientProvider>

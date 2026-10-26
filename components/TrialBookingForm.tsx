@@ -142,8 +142,8 @@ export default function TrialBookingForm({ type, isOpen, onClose }: { type: 'tri
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 overflow-hidden">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" data-lenis-prevent>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 overflow-hidden" data-lenis-prevent>
         {/* Header */}
         <div className="bg-[var(--house-green)] px-8 py-6 flex justify-between items-center text-white">
           <div>
