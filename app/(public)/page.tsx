@@ -2,408 +2,491 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Shield, Medal, Globe, GraduationCap, FileText, 
-  Radio, Headphones, MessageCircle, Users, BookOpen, 
-  Zap, Target, Plane, Mic, PenTool, Timer,
-  LayoutGrid, Book, Settings, Check, ArrowRight, Sparkles, Award
+  Shield, 
+  GraduationCap, 
+  FileText, 
+  MessageCircle, 
+  Users, 
+  BookOpen, 
+  Calendar, 
+  Clock, 
+  Lock, 
+  Check, 
+  ArrowRight, 
+  ChevronDown, 
+  Sparkles, 
+  Video, 
+  Layers, 
+  HeartHandshake,
+  MessageSquare,
+  ShieldCheck,
+  Compass,
+  CheckCircle2
 } from 'lucide-react';
-import GooeyBackground from '@/components/effects/GooeyBackground';
 import TrialBookingForm from '@/components/TrialBookingForm';
 import HeroSection from '@/components/home/HeroSection';
 
-const CEFR_DATA: Record<string, {
-  title: string;
-  duration: string;
-  desc: string;
-  badges: string[];
-  target: string;
-}> = {
-  A1: {
-    title: 'Foundations of German (A1 Beginner)',
-    duration: '80 Hours • 8–10 Weeks',
-    desc: 'Master phonetics, alphabet, sentence order, and daily survival German: self-introductions, ordering food, basic shopping, and asking for directions.',
-    badges: ['Phonetics & Pronunciation Drills', 'Nominativ & Akkusativ', 'Daily Routines & Time', 'Official Goethe A1 Exam Prep'],
-    target: 'Survive and converse in simple daily scenarios with native German speakers.'
+const CEFR_STEPS = [
+  { level: 'Baustein', title: 'Foundation (15 Days)', desc: 'Pronunciation, core alphabet, basic sentence architecture, and phonetics.' },
+  { level: 'A1', title: 'Beginner (30 Days)', desc: 'Everyday survival phrases, daily routines, shopping, and present tense dialogues.' },
+  { level: 'A2', title: 'Elementary (40 Days)', desc: 'Past tense (Perfekt), social conversations, giving directions, and workplace scenarios.' },
+  { level: 'B1', title: 'Intermediate (50 Days)', desc: 'Spontaneous discussions, complex grammar, opinions, plus 10 days Goethe/telc exam prep.' },
+  { level: 'B2', title: 'Professional (60 Days)', desc: 'Advanced workplace communication, medical/engineering terminology, and formal debate.' },
+];
+
+const FAQS = [
+  {
+    q: 'What is BhashaSchool?',
+    a: 'BhashaSchool is a structured live language learning academy specializing in German and English. We combine certified native faculty instruction with our proprietary Peer-Ladder conversation system so students overcome speaking hesitation.',
   },
-  A2: {
-    title: 'Elementary Fluency (A2 Elementary)',
-    duration: '90 Hours • 9–11 Weeks',
-    desc: 'Express past events (Perfekt & Präteritum), give directions, describe feelings, and navigate workplace dialogues and social situations.',
-    badges: ['Perfekt & Dativ Verbs', 'Modal Verbs in Past', 'Workplace Dialogues', 'Official Goethe A2 Exam Prep'],
-    target: 'Handle regular situations in German work and travel environments with ease.'
+  {
+    q: 'Which languages can I learn?',
+    a: 'We currently provide full CEFR curriculum programs for German (A1 to B2), Conversational English, and beginner Spanish.',
   },
-  B1: {
-    title: 'Intermediate Mastery (B1 - German Visa & Citizenship)',
-    duration: '110 Hours • 12–14 Weeks',
-    desc: 'Speak spontaneously on familiar topics, defend opinions, express abstract concepts, and master the official Goethe/telc B1 certification for German residency.',
-    badges: ['Konjunktiv II & Subordinate Clauses', 'Official B1 Essay Drafting', 'Spontaneous Debate Drills', 'Goethe B1 Visa Ready'],
-    target: 'Full qualification for German Ausbildung, university pathway, and job visas.'
+  {
+    q: 'What are CEFR levels and why do they matter?',
+    a: 'The Common European Framework of Reference for Languages (CEFR) is the international standard for describing language ability. It is required for German university admissions, Ausbildung vocational training, and work visas.',
   },
-  B2: {
-    title: 'Advanced Professional Fluency (B2 - Work & Medical)',
-    duration: '130 Hours • 14–16 Weeks',
-    desc: 'Engage in complex technical discussions, formal presentations, nuances, idiomatic German, and professional workplace negotiation.',
-    badges: ['Complex Connectors & Passiv', 'Professional Presentations', 'Medical & Tech Terminology', 'Goethe/telc B2 Certified'],
-    target: 'Direct employment eligibility for nursing, engineering, and German corporations.'
-  }
-};
+  {
+    q: 'What is Baustein?',
+    a: 'Baustein is our proprietary 15-day foundational syllabus. Before starting standard textbook chapters, Baustein teaches you the logical grammar engine of the language, making subsequent learning 3x smoother.',
+  },
+  {
+    q: 'How do live classes work?',
+    a: 'Classes run Monday to Friday in small batches (max 10 students). Sessions are 1 to 1:30 hours with certified teachers, followed by daily mentor drill sessions.',
+  },
+  {
+    q: 'Can I practise speaking with other learners?',
+    a: 'Yes! Through our Peer Ladder, junior learners (A1) converse in safe, guided sessions with senior learners (A2), and A2 learners practice with B1/B2 mentors.',
+  },
+  {
+    q: 'Are my phone number and email visible to other students?',
+    a: 'Never. All peer conversations and practice sessions happen securely within the BhashaSchool learning space. Your personal contact details remain completely private.',
+  },
+  {
+    q: 'How do I join a free trial class or placement test?',
+    a: 'Simply click "Book Free Trial" anywhere on this page. Our academic team will connect with you to schedule a 30-minute level assessment and taster class.',
+  },
+];
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<'A1' | 'A2' | 'B1' | 'B2'>('A1');
   const [trialFormOpen, setTrialFormOpen] = useState(false);
-  const [mentorFormOpen, setMentorFormOpen] = useState(false);
-
-  // Reusable animation variants
-  const fadeIn: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-  };
-  
-  const popIn: Variants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
-  };
-
-  const staggerVariants: Variants = {
-    visible: { transition: { staggerChildren: 0.2 } }
-  };
-
-  const currentLevel = CEFR_DATA[activeTab] || CEFR_DATA.A1;
+  const [activeStep, setActiveStep] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center bg-[var(--neutral-warm)] pb-24 overflow-x-hidden">
+    <main className="min-h-screen w-full flex flex-col items-center bg-[#F7F6F2] pb-[8vh] overflow-x-hidden text-[#20252A]">
       
-      {/* ── HERO SECTION MATCHING MOCKUP ── */}
+      {/* ── 1. HERO SECTION (VIEWPORT HEIGHT ACCORDING TO SPEC) ── */}
       <HeroSection onOpenTrial={() => setTrialFormOpen(true)} />
 
-      {/* Main Container Wrapper for remaining sections */}
-      <div className="w-full max-w-none px-4 md:px-8 lg:px-12 py-12 md:py-16 flex flex-col gap-14 md:gap-18">
+      {/* ── MAIN STACKED PANELS CONTAINER (USING VH & VW) ── */}
+      <div className="w-full max-w-[1440px] px-[2.5vw] md:px-[3.5vw] lg:px-[4vw] py-[2vh] flex flex-col gap-[2.5vh] md:gap-[3.5vh]">
 
-        {/* ── CURRICULUM FRAMEWORK & DUAL SUPPORT ── */}
-        <motion.div 
-          id="curriculum"
-          initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
-          className="flex flex-col lg:flex-row gap-8 items-stretch"
-        >
-          {/* Framework Left */}
-          <div className="flex-[3] flex flex-col justify-between">
+        {/* ── 2. PEACH “WHY LANGUAGE LEARNING” STORY PANEL ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#F9D9CD] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)] shadow-xs">
+          <div className="max-w-4xl mx-auto text-center md:text-left">
+            <span className="text-[1.1rem] sm:text-[1.2rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1.5vh] block">
+              LEARN • PRACTISE • CONNECT
+            </span>
+            <h2 className="text-[2.6rem] sm:text-[3.4rem] md:text-[4rem] font-extrabold text-[#20252A] leading-[1.15] mb-[2vh] tracking-tight">
+              Language learning is better together.
+            </h2>
+            <p className="text-[1.6rem] sm:text-[1.8rem] text-[#20252A] font-medium leading-relaxed mb-[3vh] max-w-3xl">
+              Studying grammar rules alone in a textbook doesn&apos;t build conversational reflexes. At BhashaSchool, learners progress through verified CEFR milestones and connect with approved peers to build speaking confidence beyond class hours.
+            </p>
+            <div className="flex flex-wrap items-center gap-[2vw] pt-[1.5vh] border-t border-[rgba(32,37,42,0.12)]">
+              <span className="text-[1.4rem] sm:text-[1.5rem] font-bold text-[#173B63] flex items-center gap-2">
+                <Check className="w-5 h-5 text-[#E4A642] stroke-[3]" /> From your first words to confident conversations.
+              </span>
+              <span className="text-[1.4rem] sm:text-[1.5rem] font-bold text-[#173B63] flex items-center gap-2">
+                <Check className="w-5 h-5 text-[#E4A642] stroke-[3]" /> Safe, judgment-free peer practice.
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 3. TWO-COLUMN FEATURE CARDS (CEFR PATHWAY & SPEAKING COMMUNITY) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2.5vh] md:gap-[2.5vw] items-stretch">
+          
+          {/* Card A: Pale blue-gray learning pathway */}
+          <section className="rounded-[20px] md:rounded-[24px] bg-[#DCE7F0] p-[5vw] md:p-[3.5vw] border border-[rgba(32,37,42,0.08)] flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Official CEFR Framework</span>
-              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mb-2 mt-1">Structured Language Ladder</h2>
-              <p className="text-base text-[var(--text-black-soft)] mb-6">Each level maps directly to certified CEFR standards with measurable speaking and grammar outcomes.</p>
-              
-              {/* Level Tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-2 mb-4 hide-scrollbar border-b border-[var(--ceramic)]">
-                {(['A1', 'A2', 'B1', 'B2'] as const).map((lvl) => (
-                  <button 
-                    key={lvl}
-                    onClick={() => setActiveTab(lvl)}
-                    className={`flex-shrink-0 text-sm md:text-base px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer ${
-                      activeTab === lvl 
-                        ? 'bg-[var(--house-green)] text-white shadow-md ring-1 ring-white/20' 
-                        : 'bg-white text-[var(--text-black-soft)] hover:bg-slate-100 border border-[var(--ceramic)]'
+              <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+                STRUCTURED PROGRESS
+              </span>
+              <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold text-[#20252A] mb-[1.5vh] leading-tight">
+                A clear path from A1 to B2
+              </h3>
+              <p className="text-[1.5rem] text-[#626B73] leading-relaxed mb-[3vh]">
+                Follow an official CEFR roadmap designed for university admission, visa qualification, and global career opportunities.
+              </p>
+
+              {/* Stepper Chips */}
+              <div className="flex flex-wrap gap-[0.8vw] mb-[3vh]">
+                {CEFR_STEPS.map((s, idx) => (
+                  <button
+                    key={s.level}
+                    onClick={() => setActiveStep(idx)}
+                    className={`px-[1.6vw] py-[0.8vh] rounded-full text-[1.3rem] font-bold transition-all cursor-pointer ${
+                      activeStep === idx 
+                        ? 'bg-[#173B63] text-white shadow-xs' 
+                        : 'bg-white/80 hover:bg-white text-[#20252A] border border-[rgba(32,37,42,0.1)]'
                     }`}
                   >
-                    {lvl} • {lvl === 'A1' ? 'Beginner' : lvl === 'A2' ? 'Elementary' : lvl === 'B1' ? 'Intermediate' : 'Advanced'}
+                    {s.level}
                   </button>
                 ))}
               </div>
-            </div>
 
-            {/* Dynamic Active Tab Card */}
-            <motion.div 
-              key={activeTab} 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-2xl border border-[var(--ceramic)] p-6 md:p-8 shadow-lg flex flex-col md:flex-row gap-6"
-            >
-              <div className="flex-1 space-y-4">
-                <div className="flex gap-4 items-center">
-                  <div className="w-16 h-16 border-4 border-[var(--gold)] bg-[var(--gold-lightest)] text-[var(--gold)] rounded-2xl flex justify-center items-center font-black text-2xl shadow-sm">
-                    {activeTab}
-                  </div>
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-[var(--text-black)] mb-1">{currentLevel.title}</h3>
-                    <p className="text-sm font-semibold text-[var(--gold)]">{currentLevel.duration}</p>
-                  </div>
+              {/* Active Step Card */}
+              <div className="bg-white rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] shadow-xs">
+                <div className="flex items-center gap-3 mb-[1vh]">
+                  <span className="w-8 h-8 rounded-full bg-[#173B63] text-white flex items-center justify-center font-black text-[1.3rem]">
+                    {CEFR_STEPS[activeStep].level[0]}
+                  </span>
+                  <h4 className="text-[1.8rem] font-bold text-[#20252A]">
+                    {CEFR_STEPS[activeStep].title}
+                  </h4>
                 </div>
-
-                <p className="text-base text-[var(--text-black-soft)] leading-relaxed">
-                  {currentLevel.desc}
+                <p className="text-[1.4rem] text-[#626B73] leading-relaxed">
+                  {CEFR_STEPS[activeStep].desc}
                 </p>
-
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Target Milestone</p>
-                  <p className="text-sm font-semibold text-[var(--text-black)]">{currentLevel.target}</p>
-                </div>
               </div>
+            </div>
 
-              <div className="flex-1 border-t md:border-t-0 md:border-l border-[var(--ceramic)] pt-4 md:pt-0 md:pl-6 flex flex-col justify-center">
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-xs font-bold uppercase tracking-widest text-[var(--house-green)] m-0">Core Focus Modules</p>
-                  <span className="text-xs font-bold uppercase bg-[var(--gold-lightest)] text-[var(--gold)] px-2.5 py-1 rounded">Goethe / telc</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {currentLevel.badges.map((badge) => (
-                    <div key={badge} className="flex items-center gap-2 p-2.5 bg-[var(--neutral-warm)] border border-[var(--ceramic)] rounded-lg text-xs font-semibold text-[var(--text-black)]">
-                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>{badge}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </div>
+            <div className="pt-[3vh] mt-[2vh] border-t border-[rgba(32,37,42,0.08)] flex justify-between items-center">
+              <span className="text-[1.3rem] font-bold text-[#173B63]">Mapped to Goethe &amp; telc</span>
+              <Link href="/courses" className="text-[1.4rem] font-bold text-[#173B63] hover:underline flex items-center gap-1">
+                View Syllabus <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </section>
 
-          {/* Pedagogy Support Right */}
-          <div className="flex-[2] flex flex-col justify-between pt-1">
+          {/* Card B: Lavender speaking community */}
+          <section className="rounded-[20px] md:rounded-[24px] bg-[#DCD5F5] p-[5vw] md:p-[3.5vw] border border-[rgba(32,37,42,0.08)] flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Pedagogy Support</span>
-              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mb-2 mt-1">Dual Support System</h2>
-              <p className="text-base text-[var(--text-black-soft)] mb-6">Master formal grammar with faculty. Build reflex fluency with mentors.</p>
-            </div>
-
-            <div className="space-y-4 h-full flex flex-col justify-between">
-              <motion.div whileHover={{ y: -2 }} className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-md relative overflow-hidden flex-1 flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-2 h-full bg-[var(--house-green)]"></div>
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--green-light)] flex justify-center items-center text-[var(--house-green)]">
-                    <Radio className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-[var(--text-black)] mb-0">Certified Faculty</h3>
-                    <p className="text-xs font-bold text-[var(--house-green)] m-0">Goethe-Certified Native Educators</p>
-                  </div>
-                </div>
-                <ul className="text-sm text-[var(--text-black-soft)] space-y-2">
-                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-600" /> Complete grammar breakdown & syntax</li>
-                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-600" /> Structured syllabus progression mapped to CEFR</li>
-                </ul>
-              </motion.div>
-
-              <motion.div whileHover={{ y: -2 }} className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-md relative overflow-hidden flex-1 flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-2 h-full bg-[var(--gold)]"></div>
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--gold-lightest)] flex justify-center items-center text-[var(--gold)]">
-                    <Headphones className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-[var(--text-black)] mb-0">Dedicated Speaking Mentors</h3>
-                    <p className="text-xs font-bold text-[var(--gold)] m-0">Daily Fluency & Drill Partners</p>
-                  </div>
-                </div>
-                <ul className="text-sm text-[var(--text-black-soft)] space-y-2">
-                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-[var(--gold)]" /> 1-on-1 personalized pronunciation check-ins</li>
-                  <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-[var(--gold)]" /> Weekly speaking habit & fluency coaching</li>
-                </ul>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── BOLDER SIGNATURE INNOVATION (Peer Ladder) ── */}
-        <motion.div 
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={popIn}
-          className="bg-[var(--house-green)] rounded-3xl p-8 sm:p-12 lg:p-16 shadow-2xl relative overflow-hidden text-white"
-        >
-          <MessageCircle className="absolute right-[-30px] bottom-[-30px] opacity-10 w-96 h-96 text-white pointer-events-none" />
-          
-          <div className="relative z-10 w-full">
-            <div className="flex flex-col items-center mb-10 text-center">
-              <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest mb-3 bg-[rgba(255,255,255,0.08)] px-4 py-1.5 rounded-full">Proprietary Pedagogy</span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 tracking-tight">
-                Learn With Your Level — Practice Beyond Your Level
-              </h2>
-              <p className="text-base sm:text-lg text-[var(--text-white-soft)] max-w-2xl leading-relaxed">
-                The #1 barrier to language fluency is speaking intimidation. Our Peer Ladder pairs you with senior learners so you build conversational instincts without judgment.
+              <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+                AUTHENTIC FLUENCY
+              </span>
+              <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold text-[#20252A] mb-[1.5vh] leading-tight">
+                Practice with people, not just pages
+              </h3>
+              <p className="text-[1.5rem] text-[#626B73] leading-relaxed mb-[3vh]">
+                Connect with approved learners at linked levels and build real speaking confidence together in guided conversational environments.
               </p>
-            </div>
 
-            {/* Visual Step Ladder */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">A1</div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Junior Learner</span>
-                <p className="text-xs text-[var(--text-white-soft)] mt-2">Build initial phonetic confidence with guided partner drills</p>
+              {/* Pill Labels */}
+              <div className="flex flex-wrap gap-[1vw] mb-[3vh]">
+                <span className="px-[1.6vw] py-[0.8vh] rounded-full bg-white text-[#173B63] font-bold text-[1.3rem] border border-[rgba(32,37,42,0.08)] shadow-xs flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-[#173B63]" /> Peer Chat
+                </span>
+                <span className="px-[1.6vw] py-[0.8vh] rounded-full bg-white text-[#173B63] font-bold text-[1.3rem] border border-[rgba(32,37,42,0.08)] shadow-xs flex items-center gap-2">
+                  <HeartHandshake className="w-4 h-4 text-[#E4A642]" /> Speaking Practice
+                </span>
+                <span className="px-[1.6vw] py-[0.8vh] rounded-full bg-white text-[#173B63] font-bold text-[1.3rem] border border-[rgba(32,37,42,0.08)] shadow-xs flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#173B63]" /> Connected Levels
+                </span>
               </div>
 
-              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">A2</div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Practice Partner</span>
-                <p className="text-xs text-[var(--text-white-soft)] mt-2">Engage in spontaneous role-play and past tense stories</p>
-              </div>
-
-              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-white text-[var(--house-green)] font-black text-xl flex items-center justify-center mb-3 shadow-lg">B1</div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">Cohort Mentor</span>
-                <p className="text-xs text-[var(--text-white-soft)] mt-2">Defend viewpoints, mentor juniors & reinforce personal fluency</p>
-              </div>
-
-              <div className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] p-6 rounded-2xl flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-2xl bg-[var(--gold)] text-white font-black text-xl flex items-center justify-center mb-3 shadow-lg">B2</div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-lightest)]">Professional Fluent</span>
-                <p className="text-xs text-[var(--text-white-soft)] mt-2">Lead discourse, master complex nuances & pass Goethe B2</p>
+              {/* Privacy Callout */}
+              <div className="bg-white/90 rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-[#173B63] text-white flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[1.4rem] font-bold text-[#20252A] mb-0.5">Privacy First</p>
+                  <p className="text-[1.3rem] text-[#626B73] m-0">Your phone number and email remain private. All peer practice happens securely inside the portal.</p>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-bold text-white">A1 ⇄ A2 Dynamic</h3>
-                  <span className="bg-[var(--gold)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">Daily Drills</span>
-                </div>
-                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">A1 learners practice guided dialogues with A2 seniors, reinforcing real interaction before entering complex grammar.</p>
-              </div>
-              
-              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-bold text-white">A2 ⇄ B1 Labs</h3>
-                  <span className="bg-[rgba(255,255,255,0.15)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">2x Weekly</span>
-                </div>
-                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">A2 speakers bridge into spontaneous descriptions of past experiences, guided by B1 learners polishing their narration.</p>
-              </div>
-
-              <div className="bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] p-6 rounded-xl">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-bold text-white">B1 ⇄ B2 Discourse</h3>
-                  <span className="bg-[rgba(255,255,255,0.15)] text-white px-2.5 py-0.5 rounded text-xs font-bold uppercase">Live Sessions</span>
-                </div>
-                <p className="text-sm text-[var(--text-white-soft)] leading-relaxed">Expressing opinions, professional topics, counter-arguments, and complex connectors seamlessly.</p>
-              </div>
+            <div className="pt-[3vh] mt-[2vh] border-t border-[rgba(32,37,42,0.08)] flex justify-between items-center">
+              <span className="text-[1.3rem] font-bold text-[#173B63]">Junior ⇄ Senior Buddy System</span>
+              <button onClick={() => setTrialFormOpen(true)} className="text-[1.4rem] font-bold text-[#173B63] hover:underline flex items-center gap-1 cursor-pointer">
+                Join Community <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
+          </section>
 
-            <p className="mt-8 text-center text-sm sm:text-base font-medium text-[var(--gold-light)] italic">
-              "By teaching and conversing with juniors, senior students strengthen their own mastery while juniors learn in a safe, anxiety-free setting."
-            </p>
-          </div>
-        </motion.div>
+        </div>
 
-        {/* ── EXAM PREP MASTERCLASS ── */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-2">
+        {/* ── 4. TWO-COLUMN CONTENT CARDS (LESSONS & REAL-WORLD PRACTICE) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[2.5vh] md:gap-[2.5vw] items-stretch">
+          
+          {/* Card A: Pale Aqua Structured Online Classes */}
+          <section className="rounded-[20px] md:rounded-[24px] bg-[#D9EEEE] p-[5vw] md:p-[3.5vw] border border-[rgba(32,37,42,0.08)] flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold text-[var(--gold)] uppercase tracking-widest">Certification Success</span>
-              <h2 className="text-3xl font-extrabold text-[var(--text-black)] mt-1">Goethe & telc Exam Preparation</h2>
+              <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+                ACADEMIC EXCELLENCE
+              </span>
+              <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold text-[#20252A] mb-[1.5vh] leading-tight">
+                Live classes with a clear purpose
+              </h3>
+              <p className="text-[1.5rem] text-[#626B73] leading-relaxed mb-[3vh]">
+                See your batch start date, live Google Meet/Zoom class link, attendance history, and teacher feedback in one organized place.
+              </p>
+
+              {/* Visual Schedule Mock */}
+              <div className="bg-white rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] space-y-[1.5vh]">
+                <div className="flex justify-between items-center pb-[1vh] border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Video className="w-5 h-5 text-[#173B63]" />
+                    <span className="font-bold text-[1.4rem] text-[#20252A]">Daily Interactive Cohort</span>
+                  </div>
+                  <span className="text-[1.2rem] font-bold bg-[#D8E6DB] text-[#20252A] px-2.5 py-0.5 rounded-full">Mon – Fri</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[1.3rem] text-[#626B73]">
+                  <div className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-[#173B63]" /> 1:30 Hours Daily</div>
+                  <div className="flex items-center gap-1.5"><Users className="w-4 h-4 text-[#173B63]" /> Max 10 Students</div>
+                  <div className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-[#173B63]" /> PDF Notes Included</div>
+                  <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Recorded Backup</div>
+                </div>
+              </div>
             </div>
-            <span className="bg-[var(--green-light)] text-[var(--house-green)] text-xs font-bold px-3 py-1 rounded-full border border-slate-200">
-              Official Four Pillars
+
+            <div className="pt-[3vh] mt-[2vh] border-t border-[rgba(32,37,42,0.08)] flex justify-between items-center">
+              <span className="text-[1.3rem] font-bold text-[#173B63]">Certified Faculty Mentorship</span>
+              <Link href="/classes" className="text-[1.4rem] font-bold text-[#173B63] hover:underline flex items-center gap-1">
+                Explore Classes <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </section>
+
+          {/* Card B: Soft Sage Real-World Speaking Practice */}
+          <section className="rounded-[20px] md:rounded-[24px] bg-[#D8E6DB] p-[5vw] md:p-[3.5vw] border border-[rgba(32,37,42,0.08)] flex flex-col justify-between">
+            <div>
+              <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+                PRACTICAL CONVERSATION
+              </span>
+              <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold text-[#20252A] mb-[1.5vh] leading-tight">
+                Use your language in everyday life
+              </h3>
+              <p className="text-[1.5rem] text-[#626B73] leading-relaxed mb-[3vh]">
+                Practise through guided conversational topics, role-play dialogues, short debates, and exam prompt simulations.
+              </p>
+
+              {/* Chat Dialogue Bubbles */}
+              <div className="space-y-[1.2vh]">
+                <div className="bg-white rounded-2xl rounded-tl-xs p-3.5 max-w-[85%] border border-[rgba(32,37,42,0.08)] shadow-xs">
+                  <p className="text-[1.1rem] font-bold text-[#626B73] mb-0.5">German A1 Routine</p>
+                  <p className="text-[1.4rem] font-medium text-[#20252A] m-0">"Wie spät ist es? Treffen wir uns am Hauptbahnhof?"</p>
+                </div>
+                <div className="bg-[#173B63] text-white rounded-2xl rounded-tr-xs p-3.5 max-w-[85%] ml-auto shadow-xs">
+                  <p className="text-[1.1rem] font-bold text-[#E4A642] mb-0.5">A2 Senior Partner</p>
+                  <p className="text-[1.4rem] font-medium m-0">"Ja, gerne! Um 14 Uhr vor dem Café am Ausgang."</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-[3vh] mt-[2vh] border-t border-[rgba(32,37,42,0.08)] flex justify-between items-center">
+              <span className="text-[1.3rem] font-bold text-[#173B63]">German • English • Spanish</span>
+              <button onClick={() => setTrialFormOpen(true)} className="text-[1.4rem] font-bold text-[#173B63] hover:underline flex items-center gap-1 cursor-pointer">
+                Try a Speaking Drill <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+        {/* ── 5. HUMAN-CENTERED BRAND STATEMENT (BLUSH PANEL) ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#F4DEDF] p-[6vw] md:p-[5vw] border border-[rgba(32,37,42,0.08)] text-center">
+          <div className="max-w-3xl mx-auto">
+            <span className="text-[1.1rem] sm:text-[1.2rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1.5vh] block">
+              MADE FOR REAL PROGRESS
             </span>
-          </div>
-
-          <p className="text-base text-[var(--text-black-soft)] mb-8">Four modular exam pillars engineered for high band scores and embassy visa approval.</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-4">
-                <BookOpen className="w-8 h-8 text-[var(--house-green)]" />
-                <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded">Teil 1–5</span>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Lesen (Reading)</h3>
-              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Speed comprehension, inference cues, and vocabulary traps modeled directly on actual test sheets.</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-4">
-                <Headphones className="w-8 h-8 text-[var(--gold)]" />
-                <span className="text-xs font-bold bg-[var(--gold-lightest)] text-[var(--gold)] px-2.5 py-1 rounded">Audio Drills</span>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Hören (Listening)</h3>
-              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Regional accents, fast speech patterns, and selective listening techniques to catch essential clues.</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-4">
-                <PenTool className="w-8 h-8 text-[var(--text-black)]" />
-                <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded">Templates</span>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Schreiben (Writing)</h3>
-              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Formal letter structures, complaint emails, opinion essays, and certified examiner grading checklists.</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-2xl border border-[var(--ceramic)] shadow-sm hover:shadow-md transition">
-              <div className="flex justify-between items-start mb-4">
-                <Users className="w-8 h-8 text-[var(--house-green)]" />
-                <span className="text-xs font-bold bg-[var(--green-light)] text-[var(--house-green)] px-2.5 py-1 rounded">Pair Drills</span>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--text-black)] mb-2">Sprechen (Speaking)</h3>
-              <p className="text-sm text-[var(--text-black-soft)] leading-relaxed">Structured 2-person dialogues, partner presentations, and counter-questions with mock examiners.</p>
-            </div>
-          </div>
-
-          <div className="bg-white border border-[var(--ceramic)] rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-[var(--text-black)] flex-shrink-0">
-                <Timer className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-lg font-bold text-[var(--text-black)] mb-0.5">Full-Length Goethe Simulation Tests</h4>
-                <p className="text-sm text-[var(--text-black-soft)] m-0">Strict exam conditions with scored evaluation and individual correction notes.</p>
-              </div>
-            </div>
-            
-            <button 
-              onClick={() => setTrialFormOpen(true)}
-              className="w-full md:w-auto px-6 py-3.5 bg-[var(--house-green)] hover:bg-[#132c4d] text-white font-bold text-sm rounded-xl transition cursor-pointer flex-shrink-0"
-            >
-              Check Mock Test Schedule
-            </button>
-          </div>
-        </motion.div>
-
-        {/* ── BOLDER BOTTOM CONVERSION BANNER ── */}
-        <motion.div 
-          initial="hidden" whileInView="visible" viewport={{ once: true }} variants={popIn}
-          className="bg-[var(--house-green)] rounded-3xl p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row gap-8 items-center text-center lg:text-left shadow-2xl relative overflow-hidden"
-        >
-          <GooeyBackground />
-          
-          <div className="flex-1 relative z-10">
-            <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest mb-3 block">BhashaSchool Commitment</span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
-              Structured. Practical. Career-Focused.
+            <h2 className="text-[2.6rem] sm:text-[3.6rem] font-extrabold text-[#20252A] leading-[1.2] mb-[2vh] tracking-tight">
+              A learning community built around people.
             </h2>
-            <p className="text-base text-[var(--text-white-soft)] max-w-xl leading-relaxed">
-              Whether you are preparing for higher education in Munich, an engineering visa, or a nursing transfer, acquire German proficiency with complete confidence.
+            <p className="text-[1.6rem] sm:text-[1.8rem] text-[#20252A] font-medium leading-relaxed max-w-2xl mx-auto mb-[3vh]">
+              Language is far more than memorizing noun genders and grammar cases. It is the real-world confidence to ask, listen, share ideas, and connect meaningfully across cultures.
+            </p>
+            <div className="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-[rgba(32,37,42,0.1)] shadow-xs">
+              <HeartHandshake className="w-5 h-5 text-[#E4A642]" />
+              <span className="text-[1.4rem] font-bold text-[#173B63]">100% Certified Native &amp; Bilingual Mentorship</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 6. “EVERYTHING YOU NEED” FEATURE DIRECTORY (WARM NEUTRAL PANEL) ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#EAE5DD] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)]">
+          <div className="text-center mb-[4vh]">
+            <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+              YOUR LEARNING SPACE
+            </span>
+            <h2 className="text-[2.6rem] sm:text-[3.2rem] font-extrabold text-[#20252A] tracking-tight">
+              Everything you need to keep moving.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-[1.5vw] md:gap-[1.2vw]">
+            {[
+              { title: 'CEFR Learning Paths', icon: Compass },
+              { title: 'Live Cohort Classes', icon: Video },
+              { title: 'Attendance Tracking', icon: CheckCircle2 },
+              { title: 'Learning Library (PDFs)', icon: BookOpen },
+              { title: 'Speaking Club', icon: MessageCircle },
+              { title: 'Connected Learners', icon: Users },
+              { title: 'Level Guidance', icon: GraduationCap },
+              { title: 'Class Timetable', icon: Calendar },
+              { title: 'Privacy Controls', icon: Lock },
+              { title: 'Goethe Exam Drills', icon: Sparkles },
+            ].map((tile) => {
+              const Icon = tile.icon;
+              return (
+                <div 
+                  key={tile.title}
+                  className="bg-white rounded-[16px] p-[2vw] border border-[rgba(32,37,42,0.08)] shadow-xs flex flex-col items-center text-center justify-center hover:shadow-md transition-shadow"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-[#F7F6F2] text-[#173B63] flex items-center justify-center mb-[1.2vh]">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <p className="text-[1.3rem] font-bold text-[#20252A] leading-tight m-0">
+                    {tile.title}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── 7. APP / PORTAL PROMOTION BANNER (WARM PEACH-TO-GOLD) ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-gradient-to-r from-[#F9D9CD] to-[#FDE8D0] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)] flex flex-col lg:flex-row items-center justify-between gap-[3vw]">
+          <div className="max-w-2xl text-center lg:text-left">
+            <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+              STUDENT PORTAL
+            </span>
+            <h2 className="text-[2.6rem] sm:text-[3.2rem] font-extrabold text-[#20252A] mb-[1.5vh] leading-tight tracking-tight">
+              Your language classroom, all in one place.
+            </h2>
+            <p className="text-[1.5rem] sm:text-[1.6rem] text-[#20252A] font-medium leading-relaxed mb-[3vh]">
+              Check your class details, revisit PDF resources, book mentor speaking drills, and stay connected with your batchmates.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+              <button 
+                onClick={() => setTrialFormOpen(true)}
+                className="px-8 py-4 bg-[#173B63] hover:bg-[#0f2947] text-white font-bold text-[1.5rem] rounded-full shadow-md transition cursor-pointer"
+              >
+                Book Free Trial &amp; Placement
+              </button>
+              <Link 
+                href="/courses"
+                className="px-8 py-4 bg-white/80 hover:bg-white text-[#20252A] font-bold text-[1.5rem] rounded-full border border-[rgba(32,37,42,0.12)] shadow-xs transition"
+              >
+                Explore Courses &amp; Fees
+              </Link>
+            </div>
+          </div>
+
+          <div className="w-full max-w-sm bg-white rounded-[20px] p-[2.5vw] border border-[rgba(32,37,42,0.1)] shadow-lg text-[#20252A]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+              <span className="font-bold text-[1.3rem] text-[#173B63]">BhashaSchool Portal</span>
+              <span className="text-[1.1rem] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Active Batch</span>
+            </div>
+            <div className="space-y-2 text-[1.2rem]">
+              <div className="p-2.5 bg-slate-50 rounded-xl flex justify-between items-center">
+                <span>Next Live Class</span>
+                <span className="font-bold text-[#173B63]">Today, 6:00 PM</span>
+              </div>
+              <div className="p-2.5 bg-slate-50 rounded-xl flex justify-between items-center">
+                <span>Peer Speaking Partner</span>
+                <span className="font-bold text-[#173B63]">Assigned</span>
+              </div>
+              <div className="p-2.5 bg-slate-50 rounded-xl flex justify-between items-center">
+                <span>Learning Material</span>
+                <span className="font-bold text-emerald-600">8 PDFs Ready</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 8. CONFIDENCE / SAFETY SECTION (PALE CREAM PANEL) ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#F6E8CF] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)]">
+          <div className="max-w-3xl mx-auto text-center mb-[3vh]">
+            <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+              LEARN WITH CONFIDENCE
+            </span>
+            <h2 className="text-[2.6rem] sm:text-[3.2rem] font-extrabold text-[#20252A] tracking-tight mb-[1.5vh]">
+              A comfortable space to practise.
+            </h2>
+            <p className="text-[1.5rem] sm:text-[1.6rem] text-[#20252A] font-medium leading-relaxed">
+              Use approved learner connections and portal-based practice without publishing your personal contact details.
             </p>
           </div>
-          
-          <div className="flex-1 w-full max-w-md bg-[rgba(255,255,255,0.06)] p-8 rounded-2xl border border-[rgba(255,255,255,0.12)] backdrop-blur-md relative z-10">
-            <div className="space-y-4">
-              <motion.button 
-                onClick={() => setTrialFormOpen(true)} 
-                whileHover={{ scale: 1.02 }} 
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-[var(--gold)] hover:bg-[#b45309] text-white font-bold flex justify-between items-center px-6 py-4 rounded-xl text-lg shadow-lg cursor-pointer transition"
-              >
-                <span>Book Free Trial & Assessment</span>
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
 
-              <motion.button 
-                onClick={() => setMentorFormOpen(true)} 
-                whileHover={{ scale: 1.02 }} 
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-white/10 hover:bg-white/20 text-white font-bold flex justify-center items-center gap-2 py-3.5 rounded-xl text-base border border-white/20 cursor-pointer transition"
-              >
-                <MessageCircle className="w-5 h-5" />
-                <span>Talk to Academic Advisor</span>
-              </motion.button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-[2vw]">
+            <div className="bg-white rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] shadow-xs">
+              <ShieldCheck className="w-8 h-8 text-[#173B63] mb-[1vh]" />
+              <h4 className="text-[1.6rem] font-bold text-[#20252A] mb-[0.5vh]">Controlled Connections</h4>
+              <p className="text-[1.3rem] text-[#626B73] leading-relaxed m-0">Only enrolled, verified cohort students participate in peer conversation rooms.</p>
             </div>
-
-            <div className="flex justify-between items-center mt-6 pt-4 border-t border-[rgba(255,255,255,0.1)] text-xs font-semibold text-emerald-400">
-              <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> No Credit Card Required</span>
-              <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> 30-Min Instant Placement</span>
+            <div className="bg-white rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] shadow-xs">
+              <BookOpen className="w-8 h-8 text-[#E4A642] mb-[1vh]" />
+              <h4 className="text-[1.6rem] font-bold text-[#20252A] mb-[0.5vh]">Community Guidelines</h4>
+              <p className="text-[1.3rem] text-[#626B73] leading-relaxed m-0">Respectful, encouraging norms curated specifically for nervous second-language speakers.</p>
+            </div>
+            <div className="bg-white rounded-[16px] p-[2.5vw] border border-[rgba(32,37,42,0.08)] shadow-xs">
+              <Lock className="w-8 h-8 text-[#173B63] mb-[1vh]" />
+              <h4 className="text-[1.6rem] font-bold text-[#20252A] mb-[0.5vh]">Private Account Details</h4>
+              <p className="text-[1.3rem] text-[#626B73] leading-relaxed m-0">Your phone number, WhatsApp and email address are never shared publicly with peers.</p>
             </div>
           </div>
-        </motion.div>
+        </section>
+
+        {/* ── 9. ACCESSIBLE FAQ ACCORDION (PALE AQUA PANEL) ── */}
+        <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#D9EEEE] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)]">
+          <div className="max-w-3xl mx-auto text-center mb-[4vh]">
+            <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
+              CLEAR ANSWERS
+            </span>
+            <h2 className="text-[2.6rem] sm:text-[3.4rem] font-extrabold text-[#20252A] tracking-tight">
+              Frequently asked questions
+            </h2>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-[1.2vh]">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div 
+                  key={faq.q}
+                  className="bg-white rounded-[16px] border border-[rgba(32,37,42,0.08)] overflow-hidden shadow-xs"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full px-[2vw] py-[2vh] text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                    aria-expanded={isOpen}
+                  >
+                    <span className="text-[1.5rem] sm:text-[1.6rem] font-bold text-[#20252A]">
+                      {faq.q}
+                    </span>
+                    <ChevronDown className={`w-5 h-5 text-[#173B63] transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="px-[2vw] pb-[2.5vh] pt-[0.5vh] text-[1.4rem] text-[#626B73] leading-relaxed border-t border-slate-100">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
       </div>
 
       <TrialBookingForm type="trial" isOpen={trialFormOpen} onClose={() => setTrialFormOpen(false)} />
-      <TrialBookingForm type="mentor" isOpen={mentorFormOpen} onClose={() => setMentorFormOpen(false)} />
 
     </main>
   );
