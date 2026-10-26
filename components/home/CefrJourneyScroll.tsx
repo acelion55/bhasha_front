@@ -10,23 +10,25 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-interface LevelData {
+interface LevelConfig {
   num: string;
   level: string;
   title: string;
   italicTitle: string;
   desc: string;
-  heightDesktop: number;
+  initialHeight: number; // Staggered base height before rising
+  waveAmplitude: number; // Scallop wave depth (dips from baseline)
 }
 
-const LEVELS: LevelData[] = [
+const LEVELS: LevelConfig[] = [
   {
     num: '01',
     level: 'A1',
     title: 'Discovery',
     italicTitle: '& Phonetics',
     desc: 'We map the rigid angles before we smooth them out. Master phonetics, alphabet, sentence order, and initial survival dialogues.',
-    heightDesktop: 560,
+    initialHeight: 560, // Starts at full height
+    waveAmplitude: 16,  // Deep cylindrical scalloped humps
   },
   {
     num: '02',
@@ -34,7 +36,8 @@ const LEVELS: LevelData[] = [
     title: 'Connected',
     italicTitle: '& Dialogues',
     desc: 'Angles begin rounding out into rhythm. Form past tense (Perfekt), navigate everyday social settings, and ask questions without freezing.',
-    heightDesktop: 480,
+    initialHeight: 340, // Expands to 560px as ball approaches
+    waveAmplitude: 10,  // Medium gentle arches
   },
   {
     num: '03',
@@ -42,7 +45,8 @@ const LEVELS: LevelData[] = [
     title: 'Spontaneous',
     italicTitle: '& Debate',
     desc: 'Rapid momentum and complex sentence flow. Defend opinions, master Konjunktiv II, and prepare for official Goethe & telc visa exams.',
-    heightDesktop: 410,
+    initialHeight: 270, // Expands to 560px as ball approaches
+    waveAmplitude: 4,   // Micro ripples
   },
   {
     num: '04',
@@ -50,13 +54,15 @@ const LEVELS: LevelData[] = [
     title: 'Effortless',
     italicTitle: '& Fluency',
     desc: 'The perfect circle: complete linguistic velocity. Lead workplace presentations, participate in technical debates, and speak instinctively.',
-    heightDesktop: 340,
+    initialHeight: 210, // Expands to 560px as ball approaches
+    waveAmplitude: 0,   // 100% straight flat line!
   },
 ];
 
-const CONTAINER_HEIGHT = 560;
-const BASELINE_Y = 265;
-const SHAPE_RADIUS = 46;
+const FULL_HEIGHT = 560;
+const BALL_RADIUS = 38; // 76px diameter
+const TRACK_Y = 180;    // Y coordinate of the track contact line
+const BALL_CENTER_Y = TRACK_Y - BALL_RADIUS; // 142px
 
 export default function CefrJourneyScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -77,9 +83,9 @@ export default function CefrJourneyScroll() {
       triggerInstance = ScrollTrigger.create({
         trigger: section,
         start: 'top top',
-        end: '+=1800',
+        end: '+=2000',
         pin: true,
-        scrub: 0.6,
+        scrub: 0.5,
         anticipatePin: 1,
         onUpdate: (self) => {
           setScrollProgress(self.progress);
@@ -93,59 +99,45 @@ export default function CefrJourneyScroll() {
     };
   }, []);
 
-  // Compute the rolling shape geometry based on scrollProgress (0 to 1)
-  const shapeGeometry = useMemo(() => {
+  // Compute dynamic height for each card as you scroll:
+  // Each section rises to full height one by one!
+  const cardHeights = useMemo(() => {
     const p = Math.max(0, Math.min(1, scrollProgress));
 
-    // Rotation: rolls forward 2 full rotations (720 deg)
-    const rotation = p * Math.PI * 4;
+    // Card 1: always full height (560px)
+    const h1 = FULL_HEIGHT;
 
-    // Number of sides:
-    // 0.00 - 0.22: 4 sides (Square)
-    // 0.22 - 0.50: 7 sides (Heptagon)
-    // 0.50 - 0.78: 12 sides (Dodecagon)
-    // 0.78 - 1.00: 36 sides (Circle)
-    let sides = 4;
-    let isCircle = false;
+    // Card 2: grows from 340px to 560px during p in [0.05, 0.33]
+    const t2 = Math.max(0, Math.min(1, (p - 0.05) / 0.28));
+    const h2 = Math.round(340 + t2 * (FULL_HEIGHT - 340));
 
-    if (p < 0.22) {
-      sides = 4;
-    } else if (p < 0.50) {
-      sides = 7;
-    } else if (p < 0.78) {
-      sides = 12;
-    } else {
-      isCircle = true;
-      sides = 36;
-    }
+    // Card 3: grows from 270px to 560px during p in [0.33, 0.66]
+    const t3 = Math.max(0, Math.min(1, (p - 0.33) / 0.33));
+    const h3 = Math.round(270 + t3 * (FULL_HEIGHT - 270));
 
-    const points: string[] = [];
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides + rotation;
-      const x = SHAPE_RADIUS * Math.cos(angle);
-      const y = SHAPE_RADIUS * Math.sin(angle);
-      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
-    }
+    // Card 4: grows from 210px to 560px during p in [0.66, 0.96]
+    const t4 = Math.max(0, Math.min(1, (p - 0.66) / 0.30));
+    const h4 = Math.round(210 + t4 * (FULL_HEIGHT - 210));
 
-    return {
-      points: points.join(' '),
-      isCircle,
-      progress: p,
-    };
+    return [h1, h2, h3, h4];
   }, [scrollProgress]);
 
-  // Active level index (0, 1, 2, 3)
-  const activeIndex = Math.min(3, Math.floor(scrollProgress * 4));
+  // Smooth morphing parameters:
+  // 4 sides (Square, 0% border-radius) -> Circle (50% border-radius)
+  const p = Math.max(0, Math.min(1, scrollProgress));
+  const borderRadiusPercent = p * 50; // Smooth 0% -> 50%
+  const rotationDeg = p * 720;        // 2 full rolls
+  const activeIndex = Math.min(3, Math.floor(p * 4));
 
   return (
     <section 
       ref={sectionRef} 
-      className="w-full min-h-screen bg-[#F7F6F2] py-[5vh] px-[2.5vw] md:px-[4vw] flex flex-col justify-center select-none overflow-hidden"
+      className="w-full min-h-screen bg-[#F7F6F2] py-[4vh] px-[2.5vw] md:px-[4vw] flex flex-col justify-center select-none overflow-hidden"
     >
       <div className="max-w-[1440px] w-full mx-auto flex flex-col justify-between">
         
         {/* ── TOP HEADER / TRACK METRIC ROW ── */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-[3.5vh] border-b border-[rgba(32,37,42,0.1)] pb-[2vh]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-[3vh] border-b border-[rgba(32,37,42,0.1)] pb-[2vh]">
           <div className="flex items-center gap-3">
             <span className="text-[1.3rem] font-black uppercase tracking-widest text-[#CF1E2C] flex items-center gap-1.5">
               <span>A1</span>
@@ -160,33 +152,55 @@ export default function CefrJourneyScroll() {
           <div className="text-left md:text-right">
             <p className="text-[1.5rem] sm:text-[1.7rem] font-bold text-[#20252A] leading-snug">
               We smooth every awkward corner until speaking feels like{' '}
-              <span className="italic font-serif text-[#CF1E2C] font-normal">rolling downhill.</span>
+              <span className="italic font-serif text-[#CF1E2C] font-normal">rolling on a flat road.</span>
             </p>
             <p className="text-[1.25rem] text-[#626B73]">
-              Scroll to witness how rigid beginner grammar transforms into frictionless fluency.
+              Scroll to see cards expand to full height as the square morphs into a frictionless circle.
             </p>
           </div>
         </div>
 
-        {/* ── 4 STAGGERED RED EDITORIAL CARDS WITH CONTINUOUS TRACK ── */}
+        {/* ── 4 RED EDITORIAL CARDS (GROWING TO FULL HEIGHT ONE BY ONE) ── */}
         <div 
           className="relative w-full grid grid-cols-1 md:grid-cols-4 gap-[2vw] md:gap-[1.2vw] items-end"
-          style={{ minHeight: `${CONTAINER_HEIGHT}px` }}
+          style={{ height: `${FULL_HEIGHT}px` }}
         >
           {LEVELS.map((lvl, idx) => {
+            const currentHeight = cardHeights[idx];
             const isActive = activeIndex === idx;
-            // Compute the local baseline Y inside this card so all cards align with the container baseline
-            const cardTopOffset = CONTAINER_HEIGHT - lvl.heightDesktop;
-            const localBaselineY = BASELINE_Y - cardTopOffset;
+
+            // Generate card-specific track path:
+            // From cylindrical arches in Card 1 to completely straight line in Card 4!
+            const amp = lvl.waveAmplitude;
+            let trackPath = '';
+            if (amp === 0) {
+              // Card 4: Straight flat line
+              trackPath = `M 0,${TRACK_Y} L 320,${TRACK_Y}`;
+            } else {
+              // Cards 1, 2, 3: Scalloped arches whose crests sit exactly at TRACK_Y
+              // and dip down by amp px
+              trackPath = `
+                M 0,${TRACK_Y}
+                Q 20,${TRACK_Y + amp} 40,${TRACK_Y}
+                Q 60,${TRACK_Y + amp} 80,${TRACK_Y}
+                Q 100,${TRACK_Y + amp} 120,${TRACK_Y}
+                Q 140,${TRACK_Y + amp} 160,${TRACK_Y}
+                Q 180,${TRACK_Y + amp} 200,${TRACK_Y}
+                Q 220,${TRACK_Y + amp} 240,${TRACK_Y}
+                Q 260,${TRACK_Y + amp} 280,${TRACK_Y}
+                Q 300,${TRACK_Y + amp} 320,${TRACK_Y}
+              `;
+            }
 
             return (
               <div
                 key={lvl.num}
                 style={{ 
-                  height: `${lvl.heightDesktop}px`,
+                  height: `${currentHeight}px`,
+                  transition: 'height 0.15s ease-out',
                 }}
-                className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[1.8vw] flex flex-col justify-between transition-all duration-300 overflow-hidden shadow-md ${
-                  isActive ? 'ring-2 ring-white/60 shadow-2xl' : 'opacity-95'
+                className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[1.8vw] flex flex-col justify-between overflow-hidden shadow-md transition-shadow duration-300 ${
+                  isActive ? 'ring-2 ring-white/70 shadow-2xl' : 'opacity-95'
                 }`}
               >
                 {/* ── TOP BADGE / STEP NUMBER ── */}
@@ -199,41 +213,43 @@ export default function CefrJourneyScroll() {
                   </span>
                 </div>
 
-                {/* ── CARD LOCAL SCALLOPED TRACK (ALIGNED WITH GLOBAL BASELINE) ── */}
-                <div 
-                  className="absolute left-0 right-0 pointer-events-none z-0"
-                  style={{ top: `${localBaselineY}px` }}
-                >
-                  {/* Dashed baseline through center of shape */}
-                  <div className="w-full border-t border-dashed border-white/40 h-0" />
-                  
-                  {/* Repeating scalloped wave track below the dashed line */}
-                  <svg 
-                    className="w-full h-[22px] overflow-visible text-white/70 stroke-current fill-none stroke-[1.8]"
-                    viewBox="0 0 300 22" 
-                    preserveAspectRatio="none"
-                    style={{ marginTop: `${SHAPE_RADIUS - 4}px` }}
-                  >
-                    <path d="M 0,20 Q 25,0 50,20 Q 75,0 100,20 Q 125,0 150,20 Q 175,0 200,20 Q 225,0 250,20 Q 275,0 300,20" />
-                  </svg>
-                </div>
+                {/* ── INDIVIDUAL CARD TRACK: FROM CYLINDRICAL ARCHES TO STRAIGHT LINE ── */}
+                {/* Fixed at TRACK_Y from container top; only visible when card is tall enough */}
+                {currentHeight >= TRACK_Y + 30 && (
+                  <div className="absolute inset-0 pointer-events-none z-0">
+                    {/* Dashed baseline through center of ball */}
+                    <div 
+                      className="absolute left-0 right-0 border-t border-dashed border-white/35 h-0"
+                      style={{ top: `${BALL_CENTER_Y}px` }}
+                    />
+                    
+                    {/* The track surface where the ball makes direct contact */}
+                    <svg 
+                      className="absolute inset-0 w-full h-full overflow-visible text-white/80 stroke-current fill-none stroke-[2]"
+                      viewBox="0 0 320 560"
+                      preserveAspectRatio="none"
+                    >
+                      <path d={trackPath} />
+                    </svg>
+                  </div>
+                )}
 
-                {/* ── BOTTOM EDITORIAL TYPOGRAPHY ── */}
-                <div className="z-10 pt-[2vh]">
-                  <div className="mb-[1.5vh]">
-                    <h3 className="text-[2.6rem] sm:text-[3rem] font-extrabold tracking-tight leading-none text-white">
+                {/* ── BOTTOM EDITORIAL TYPOGRAPHY (CLEANLY BELOW TRACK) ── */}
+                <div className="z-10 mt-auto pt-[2vh]">
+                  <div className="mb-[1vh]">
+                    <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold tracking-tight leading-none text-white">
                       {lvl.title}
                     </h3>
-                    <div className="text-[2.2rem] sm:text-[2.6rem] font-serif italic text-white/95 leading-tight">
+                    <div className="text-[2rem] sm:text-[2.3rem] font-serif italic text-white/95 leading-tight">
                       {lvl.italicTitle}
                     </div>
                   </div>
 
-                  <p className="text-[1.35rem] text-white/85 leading-relaxed font-normal">
+                  <p className="text-[1.3rem] text-white/85 leading-relaxed font-normal line-clamp-3">
                     {lvl.desc}
                   </p>
 
-                  <div className="mt-[2vh] pt-[1.5vh] border-t border-white/20 flex items-center justify-between text-[1.15rem] font-mono text-white/70">
+                  <div className="mt-[1.5vh] pt-[1.2vh] border-t border-white/20 flex items-center justify-between text-[1.1rem] font-mono text-white/70">
                     <span>STAGE {idx + 1} OF 4</span>
                     {isActive && (
                       <span className="flex items-center gap-1 text-white font-bold animate-pulse">
@@ -247,38 +263,34 @@ export default function CefrJourneyScroll() {
           })}
 
           {/* ── CONTINUOUS SCROLL-TRIGGERED ROLLING SHAPE OVERLAY ── */}
+          {/* Sits EXACTLY on the track at TRACK_Y across the cards */}
           <div 
             className="absolute inset-x-0 pointer-events-none hidden md:block z-20"
-            style={{ top: `${BASELINE_Y}px` }}
+            style={{ top: `${BALL_CENTER_Y}px` }}
           >
             {/* The single rolling morphing shape pinned along the dashed baseline */}
             <div 
-              className="absolute -top-[46px] -ml-[46px] transition-transform duration-75 will-change-transform"
+              className="absolute -top-[38px] -ml-[38px] will-change-transform"
               style={{
-                left: `${(shapeGeometry.progress * 0.76 + 0.12) * 100}%`,
+                left: `${(p * 0.76 + 0.12) * 100}%`,
               }}
             >
-              <svg width="92" height="92" viewBox="-46 -46 92 92" className="overflow-visible">
-                {shapeGeometry.isCircle ? (
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={SHAPE_RADIUS}
-                    fill="rgba(255,255,255,0.08)"
-                    stroke="#FFFFFF"
-                    strokeWidth="2.2"
-                  />
-                ) : (
-                  <polygon
-                    points={shapeGeometry.points}
-                    fill="rgba(255,255,255,0.08)"
-                    stroke="#FFFFFF"
-                    strokeWidth="2.2"
-                  />
-                )}
+              <div 
+                style={{
+                  width: `${BALL_RADIUS * 2}px`,
+                  height: `${BALL_RADIUS * 2}px`,
+                  borderRadius: `${borderRadiusPercent}%`,
+                  transform: `rotate(${rotationDeg}deg)`,
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  borderColor: '#FFFFFF',
+                  borderWidth: '2.5px',
+                  borderStyle: 'solid',
+                }}
+                className="relative flex items-center justify-center shadow-lg transition-all duration-75"
+              >
                 {/* Center axis white dot pinned precisely on the dashed baseline */}
-                <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
-              </svg>
+                <div className="w-2.5 h-2.5 rounded-full bg-white shadow-xs" />
+              </div>
             </div>
           </div>
 
@@ -287,13 +299,13 @@ export default function CefrJourneyScroll() {
         {/* ── MOBILE SCROLL PROGRESS INDICATOR ── */}
         <div className="mt-[3vh] md:hidden flex flex-col gap-2">
           <div className="flex justify-between text-[1.2rem] font-mono text-[#626B73]">
-            <span>A1 (Square)</span>
-            <span>B2 (Circle)</span>
+            <span>A1 (Square: 0%)</span>
+            <span>B2 (Circle: 100%)</span>
           </div>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
             <div 
               className="h-full bg-[#CF1E2C] transition-all duration-150"
-              style={{ width: `${Math.round(scrollProgress * 100)}%` }}
+              style={{ width: `${Math.round(p * 100)}%` }}
             />
           </div>
         </div>
