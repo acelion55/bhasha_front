@@ -476,7 +476,7 @@ export default async function BlogArticlePage({
       : null;
 
   return (
-    <div className="bg-[#fdf8f3] overflow-x-hidden">
+    <div className="bg-[var(--neutral-warm)] overflow-x-hidden min-h-screen">
       {/* STRUCTURED DATA FOR SEARCH ENGINES & ANSWER ENGINES (AEO / GEO) */}
       <script
         type="application/ld+json"
@@ -494,11 +494,11 @@ export default async function BlogArticlePage({
       )}
 
       {/* BREADCRUMB */}
-      <div className="bg-white border-b border-emerald-100">
+      <div className="bg-white border-b border-[var(--ceramic)]">
         <div className="w-full px-4 md:px-8 lg:px-12 py-3.5 flex items-center gap-2 text-xs sm:text-sm text-gray-500">
           <Link
             href="/blog"
-            className="hover:text-emerald-700 font-bold transition-colors flex items-center gap-1.5"
+            className="hover:text-[var(--gold)] font-bold transition-colors flex items-center gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> BhashaSchool Blog
           </Link>
@@ -510,7 +510,7 @@ export default async function BlogArticlePage({
       {/* HERO */}
       <section
         style={{ minHeight: '38vh' }}
-        className="bg-gradient-to-br from-emerald-50 via-[#fdf8f3] to-violet-50 flex items-center py-12 md:py-16"
+        className="bg-gradient-to-b from-white to-[var(--neutral-warm)] border-b border-[var(--ceramic)] flex items-center py-12 md:py-16"
       >
         <div className="w-full px-4 md:px-8 lg:px-12">
           <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -519,12 +519,12 @@ export default async function BlogArticlePage({
             >
               {tag}
             </span>
-            <span className="text-xs sm:text-sm text-gray-500 font-bold flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-600" /> {readTime}
+            <span className="text-xs sm:text-sm text-slate-500 font-bold flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[var(--gold)]" /> {readTime}
             </span>
             {date && (
-              <span className="text-xs sm:text-sm text-gray-500 font-bold flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-emerald-600" /> {date}
+              <span className="text-xs sm:text-sm text-slate-500 font-bold flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[var(--gold)]" /> {date}
               </span>
             )}
           </div>
@@ -725,31 +725,31 @@ export default async function BlogArticlePage({
                 const relatedTag = r.tag || 'German Tips';
                 return (
                   <Link key={r.slug} href={`/blog/${cleanSlug(r.slug)}/`}>
-                    <div className="bg-white rounded-3xl border border-gray-100 p-6 hover:border-emerald-300 hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between group">
+                    <div className="bg-white rounded-2xl border border-[var(--ceramic)] p-6 hover:border-[var(--gold)] hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between group">
                       <div>
                         <div className="flex items-center gap-2 mb-3.5 flex-wrap">
                           <span
-                            className={`text-[11px] font-black px-3 py-1 rounded-full ${
+                            className={`text-[11px] font-bold px-3 py-1 rounded-full ${
                               r.tagColor || fallbackTagColor
                             }`}
                           >
                             {relatedTag}
                           </span>
-                          <span className="text-xs text-gray-400 font-bold flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-emerald-600" />
+                          <span className="text-xs text-slate-400 font-bold flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-[var(--gold)]" />
                             {r.readTime || '5 min read'}
                           </span>
                         </div>
-                        <h3 className="text-base sm:text-lg font-black text-gray-900 font-[Plus_Jakarta_Sans] group-hover:text-emerald-700 transition-colors leading-snug">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[var(--gold)] transition-colors leading-snug">
                           {r.title}
                         </h3>
                         {r.excerpt && (
-                          <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-2 font-medium">
+                          <p className="text-xs sm:text-sm text-slate-500 line-clamp-2 mt-2 font-medium">
                             {r.excerpt}
                           </p>
                         )}
                       </div>
-                      <div className="pt-4 mt-4 border-t border-gray-50 flex items-center text-xs sm:text-sm font-black text-emerald-700 group-hover:translate-x-1 transition-transform">
+                      <div className="pt-4 mt-4 border-t border-[var(--ceramic)] flex items-center text-xs sm:text-sm font-bold text-[var(--gold)] group-hover:translate-x-1 transition-transform">
                         Read full guide <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </div>
                     </div>
