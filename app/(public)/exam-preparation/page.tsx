@@ -277,7 +277,7 @@ export default function ExamPreparationPage() {
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Ready to Ace Your Exam?</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">Join 10,000+ Indian students who achieved their target scores with BhashaSchool's expert exam preparation.</p>
-          <Link href="/features" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
+          <Link href="/courses" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
             View Pricing & Enroll
           </Link>
         </div>

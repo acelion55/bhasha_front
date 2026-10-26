@@ -17,7 +17,7 @@ interface SeoItem {
 const DEFAULT_PAGES = [
   { pagePath: '/', title: 'BhashaSchool - Learn Languages 3x Faster with Peer Ladder Method', description: 'Master German, English, and global languages using the peer-to-peer mentoring ladder. A1 to B2 certification cohorts.' },
   { pagePath: '/classes', title: 'Live Public Masterclasses & Batches | BhashaSchool', description: 'Explore live German and English masterclasses. Interactive live rooms with native mentors and peer speakers.' },
-  { pagePath: '/features', title: 'Courses & Fees | BhashaSchool German & English', description: 'German teaching structure: Baustein + A1, A2, B1 and B2 with fees and durations, plus Intermediate English at ₹400/month.' },
+  { pagePath: '/courses', title: 'Courses & Fees | BhashaSchool German & English', description: 'German teaching structure: Baustein + A1, A2, B1 and B2 with fees and durations, plus Intermediate English at ₹400/month.' },
   { pagePath: '/privacy-policy', title: 'Privacy Policy | BhashaSchool Legal Framework', description: 'BhashaSchool data collection, encryption, and student privacy protection guidelines.' },
   { pagePath: '/terms', title: 'Terms of Service | BhashaSchool Platform Terms', description: 'BhashaSchool cohort participation, peer conduct, and service terms.' },
 ];

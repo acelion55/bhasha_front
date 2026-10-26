@@ -30,7 +30,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: ['Googlebot', 'Bingbot', 'PerplexityBot', 'GPTBot', 'ClaudeBot', 'Applebot', 'Yandex'],
-        allow: ['/', '/blog/', '/blog/*', '/courses/', '/classes/', '/features/', '/about/', '/contact/'],
+        allow: ['/', '/blog/', '/blog/*', '/courses/', '/classes/', '/about/', '/contact/'],
         disallow: blockedPaths,
       },
     ],

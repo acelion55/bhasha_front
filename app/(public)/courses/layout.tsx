@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     url: 'https://bhashaschool.com/courses',
     type: 'website',
   },
+  alternates: {
+    canonical: 'https://bhashaschool.com/courses/',
+  },
 };
 
 export default function CoursesLayout({ children }: { children: React.ReactNode }) {

@@ -255,7 +255,7 @@ export default function BusinessGermanPage() {
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Boost Your Career with Business German</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">Join 2000+ Indian professionals who advanced their careers by learning Business German with BhashaSchool.</p>
-          <Link href="/features" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
+          <Link href="/courses" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
             View Pricing & Enroll
           </Link>
         </div>

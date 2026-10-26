@@ -173,7 +173,7 @@ export default function GermanBeginnersPage() {
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Ready to Start Learning German?</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">Join thousands of Indian learners who have started their German language journey with BhashaSchool.</p>
-          <Link href="/features" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
+          <Link href="/courses" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
             View Pricing & Enroll
           </Link>
         </div>

@@ -9,7 +9,7 @@ export default function BottomNav() {
   
   const navItems = [
     { name: 'Home', path: '/', icon: Home },
-    { name: 'Courses', path: '/features', icon: BookOpen },
+    { name: 'Courses', path: '/courses', icon: BookOpen },
     { name: 'Classes', path: '/classes', icon: Layers }, 
     { name: 'About', path: '/about', icon: Info },
   ];

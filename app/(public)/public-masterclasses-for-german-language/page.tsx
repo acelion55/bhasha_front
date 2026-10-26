@@ -43,7 +43,7 @@ export default function PublicMasterclassesPage() {
       <section className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 py-[8vh] bg-white rounded-lg my-[4vh]">
         <div className="flex justify-between items-center mb-[4vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold text-[var(--text-black)]">Masterclass Categories</h2>
-          <Link href="/features" className="text-[1.4rem] text-[var(--starbucks-green)] font-bold hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-4 h-4" /> Back to Courses</Link>
+          <Link href="/courses" className="text-[1.4rem] text-[var(--starbucks-green)] font-bold hover:underline inline-flex items-center gap-1"><ArrowLeft className="w-4 h-4" /> Back to Courses</Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gradient-to-br from-[var(--green-light)] to-emerald-50 rounded-lg p-6 border-2 border-[var(--starbucks-green)]">
@@ -143,7 +143,7 @@ export default function PublicMasterclassesPage() {
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Join Our Next Masterclass</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">50+ masterclasses every month on languages, career, and personal development. Completely free for all learners in India.</p>
-          <Link href="/features" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
+          <Link href="/courses" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
             Back to Courses
           </Link>
         </div>

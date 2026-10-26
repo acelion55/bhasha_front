@@ -178,7 +178,7 @@ export default function EnglishConversationalPage() {
         <div className="text-center space-y-[3vh]">
           <h2 className="text-[3rem] md:text-[2.5rem] font-bold">Speak English with Confidence</h2>
           <p className="text-[1.6rem] max-w-2xl mx-auto">Join 5000+ students from across India who transformed their English speaking abilities with BhashaSchool.</p>
-          <Link href="/features" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
+          <Link href="/courses" className="inline-block px-8 py-4 bg-white text-[var(--starbucks-green)] rounded-lg font-bold hover:opacity-90 transition-opacity text-[1.4rem]">
             View Pricing & Enroll
           </Link>
         </div>
