@@ -74,7 +74,14 @@ const FAQS = [
 export default function HomePage() {
   const [trialFormOpen, setTrialFormOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [openFaqs, setOpenFaqs] = useState<Record<number, boolean>>({ 0: true });
+
+  const toggleFaq = (idx: number) => {
+    setOpenFaqs((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
+  };
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center bg-[#F7F6F2] pb-[8vh] overflow-x-hidden text-[#20252A]">
@@ -435,7 +442,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── 9. ACCESSIBLE FAQ ACCORDION (PALE AQUA PANEL) ── */}
+        {/* ── 9. ACCESSIBLE FAQ ACCORDION (PALE AQUA PANEL - 2 COLUMNS) ── */}
         <section className="w-full rounded-[20px] md:rounded-[24px] bg-[#D9EEEE] p-[5vw] md:p-[4vw] border border-[rgba(32,37,42,0.08)]">
           <div className="max-w-3xl mx-auto text-center mb-[4vh]">
             <span className="text-[1.1rem] font-extrabold uppercase tracking-widest text-[#626B73] mb-[1vh] block">
@@ -446,41 +453,84 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-[1.2vh]">
-            {FAQS.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div 
-                  key={faq.q}
-                  className="bg-white rounded-[16px] border border-[rgba(32,37,42,0.08)] overflow-hidden shadow-xs"
-                >
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full px-[2vw] py-[2vh] text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
-                    aria-expanded={isOpen}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-[1.5vw] items-start">
+            {/* Column 1 */}
+            <div className="flex flex-col gap-[1.5vh]">
+              {FAQS.slice(0, 4).map((faq, sliceIdx) => {
+                const idx = sliceIdx;
+                const isOpen = !!openFaqs[idx];
+                return (
+                  <div 
+                    key={faq.q}
+                    className="bg-white rounded-[16px] border border-[rgba(32,37,42,0.08)] overflow-hidden shadow-xs transition-shadow hover:shadow-sm"
                   >
-                    <span className="text-[1.5rem] sm:text-[1.6rem] font-bold text-[#20252A]">
-                      {faq.q}
-                    </span>
-                    <ChevronDown className={`w-5 h-5 text-[#173B63] transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className="px-[2vw] pb-[2.5vh] pt-[0.5vh] text-[1.4rem] text-[#626B73] leading-relaxed border-t border-slate-100">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+                    <button
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full px-[2vw] py-[2vh] text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-[1.4rem] sm:text-[1.55rem] font-bold text-[#20252A]">
+                        {faq.q}
+                      </span>
+                      <ChevronDown className={`w-5 h-5 text-[#173B63] transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <div className="px-[2vw] pb-[2.5vh] pt-[0.5vh] text-[1.35rem] sm:text-[1.4rem] text-[#626B73] leading-relaxed border-t border-slate-100">
+                            {faq.a}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Column 2 */}
+            <div className="flex flex-col gap-[1.5vh]">
+              {FAQS.slice(4, 8).map((faq, sliceIdx) => {
+                const idx = sliceIdx + 4;
+                const isOpen = !!openFaqs[idx];
+                return (
+                  <div 
+                    key={faq.q}
+                    className="bg-white rounded-[16px] border border-[rgba(32,37,42,0.08)] overflow-hidden shadow-xs transition-shadow hover:shadow-sm"
+                  >
+                    <button
+                      onClick={() => toggleFaq(idx)}
+                      className="w-full px-[2vw] py-[2vh] text-left flex justify-between items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-[1.4rem] sm:text-[1.55rem] font-bold text-[#20252A]">
+                        {faq.q}
+                      </span>
+                      <ChevronDown className={`w-5 h-5 text-[#173B63] transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <div className="px-[2vw] pb-[2.5vh] pt-[0.5vh] text-[1.35rem] sm:text-[1.4rem] text-[#626B73] leading-relaxed border-t border-slate-100">
+                            {faq.a}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
 
