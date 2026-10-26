@@ -18,6 +18,7 @@ interface LevelConfig {
   title: string;
   italicTitle: string;
   desc: string;
+  initialHeight: number; // Base height before expanding to full height
 }
 
 const LEVELS: LevelConfig[] = [
@@ -29,6 +30,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Discovery',
     italicTitle: '& Phonetics',
     desc: 'We map the rigid angles before we smooth them out. Master phonetics, alphabet, sentence order, and initial survival dialogues.',
+    initialHeight: 560, // Starts at full height
   },
   {
     num: '02',
@@ -38,6 +40,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Connected',
     italicTitle: '& Dialogues',
     desc: 'Angles begin rounding out into rhythm. Form past tense (Perfekt), navigate everyday social settings, and ask questions without freezing.',
+    initialHeight: 360, // Rises to 560px
   },
   {
     num: '03',
@@ -47,6 +50,7 @@ const LEVELS: LevelConfig[] = [
     title: 'Spontaneous',
     italicTitle: '& Debate',
     desc: 'Rapid momentum and complex sentence flow. Defend opinions, master Konjunktiv II, and prepare for official Goethe & telc visa exams.',
+    initialHeight: 290, // Rises to 560px
   },
   {
     num: '04',
@@ -56,13 +60,14 @@ const LEVELS: LevelConfig[] = [
     title: 'Effortless',
     italicTitle: '& Fluency',
     desc: 'The perfect circle: complete linguistic velocity. Lead workplace presentations, participate in technical debates, and speak instinctively.',
+    initialHeight: 220, // Rises to 560px
   },
 ];
 
 const FULL_HEIGHT = 560;
-const BALL_RADIUS = 38; // 76px diameter
-const TRACK_Y = 220;    // ROCK-SOLID FIXED Y position of track crests
-const BALL_CENTER_Y = TRACK_Y - BALL_RADIUS; // 182px
+const BALL_RADIUS = 46;         // 92px diameter
+const TRACK_Y = 266;            // FIXED Y coordinate of the track crest line
+const BALL_CENTER_Y = TRACK_Y - BALL_RADIUS; // 220px (dashed line position)
 
 export default function CefrJourneyScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -75,7 +80,7 @@ export default function CefrJourneyScroll() {
     ScrollTrigger.update();
   });
 
-  // Track container width for responsive SVG path generation
+  // Keep track of container width for responsive SVG path generation
   useEffect(() => {
     const updateWidth = () => {
       if (trackContainerRef.current) {
@@ -115,47 +120,61 @@ export default function CefrJourneyScroll() {
 
   const p = Math.max(0, Math.min(1, scrollProgress));
 
-  // ── 1. PARALLAX STAGGERED RISE (CARDS GLIDE UP ONE AFTER ANOTHER) ──
-  // Track does NOT move with the cards; it stays completely fixed in place!
-  const getCardTranslateY = (idx: number, progress: number) => {
-    const startOffsets = [45, 105, 165, 225];
-    const settlePoints = [0.10, 0.22, 0.35, 0.48];
+  // ── 1. DYNAMIC CARD HEIGHT: CARDS RISE TO FULL HEIGHT ONE BY ONE ──
+  // Card 1 starts at 560px.
+  // Card 2 rises to 560px as the shape approaches it.
+  // Card 3 rises to 560px as the shape approaches it.
+  // Card 4 rises to 560px as the shape approaches it.
+  const cardHeights = useMemo(() => {
+    // Card 1: always 560px
+    const h1 = FULL_HEIGHT;
 
-    const settle = settlePoints[idx];
-    const t = Math.max(0, Math.min(1, progress / settle));
-    const easeOut = 1 - Math.pow(1 - t, 3);
-    return Math.round((1 - easeOut) * startOffsets[idx]);
-  };
+    // Card 2: 360px -> 560px during p in [0.05, 0.32]
+    const t2 = Math.max(0, Math.min(1, (p - 0.05) / 0.27));
+    const h2 = Math.round(360 + t2 * (FULL_HEIGHT - 360));
 
-  // ── 2. CONTINUOUS SMOOTH TRACK (FROM CYLINDRICAL ARCHES TO STRAIGHT LINE) ──
+    // Card 3: 290px -> 560px during p in [0.32, 0.62]
+    const t3 = Math.max(0, Math.min(1, (p - 0.32) / 0.30));
+    const h3 = Math.round(290 + t3 * (FULL_HEIGHT - 290));
+
+    // Card 4: 220px -> 560px during p in [0.62, 0.92]
+    const t4 = Math.max(0, Math.min(1, (p - 0.62) / 0.30));
+    const h4 = Math.round(220 + t4 * (FULL_HEIGHT - 220));
+
+    return [h1, h2, h3, h4];
+  }, [p]);
+
+  // ── 2. CONTINUOUS SMOOTH TRACK (FROM WAVY CYLINDERS TO STRAIGHT LINE) ──
+  // The track is completely FIXED at TRACK_Y = 266px.
   // Arches curve UP to touch TRACK_Y at their crests, smoothly decaying to a flat line!
   const smoothTrackPath = useMemo(() => {
     const W = containerWidth || 1200;
-    const wavePeriod = 36; // Scallop wave width
+    const wavePeriod = 42; // Width of each scallop arch
     const numWaves = Math.ceil(W / wavePeriod);
     const segments: string[] = [];
 
-    // Leftmost point starts at first cusp
-    const startAmp = 16 * (1 - p * 0.4);
+    // Leftmost point begins at initial cusp (dipped down by startAmp)
+    const startAmp = 18 * Math.max(0, 1 - p * 0.4);
     segments.push(`M 0,${(TRACK_Y + startAmp).toFixed(1)}`);
 
     for (let i = 0; i < numWaves; i++) {
       const x0 = i * wavePeriod;
       const x1 = Math.min(W, (i + 1) * wavePeriod);
       const xMid = (x0 + x1) / 2;
-      const u = xMid / W; // 0 (left) to 1 (right)
+      const u = xMid / W; // 0 (left / Square) to 1 (right / Circle)
 
-      // Continuous decay from 16px at Square down to 0px at Circle
-      // Also flattens dynamically as the shape rolls forward!
+      // Continuous decay from 18px down to 0px (straight line)
       const spatialDecay = Math.pow(Math.max(0, 1 - u), 1.5);
-      const temporalDecay = 1 - p * 0.5;
-      const amp = 16 * spatialDecay * temporalDecay;
+      const temporalDecay = Math.max(0, 1 - p * 0.5);
+      const amp = 18 * spatialDecay * temporalDecay;
 
       if (amp < 0.4) {
         // Pure flat straight line towards B2 Circle
         segments.push(`L ${x1.toFixed(1)},${TRACK_Y}`);
       } else {
-        // Arch curves UPWARD: crest reaches TRACK_Y, cusps dip down to TRACK_Y + amp
+        // The arch curves UPWARD:
+        // Apex reaches TRACK_Y (Y_ctrl = TRACK_Y - amp)
+        // Cusps dip down to TRACK_Y + amp
         const yCtrl = TRACK_Y - amp;
         const yEnd = TRACK_Y + amp;
         segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${yEnd.toFixed(1)}`);
@@ -165,28 +184,30 @@ export default function CefrJourneyScroll() {
     return segments.join(' ');
   }, [containerWidth, p]);
 
-  // ── 3. DYNAMIC SIDES: SQUARE -> HEXAGON -> OCTAGON -> DODECAGON -> CIRCLE ──
+  // ── 3. DYNAMIC SHAPE: SQUARE -> HEXAGON -> OCTAGON -> DODECAGON -> CIRCLE ──
+  // In the beginning, the square starts on the far left (partially outside the card edge).
+  // It has an initial tilt so its corner dips into the trough and rests on the arch.
   const shapeData = useMemo(() => {
     let sides = 4;
     let isCircle = false;
 
-    if (p < 0.20) {
+    if (p < 0.22) {
       sides = 4; // Square
-    } else if (p < 0.38) {
+    } else if (p < 0.42) {
       sides = 6; // Hexagon
-    } else if (p < 0.58) {
+    } else if (p < 0.65) {
       sides = 8; // Octagon
-    } else if (p < 0.76) {
+    } else if (p < 0.82) {
       sides = 12; // Dodecagon
-    } else if (p < 0.88) {
+    } else if (p < 0.92) {
       sides = 16; // Hexadecagon
     } else {
       sides = 36; // Pure Circle
       isCircle = true;
     }
 
-    // 720 deg rotation rolling forward
-    const rotation = p * Math.PI * 4;
+    // Initial tilt angle (0.28 rad / ~16 deg) so the square corner dips into the wave trough
+    const rotation = 0.28 + p * Math.PI * 4;
 
     const points: string[] = [];
     for (let i = 0; i < sides; i++) {
@@ -204,6 +225,10 @@ export default function CefrJourneyScroll() {
   }, [p]);
 
   const activeIndex = Math.min(3, Math.floor(p * 4));
+
+  // Horizontal position of rolling shape:
+  // Starts at left edge (overlapping left border of Card 01) and journeys to Card 04
+  const shapeLeftPercent = 2 + p * 86; // 2% (partially outside) to 88%
 
   return (
     <section 
@@ -233,28 +258,27 @@ export default function CefrJourneyScroll() {
               </span>
             </p>
             <p className="text-[1.25rem] text-[#626B73]">
-              The track stays fixed as the wavy bumps flatten into a smooth line for effortless rolling.
+              Cards expand to full height as the wavy track flattens into a straight line for effortless rolling.
             </p>
           </div>
         </div>
 
-        {/* ── 4 RED EDITORIAL CARDS CONTAINER (PARALLAX RISE) ── */}
+        {/* ── 4 RED EDITORIAL CARDS CONTAINER (WITH DYNAMIC EXPANSION) ── */}
         <div 
           ref={trackContainerRef}
           className="relative w-full grid grid-cols-1 md:grid-cols-4 gap-[2vw] md:gap-[1.2vw] items-end"
           style={{ height: `${FULL_HEIGHT}px` }}
         >
           {LEVELS.map((lvl, idx) => {
-            const translateY = getCardTranslateY(idx, p);
+            const currentHeight = cardHeights[idx];
             const isActive = activeIndex === idx;
 
             return (
               <div
                 key={lvl.num}
                 style={{ 
-                  height: `${FULL_HEIGHT}px`,
-                  transform: `translateY(${translateY}px)`,
-                  transition: 'box-shadow 0.2s ease',
+                  height: `${currentHeight}px`,
+                  transition: 'height 0.12s ease-out, box-shadow 0.2s ease',
                 }}
                 className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[1.8vw] flex flex-col justify-between overflow-hidden shadow-md ${
                   isActive ? 'ring-2 ring-white/80 shadow-2xl' : 'opacity-95'
@@ -307,14 +331,14 @@ export default function CefrJourneyScroll() {
           })}
 
           {/* ── FIXED TRACK & BASELINE OVERLAY (100% FIXED IN PLACE) ── */}
-          {/* Does NOT move with card translateY; rock-solid stationary position */}
+          {/* Sits at a stationary Y position; does NOT move when cards expand upward */}
           <div 
             className="absolute inset-x-0 top-0 pointer-events-none z-10 hidden md:block" 
             style={{ height: `${FULL_HEIGHT}px` }}
           >
             {/* Dashed baseline running straight through the center dot of the shape */}
             <div 
-              className="absolute left-[1.5vw] right-[1.5vw] border-t border-dashed border-white/40 h-0"
+              className="absolute left-[0.5vw] right-[0.5vw] border-t border-dashed border-white/40 h-0"
               style={{ top: `${BALL_CENTER_Y}px` }}
             />
 
@@ -328,19 +352,19 @@ export default function CefrJourneyScroll() {
           </div>
 
           {/* ── CONTINUOUS SCROLL-TRIGGERED ROLLING SHAPE OVERLAY ── */}
-          {/* Sits EXACTLY on the track crests at TRACK_Y = 220px across all cards */}
+          {/* Sits EXACTLY on the track crests at TRACK_Y = 266px across all cards */}
           <div 
             className="absolute inset-x-0 pointer-events-none hidden md:block z-20"
             style={{ top: `${BALL_CENTER_Y}px` }}
           >
             {/* The single rolling morphing shape pinned along the dashed baseline */}
             <div 
-              className="absolute -top-[38px] -ml-[38px] will-change-transform"
+              className="absolute -top-[46px] -ml-[46px] will-change-transform"
               style={{
-                left: `${(p * 0.76 + 0.12) * 100}%`,
+                left: `${shapeLeftPercent}%`,
               }}
             >
-              <svg width="76" height="76" viewBox="-38 -38 76 76" className="overflow-visible drop-shadow-md">
+              <svg width="92" height="92" viewBox="-46 -46 92 92" className="overflow-visible drop-shadow-md">
                 {shapeData.isCircle ? (
                   <circle
                     cx="0"
