@@ -2,11 +2,18 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { Check } from 'lucide-react';
+import { getMergedKeywords } from '@/lib/seo-keywords';
 
 export const metadata: Metadata = {
   title: 'English Conversational Classes Online | Improve Spoken English in India | BhashaSchool',
   description: 'Master conversational English with live online classes in India. Perfect English speaking course for professionals & students. Fluent English in 12 weeks!',
-  keywords: 'English conversational classes, spoken English course India, English speaking classes online, improve English speaking, fluent English India',
+  keywords: getMergedKeywords([
+    'English conversational classes',
+    'spoken English course India',
+    'English speaking classes online',
+    'improve English speaking',
+    'fluent English India',
+  ]),
   openGraph: {
     title: 'English Conversational - Live Online Classes in India',
     description: 'Improve your English speaking skills with certified trainers. Real conversations, confidence building, professional communication skills.',

@@ -2,11 +2,18 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { BarChart3, Check, Target, Timer } from 'lucide-react';
+import { getMergedKeywords } from '@/lib/seo-keywords';
 
 export const metadata: Metadata = {
   title: 'German for Beginners Online | Learn German from Scratch in India | BhashaSchool',
   description: 'Master German language from beginner level with live online classes in India. Expert trainers, interactive lessons, and certification. Start your German journey today!',
-  keywords: 'German for beginners, learn German online India, German classes for beginners, German language course India, beginner German lessons online',
+  keywords: getMergedKeywords([
+    'German for beginners',
+    'learn German online India',
+    'German classes for beginners',
+    'German language course India',
+    'beginner German lessons online',
+  ]),
   openGraph: {
     title: 'German for Beginners - Online German Classes in India',
     description: 'Learn German from scratch with certified trainers. Live interactive classes designed for Indian learners. Join BhashaSchool today!',

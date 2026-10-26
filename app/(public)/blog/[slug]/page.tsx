@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getMergedKeywords } from '@/lib/seo-keywords';
 import {
   ArrowLeft,
   Clock,
@@ -124,9 +125,9 @@ export async function generateMetadata({
     article.seoDescription ||
     article.excerpt ||
     'Master language speaking with live cohorts, certified tutors, and interactive daily practice at BhashaSchool.';
-  const keywords = article.seoKeywords
-    ? article.seoKeywords.split(',').map((k) => k.trim())
-    : [article.tag || 'Language Learning', 'BhashaSchool'];
+  const keywords = getMergedKeywords(
+    article.seoKeywords || [article.tag || 'Language Learning', 'BhashaSchool']
+  );
 
   const canonicalUrl = `https://bhashaschool.com/blog/${cleanSlug(article.slug)}/`;
 
@@ -430,7 +431,7 @@ export default async function BlogArticlePage({
       },
     },
     image: article.imageUrl || 'https://bhashaschool.com/hero-classroom.png',
-    keywords: article.seoKeywords,
+    keywords: getMergedKeywords(article.seoKeywords).join(', '),
   };
 
   const breadcrumbsSchema = {

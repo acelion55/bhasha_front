@@ -2,11 +2,19 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { BarChart3, BookOpen, Check, GraduationCap, Star, Target, Timer } from 'lucide-react';
+import { getMergedKeywords } from '@/lib/seo-keywords';
 
 export const metadata: Metadata = {
   title: 'GMAT/TOEFL/IELTS/GRE/German Exam Prep India | BhashaSchool',
   description: 'Expert exam preparation courses for GMAT, TOEFL, IELTS, GRE, German exams in India. Proven strategies, full-length tests, and high score guarantee!',
-  keywords: 'GMAT preparation India, TOEFL coaching, IELTS exam prep, GRE coaching India, German B1 B2 exam preparation, exam coaching India',
+  keywords: getMergedKeywords([
+    'GMAT preparation India',
+    'TOEFL coaching',
+    'IELTS exam prep',
+    'GRE coaching India',
+    'German B1 B2 exam preparation',
+    'exam coaching India',
+  ]),
   openGraph: {
     title: 'Exam Preparation - Master Your Test',
     description: 'Score high on GMAT, TOEFL, IELTS, GRE, and German exams with expert coaching and proven strategies from BhashaSchool.',

@@ -2,11 +2,18 @@ import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { BarChart3, Briefcase, Building2, Check, CircleDollarSign, Target, Timer } from 'lucide-react';
+import { getMergedKeywords } from '@/lib/seo-keywords';
 
 export const metadata: Metadata = {
   title: 'Business German Course Online | Corporate German in India | BhashaSchool',
   description: 'Master Business German for professionals in India. Learn corporate communication, negotiations, presentations & professional vocabulary. Boost your career!',
-  keywords: 'Business German course, corporate German lessons, professional German India, German for business communication, export import German',
+  keywords: getMergedKeywords([
+    'Business German course',
+    'corporate German lessons',
+    'professional German India',
+    'German for business communication',
+    'export import German',
+  ]),
   openGraph: {
     title: 'Business German - Professional Language Course India',
     description: 'Advanced Business German training for professionals. Master negotiations, presentations, and business communication for international career growth.',

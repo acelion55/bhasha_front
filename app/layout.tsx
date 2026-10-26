@@ -2,11 +2,12 @@ import './globals.css';
 import { Providers } from './providers';
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { TARGET_KEYWORDS } from '@/lib/seo-keywords';
 
 export const metadata: Metadata = {
   title: 'BhashaSchool — Learn German & English with Expert Tutors',
   description: 'Master German and English with live 1-on-1 lessons, AI-powered practice, and certified tutors. Join thousands of learners on BhashaSchool.',
-  keywords: 'learn German online, English tutor, language school, German lessons, BhashaSchool',
+  keywords: TARGET_KEYWORDS,
   verification: {
     google: 'bIbJdRXvoRZH0m0MDw098Y6gIUWuiv-WuyqJrb80d20',
   },
