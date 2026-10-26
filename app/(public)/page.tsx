@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import GooeyBackground from '@/components/effects/GooeyBackground';
 import TrialBookingForm from '@/components/TrialBookingForm';
+import HeroSection from '@/components/home/HeroSection';
 
 const CEFR_DATA: Record<string, {
   title: string;
@@ -74,114 +75,11 @@ export default function HomePage() {
   return (
     <main className="min-h-screen w-full flex flex-col items-center bg-[var(--neutral-warm)] pb-24 overflow-x-hidden">
       
-      {/* Main Container Wrapper */}
-      <div className="w-full max-w-none px-4 md:px-8 lg:px-12 py-8 md:py-12 flex flex-col gap-14 md:gap-18">
-        
-        {/* ── BOLDER HERO & HIGHLIGHTS ROW ── */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch pt-4">
-          
-          {/* Left Text Column */}
-          <motion.div 
-            initial="hidden" animate="visible" variants={fadeIn}
-            className="flex-1 space-y-6 flex flex-col justify-center"
-          >
-            <div className="inline-flex items-center gap-2 self-start bg-[var(--gold-lightest)] border border-[var(--gold-light)] text-[var(--gold)] px-4 py-1.5 rounded-full">
-              <Sparkles className="w-4 h-4 text-[var(--gold)]" />
-              <span className="text-xs font-bold uppercase tracking-wider">European-Indian Language Academy</span>
-            </div>
+      {/* ── HERO SECTION MATCHING MOCKUP ── */}
+      <HeroSection onOpenTrial={() => setTrialFormOpen(true)} />
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[var(--text-black)] tracking-tight leading-[1.15]">
-              Pass Your German CEFR Exam On The <span className="text-[var(--gold)]">First Attempt.</span>
-            </h1>
-
-            <p className="text-lg sm:text-xl text-[var(--text-black-soft)] max-w-2xl leading-relaxed">
-              Small-batch live cohorts (max 10 students) taught by certified Goethe mentors. Master genuine conversational reflexes through our proprietary <strong>Peer-Ladder</strong> practice system.
-            </p>
-
-            {/* Bolder Primary CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <motion.button 
-                whileHover={{ scale: 1.02 }} 
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setTrialFormOpen(true)}
-                className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[var(--gold)] hover:bg-[#b45309] text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-200 cursor-pointer"
-              >
-                <span>Book Free 30-Min Demo & Placement</span>
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-
-              <a 
-                href="#curriculum"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-white border border-[var(--ceramic)] hover:bg-slate-50 text-[var(--text-black)] font-bold text-base rounded-xl transition-all duration-200 shadow-sm"
-              >
-                <span>Explore CEFR Ladder</span>
-              </a>
-            </div>
-
-            {/* Trust Proof Metrics */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--ceramic)]">
-              <div>
-                <p className="text-2xl font-black text-[var(--text-black)]">98.4%</p>
-                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Goethe First-Pass Rate</p>
-              </div>
-              <div>
-                <p className="text-2xl font-black text-[var(--text-black)]">Max 10</p>
-                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Students Per Cohort</p>
-              </div>
-              <div>
-                <p className="text-2xl font-black text-[var(--text-black)]">A1 to B2</p>
-                <p className="text-xs sm:text-sm text-[var(--text-black-soft)] font-medium">Full Visa Roadmap</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right Cards Stack */}
-          <motion.div 
-            initial="hidden" animate="visible" variants={staggerVariants}
-            className="flex-1 flex flex-col justify-center"
-          >
-            {/* ── LIVE COHORT CARD ── */}
-            <motion.div 
-              variants={popIn} 
-              whileHover={{ y: -4 }} 
-              className="bg-[var(--house-green)] border border-[rgba(255,255,255,0.1)] text-white p-8 sm:p-10 rounded-2xl relative overflow-hidden shadow-2xl flex flex-col justify-between"
-            >
-              <GraduationCap className="absolute right-[-20px] top-[-20px] opacity-10 w-56 h-56 text-white pointer-events-none" />
-              
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs font-bold text-[var(--gold-light)] uppercase tracking-widest bg-[rgba(255,255,255,0.08)] px-3 py-1 rounded-full">Live Cohort System</span>
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Next Batch: Monday
-                  </span>
-                </div>
-                
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">From Absolute Beginner to Career-Ready Fluency</h2>
-                <p className="text-base text-[var(--text-white-soft)] mb-8 max-w-md leading-relaxed">
-                  Structured interactive sessions with real-time feedback, daily speaking drills, and dedicated Goethe exam preparation.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 w-full border-t border-[rgba(255,255,255,0.1)] pt-6 gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-3">
-                    <div className="w-10 h-10 bg-amber-200 border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-amber-900">DE</div>
-                    <div className="w-10 h-10 bg-sky-200 border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-sky-900">IN</div>
-                    <div className="w-10 h-10 bg-[var(--gold)] border-2 border-[var(--house-green)] rounded-full flex items-center justify-center font-bold text-xs text-white">+480</div>
-                  </div>
-                  <span className="text-xs font-semibold text-[var(--text-white-soft)]">Students enrolled this month</span>
-                </div>
-
-                <button 
-                  onClick={() => setTrialFormOpen(true)}
-                  className="text-sm font-bold text-[var(--gold)] hover:text-white transition flex items-center gap-1 cursor-pointer"
-                >
-                  Join Next Cohort <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
+      {/* Main Container Wrapper for remaining sections */}
+      <div className="w-full max-w-none px-4 md:px-8 lg:px-12 py-12 md:py-16 flex flex-col gap-14 md:gap-18">
 
         {/* ── CURRICULUM FRAMEWORK & DUAL SUPPORT ── */}
         <motion.div 
