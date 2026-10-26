@@ -13,8 +13,6 @@ if (typeof window !== 'undefined') {
 interface LevelConfig {
   num: string;
   level: string;
-  stageName: string;
-  stageSub: string;
   title: string;
   italicTitle: string;
   desc: string;
@@ -25,8 +23,6 @@ const LEVELS: LevelConfig[] = [
   {
     num: '01',
     level: 'A1',
-    stageName: 'Square',
-    stageSub: 'Rigid Angles',
     title: 'Discovery',
     italicTitle: '& Phonetics',
     desc: 'We map the rigid angles before we smooth them out. Master phonetics, alphabet, sentence order, and initial survival dialogues.',
@@ -35,8 +31,6 @@ const LEVELS: LevelConfig[] = [
   {
     num: '02',
     level: 'A2',
-    stageName: 'Octagon',
-    stageSub: 'Softening Edges',
     title: 'Connected',
     italicTitle: '& Dialogues',
     desc: 'Angles begin rounding out into rhythm. Form past tense (Perfekt), navigate everyday social settings, and ask questions without freezing.',
@@ -45,8 +39,6 @@ const LEVELS: LevelConfig[] = [
   {
     num: '03',
     level: 'B1',
-    stageName: 'Squircle',
-    stageSub: 'Flowing Velocity',
     title: 'Spontaneous',
     italicTitle: '& Debate',
     desc: 'Rapid momentum and complex sentence flow. Defend opinions, master Konjunktiv II, and prepare for official Goethe & telc visa exams.',
@@ -55,8 +47,6 @@ const LEVELS: LevelConfig[] = [
   {
     num: '04',
     level: 'B2',
-    stageName: 'Circle',
-    stageSub: 'Frictionless Fluency',
     title: 'Effortless',
     italicTitle: '& Fluency',
     desc: 'The perfect circle: complete linguistic velocity. Lead workplace presentations, participate in technical debates, and speak instinctively.',
@@ -65,10 +55,27 @@ const LEVELS: LevelConfig[] = [
 ];
 
 const FULL_HEIGHT = 560;
-const BALL_RADIUS = 46;         // 92px diameter
-const TRACK_Y = 266;            // FIXED Y coordinate of track crest line
-const BALL_CENTER_Y = TRACK_Y - BALL_RADIUS; // 220px (dashed line position)
-const NUM_SHAPE_POINTS = 72;    // High density sampling for continuous smooth morphing
+const HALF_SIDE = 32;                   // Half-length of square side (side length S = 64px)
+const BALL_RADIUS = Math.round(HALF_SIDE * Math.SQRT2); // 45px (center to corner of square)
+const BUMP_PERIOD = 64;                 // Each bump width matches square side length S = 64px!
+const CREST_Y = 254;                    // Fixed Y coordinate of bump crests
+const BALL_CENTER_Y = CREST_Y - HALF_SIDE; // 222px (fixed horizontal center baseline)
+const MAX_BUMP_AMP = 22;                // Max bump depth (troughs dip by 22px)
+
+// Dynamic shape sides: increases one-by-one
+function getShapeInfo(p: number) {
+  if (p < 0.12) return { sides: 4, name: 'Square', label: '4 Sides' };
+  if (p < 0.22) return { sides: 5, name: 'Pentagon', label: '5 Sides' };
+  if (p < 0.32) return { sides: 6, name: 'Hexagon', label: '6 Sides' };
+  if (p < 0.42) return { sides: 7, name: 'Heptagon', label: '7 Sides' };
+  if (p < 0.52) return { sides: 8, name: 'Octagon', label: '8 Sides' };
+  if (p < 0.62) return { sides: 9, name: 'Nonagon', label: '9 Sides' };
+  if (p < 0.72) return { sides: 10, name: 'Decagon', label: '10 Sides' };
+  if (p < 0.80) return { sides: 11, name: 'Hendecagon', label: '11 Sides' };
+  if (p < 0.88) return { sides: 12, name: 'Dodecagon', label: '12 Sides' };
+  if (p < 0.95) return { sides: 16, name: 'Hexadecagon', label: '16 Sides' };
+  return { sides: 36, name: 'Circle', label: 'Smooth Circle' };
+}
 
 export default function CefrJourneyScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -81,7 +88,7 @@ export default function CefrJourneyScroll() {
     ScrollTrigger.update();
   });
 
-  // Keep track of container width for responsive SVG path generation
+  // Track container width
   useEffect(() => {
     const updateWidth = () => {
       if (trackContainerRef.current) {
@@ -121,7 +128,7 @@ export default function CefrJourneyScroll() {
 
   const p = Math.max(0, Math.min(1, scrollProgress));
 
-  // ── 1. DYNAMIC CARD HEIGHT: CARDS RISE TO FULL HEIGHT ONE BY ONE ──
+  // ── 1. DYNAMIC CARD HEIGHT: EXPANDS UPWARD ONE BY ONE ──
   const cardHeights = useMemo(() => {
     const h1 = FULL_HEIGHT;
     const t2 = Math.max(0, Math.min(1, (p - 0.05) / 0.27));
@@ -136,92 +143,87 @@ export default function CefrJourneyScroll() {
     return [h1, h2, h3, h4];
   }, [p]);
 
-  // ── 2. BIGGER INITIAL BUMPS THAT FLATTEN TOGETHER INTO A STRAIGHT LINE ──
-  // Starts with big bold cylindrical arches (amplitude = 34px) in the beginning.
-  // The entire line transforms and flattens together from 34px down to 0px as p -> 1!
+  // ── 2. CURRENT SHAPE INFO (SIDES INCREASE ONE BY ONE) ──
+  const currentShape = useMemo(() => {
+    return getShapeInfo(p);
+  }, [p]);
+
+  // ── 3. MATHEMATICAL BUMP AMPLITUDE TIED TO POLYGON SIDES ──
+  // For an N-sided polygon, required bump height is proportional to (1 - cos(pi / N)).
+  // For Square (N=4), amplitude is max (22px). For Circle, amplitude decays to 0px!
+  const currentAmp = useMemo(() => {
+    const N = currentShape.sides;
+    const denom = 1 - Math.cos(Math.PI / 4); // Square baseline
+    const ratio = (1 - Math.cos(Math.PI / N)) / denom;
+    return MAX_BUMP_AMP * Math.max(0, Math.min(1, ratio));
+  }, [currentShape.sides]);
+
+  // ── 4. CONTINUOUS BUMP TRACK SVG ──
+  // Bump width BUMP_PERIOD (64px) matches the square's side length (64px).
+  // Cusps (troughs) are at i * BUMP_PERIOD, crests are at (i + 0.5) * BUMP_PERIOD.
+  // The square's corner fits right into the trough between bumps!
   const smoothTrackPath = useMemo(() => {
     const W = containerWidth || 1200;
-    const wavePeriod = 48; // Wide cylindrical arches
-    const numWaves = Math.ceil(W / wavePeriod);
+    const numWaves = Math.ceil(W / BUMP_PERIOD);
     const segments: string[] = [];
 
-    // Initial bump is 34px (tall and prominent) and decays smoothly to 0px across whole line
-    const currentAmp = 34 * Math.pow(Math.max(0, 1 - p), 1.2);
-
-    // Leftmost point starts at initial cusp (dipped down by currentAmp)
-    segments.push(`M 0,${(TRACK_Y + currentAmp).toFixed(1)}`);
+    // Trough Y: CREST_Y + currentAmp
+    const yTrough = CREST_Y + currentAmp;
+    segments.push(`M 0,${yTrough.toFixed(1)}`);
 
     for (let i = 0; i < numWaves; i++) {
-      const x0 = i * wavePeriod;
-      const x1 = Math.min(W, (i + 1) * wavePeriod);
+      const x0 = i * BUMP_PERIOD;
+      const x1 = Math.min(W, (i + 1) * BUMP_PERIOD);
       const xMid = (x0 + x1) / 2;
 
-      if (currentAmp < 0.3) {
-        // Pure flat straight line across the entire length
-        segments.push(`L ${x1.toFixed(1)},${TRACK_Y}`);
+      if (currentAmp < 0.4) {
+        // Flat straight line
+        segments.push(`L ${x1.toFixed(1)},${CREST_Y}`);
       } else {
-        // The arch curves UPWARD:
-        // Peak reaches TRACK_Y (yCtrl = TRACK_Y - currentAmp)
-        // Cusps dip down to TRACK_Y + currentAmp
-        const yCtrl = TRACK_Y - currentAmp;
-        const yEnd = TRACK_Y + currentAmp;
-        segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${yEnd.toFixed(1)}`);
+        // Arch curves UP: crest touches CREST_Y (yCtrl = CREST_Y - currentAmp)
+        // Cusps dip down to yTrough
+        const yCtrl = CREST_Y - currentAmp;
+        segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${yTrough.toFixed(1)}`);
       }
     }
 
     return segments.join(' ');
-  }, [containerWidth, p]);
+  }, [containerWidth, currentAmp]);
 
-  // ── 3. CONTINUOUS SMOOTH MORPHING (ZERO DISCRETE POPPING) ──
-  // Mathematically interpolates radius from exact Square (at p=0) to exact Circle (at p=1)
-  // using 72 points for a 100% fluid, frame-by-frame continuous geometric transformation!
+  // ── 5. ROLLING SHAPE POSITION & PHYSICAL SYNCHRONIZED ROTATION ──
+  // Width bounds:
+  const W = containerWidth || 1200;
+  // Start position X0 is aligned so square corner is centered right between bumps (at a trough):
+  const startX = 32;
+  const endX = W - 54;
+  const currentX = startX + p * (endX - startX);
+
+  // Synchronized rolling rotation:
+  // Traveling one bump width (64px) rotates the square by exactly 90 degrees (pi / 2)!
+  // At startX (p=0), initial rotation is 45 deg (pi / 4) so bottom corner dips straight into the trough!
+  const traveledDistance = currentX - startX;
+  const rotation = (Math.PI / 4) + (traveledDistance / BUMP_PERIOD) * (Math.PI / 2);
+
   const shapeData = useMemo(() => {
-    // Initial tilt angle so the square corner dips into the wave trough
-    const rotation = 0.28 + p * Math.PI * 4;
+    const sides = currentShape.sides;
+    const isCircle = sides >= 32;
 
     const points: string[] = [];
-
-    for (let i = 0; i < NUM_SHAPE_POINTS; i++) {
-      const phi = (i * 2 * Math.PI) / NUM_SHAPE_POINTS;
-
-      // Exact radius of a square aligned at angle phi:
-      const cosP = Math.abs(Math.cos(phi));
-      const sinP = Math.abs(Math.sin(phi));
-      const maxProj = Math.max(cosP, sinP);
-      const rSquare = maxProj > 0 ? BALL_RADIUS / maxProj : BALL_RADIUS;
-
-      // Exact radius of a circle:
-      const rCircle = BALL_RADIUS;
-
-      // Continuous linear interpolation between square and circle:
-      const r = (1 - p) * rSquare + p * rCircle;
-
-      // Apply rolling rotation:
-      const angle = phi + rotation;
-      const x = r * Math.cos(angle);
-      const y = r * Math.sin(angle);
+    for (let i = 0; i < sides; i++) {
+      const angle = (i * 2 * Math.PI) / sides + rotation;
+      const x = BALL_RADIUS * Math.cos(angle);
+      const y = BALL_RADIUS * Math.sin(angle);
       points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
     }
 
     return {
+      sides,
+      isCircle,
       points: points.join(' '),
-      roundnessPercent: Math.round(p * 100),
     };
-  }, [p]);
+  }, [currentShape.sides, rotation]);
 
   const activeIndex = Math.min(3, Math.floor(p * 4));
-
-  // Current stage label based on continuous roundness:
-  const morphLabel = useMemo(() => {
-    if (p < 0.15) return 'Square (0% Round)';
-    if (p < 0.45) return `Filleted Square (${shapeData.roundnessPercent}% Round)`;
-    if (p < 0.80) return `Smooth Squircle (${shapeData.roundnessPercent}% Round)`;
-    return `Flawless Circle (${shapeData.roundnessPercent}% Round)`;
-  }, [p, shapeData.roundnessPercent]);
-
-  // Horizontal position of rolling shape:
-  // Starts on the left edge (overlapping left border of Card 01) and journeys to Card 04
-  const shapeLeftPercent = 2 + p * 86; // 2% (partially outside) to 88%
 
   return (
     <section 
@@ -245,13 +247,13 @@ export default function CefrJourneyScroll() {
 
           <div className="text-left md:text-right">
             <p className="text-[1.5rem] sm:text-[1.7rem] font-bold text-[#20252A] leading-snug">
-              Continuous smooth transformation:{' '}
+              Square on Catenary Road:{' '}
               <span className="italic font-serif text-[#CF1E2C] font-normal">
-                {morphLabel}
+                {currentShape.name} ({currentShape.label})
               </span>
             </p>
             <p className="text-[1.25rem] text-[#626B73]">
-              The initial big wave bumps flatten together into a straight line as the square continuously becomes a circle.
+              Square side matches bump surface • Corners dip between bumps • Sides increase step-by-step
             </p>
           </div>
         </div>
@@ -285,7 +287,7 @@ export default function CefrJourneyScroll() {
                   <div className="flex items-center gap-2">
                     {isActive && (
                       <span className="text-[1.1rem] font-mono text-white/90 font-bold bg-white/20 px-2 py-0.5 rounded-full">
-                        {shapeData.roundnessPercent}% Smooth
+                        {currentShape.label}
                       </span>
                     )}
                     <span className="text-[1.2rem] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
@@ -298,7 +300,7 @@ export default function CefrJourneyScroll() {
                 <div className="z-10 mt-auto pt-[2vh]">
                   <div className="mb-[1vh]">
                     <div className="text-[1.2rem] font-mono uppercase tracking-wider text-white/70 mb-1">
-                      {lvl.stageName} • {lvl.stageSub}
+                      {idx === activeIndex ? currentShape.name : idx === 0 ? 'Square' : idx === 1 ? 'Octagon' : idx === 2 ? 'Dodecagon' : 'Circle'}
                     </div>
                     <h3 className="text-[2.4rem] sm:text-[2.8rem] font-extrabold tracking-tight leading-none text-white">
                       {lvl.title}
@@ -326,18 +328,17 @@ export default function CefrJourneyScroll() {
           })}
 
           {/* ── FIXED TRACK & BASELINE OVERLAY (100% FIXED IN PLACE) ── */}
-          {/* Sits at a stationary Y position; does NOT move when cards expand upward */}
           <div 
             className="absolute inset-x-0 top-0 pointer-events-none z-10 hidden md:block" 
             style={{ height: `${FULL_HEIGHT}px` }}
           >
-            {/* Dashed baseline running straight through the center dot of the shape */}
+            {/* Dashed baseline running straight through center axis */}
             <div 
               className="absolute left-[0.5vw] right-[0.5vw] border-t border-dashed border-white/40 h-0"
               style={{ top: `${BALL_CENTER_Y}px` }}
             />
 
-            {/* Continuous SVG track line spanning all 4 cards: entire line flattens together */}
+            {/* Continuous SVG track line: bumps flatten as polygon gains more sides */}
             <svg 
               className="absolute inset-0 w-full h-full overflow-visible text-white/85 stroke-current fill-none stroke-[2.2]"
               style={{ pointerEvents: 'none' }}
@@ -346,26 +347,35 @@ export default function CefrJourneyScroll() {
             </svg>
           </div>
 
-          {/* ── CONTINUOUS SCROLL-TRIGGERED ROLLING SHAPE OVERLAY ── */}
-          {/* Sits EXACTLY on the track crests at TRACK_Y = 266px across all cards */}
+          {/* ── ROLLING SHAPE OVERLAY (PHYSICALLY SYNCHRONIZED ON TRACK) ── */}
           <div 
             className="absolute inset-x-0 pointer-events-none hidden md:block z-20"
             style={{ top: `${BALL_CENTER_Y}px` }}
           >
-            {/* The single rolling morphing shape pinned along the dashed baseline */}
             <div 
-              className="absolute -top-[46px] -ml-[46px] will-change-transform"
+              className="absolute -top-[45px] -ml-[45px] will-change-transform"
               style={{
-                left: `${shapeLeftPercent}%`,
+                left: `${currentX}px`,
               }}
             >
-              <svg width="92" height="92" viewBox="-46 -46 92 92" className="overflow-visible drop-shadow-md">
-                <polygon
-                  points={shapeData.points}
-                  fill="rgba(255,255,255,0.12)"
-                  stroke="#FFFFFF"
-                  strokeWidth="2.5"
-                />
+              <svg width="90" height="90" viewBox="-45 -45 90 90" className="overflow-visible drop-shadow-md">
+                {shapeData.isCircle ? (
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r={BALL_RADIUS}
+                    fill="rgba(255,255,255,0.12)"
+                    stroke="#FFFFFF"
+                    strokeWidth="2.5"
+                  />
+                ) : (
+                  <polygon
+                    points={shapeData.points}
+                    fill="rgba(255,255,255,0.12)"
+                    stroke="#FFFFFF"
+                    strokeWidth="2.5"
+                  />
+                )}
                 {/* Center axis white dot pinned precisely on the dashed baseline */}
                 <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
               </svg>
@@ -377,13 +387,13 @@ export default function CefrJourneyScroll() {
         {/* ── MOBILE SCROLL PROGRESS INDICATOR ── */}
         <div className="mt-[3vh] md:hidden flex flex-col gap-2">
           <div className="flex justify-between text-[1.2rem] font-mono text-[#626B73]">
-            <span>A1 (Square: 0%)</span>
-            <span>B2 (Circle: 100%)</span>
+            <span>A1 (Square: 4 Sides)</span>
+            <span>B2 (Circle: Smooth)</span>
           </div>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
             <div 
               className="h-full bg-[#CF1E2C] transition-all duration-150"
-              style={{ width: `${shapeData.roundnessPercent}%` }}
+              style={{ width: `${Math.round(p * 100)}%` }}
             />
           </div>
         </div>
