@@ -12,8 +12,8 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionProps) {
   return (
-    <section className="relative w-full overflow-hidden bg-[#FAF7F2] text-[#1A1A1A] select-none pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-8 md:px-12 lg:px-16 border-b border-[rgba(32,37,42,0.06)]">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 items-center gap-10 lg:gap-8">
+    <section className="relative w-full overflow-hidden bg-[#FAF7F2] text-[#1A1A1A] select-none pt-2 sm:pt-4 md:pt-6 pb-8 sm:pb-12 md:pb-16 px-4 sm:px-8 md:px-12 lg:px-16 border-b border-[rgba(32,37,42,0.06)]">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-8">
         
         {/* ── LEFT COLUMN: TYPOGRAPHY, CTAS & HIGHLIGHTS ── */}
         <motion.div 
@@ -114,23 +114,23 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
 
         {/* ── RIGHT COLUMN: HERO ARTWORK & FLOATING LANGUAGE CARDS ── */}
         <div className="lg:col-span-6 xl:col-span-6 relative w-full flex items-center justify-center">
-          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[680px] h-[460px] sm:h-[540px] md:h-[600px] flex items-center justify-center">
+          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[700px] h-[500px] sm:h-[560px] md:h-[630px] lg:h-[670px] flex items-center justify-center">
             
-            {/* 1. Red Gradient Circle Background */}
-            <div className="absolute right-[-4%] sm:right-[0%] top-[-2%] sm:top-[2%] w-[82%] sm:w-[86%] md:w-[90%] aspect-[4/3] pointer-events-none z-0">
+            {/* 1. Red Gradient Circle Background (Enlarged) */}
+            <div className="absolute right-[-8%] sm:right-[-6%] lg:right-[-4%] top-[-10%] sm:top-[-8%] lg:top-[-6%] w-[105%] sm:w-[114%] md:w-[122%] aspect-[4/3] pointer-events-none z-0">
               <img
                 src="/herosectionimages/Red Gradient Circle with Highlight.png"
                 alt=""
-                className="w-full h-full object-contain pointer-events-none select-none"
+                className="w-full h-full object-contain pointer-events-none select-none scale-105 sm:scale-110"
               />
             </div>
 
-            {/* 2. Grayscale Brandenburg Gate Cutout */}
-            <div className="absolute left-[-2%] sm:left-[0%] bottom-[0%] w-[80%] sm:w-[84%] md:w-[86%] pointer-events-none z-10">
+            {/* 2. Grayscale Brandenburg Gate Cutout (Shifted Upwards) */}
+            <div className="absolute left-[-2%] sm:left-[0%] bottom-[12%] sm:bottom-[15%] md:bottom-[18%] w-[88%] sm:w-[92%] md:w-[96%] pointer-events-none z-10">
               <img
                 src="/herosectionimages/Grayscale Brandenburg Gate Cutout.png"
                 alt="Brandenburg Gate Berlin"
-                className="w-full h-auto object-contain pointer-events-none select-none drop-shadow-md"
+                className="w-full h-auto object-contain pointer-events-none select-none drop-shadow-lg"
               />
             </div>
 
@@ -150,7 +150,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 2, transition: { duration: 0.2 } }}
-              className="absolute top-[4%] sm:top-[6%] right-[0%] sm:right-[2%] w-[200px] sm:w-[250px] md:w-[285px] z-20 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
+              className="absolute top-[1%] sm:top-[3%] right-[-2%] sm:right-[0%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
             >
               <div className="relative w-full">
                 <img
@@ -159,7 +159,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3rem] text-[#CF1E2C] leading-none">
+                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
                     Hallo!
                   </span>
                   <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
@@ -183,7 +183,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 2, transition: { duration: 0.2 } }}
-              className="absolute top-[34%] sm:top-[36%] right-[-4%] sm:right-[-1%] w-[200px] sm:w-[250px] md:w-[285px] z-20 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.16)]"
+              className="absolute top-[33%] sm:top-[35%] right-[-6%] sm:right-[-3%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.16)]"
             >
               <div className="relative w-full">
                 <img
@@ -192,7 +192,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3rem] text-[#CF1E2C] leading-none">
+                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
                     Hello!
                   </span>
                   <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
@@ -216,7 +216,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 1, transition: { duration: 0.2 } }}
-              className="absolute bottom-[4%] sm:bottom-[6%] right-[8%] sm:right-[10%] w-[200px] sm:w-[250px] md:w-[285px] z-20 cursor-pointer drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
+              className="absolute bottom-[4%] sm:bottom-[6%] right-[8%] sm:right-[12%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
             >
               <div className="relative w-full">
                 <img
@@ -225,7 +225,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3rem] text-[#CF1E2C] leading-none">
+                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
                     ¡Hola!
                   </span>
                   <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
