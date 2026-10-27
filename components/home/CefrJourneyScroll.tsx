@@ -134,6 +134,7 @@ export default function CefrJourneyScroll({
   const pinnedSectionRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardsWrapRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const coverRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeStep, setActiveStep] = useState(0);
@@ -169,42 +170,62 @@ export default function CefrJourneyScroll({
           const p = self.progress;
           targetProgressRef.current = p;
 
-          // 1. Card covers: liquid rising fill 0% -> 100%
-          // Card 1: 0.00 -> 0.25
-          const c1 = Math.max(0, Math.min(1, p / 0.25));
+          // 1. Staggered Parallax Rise of the 4 sections
+          // Card 0 rises first (0.00 -> 0.10)
+          // Card 1 rises next (0.025 -> 0.14)
+          // Card 2 rises next (0.05 -> 0.18)
+          // Card 3 rises next (0.075 -> 0.22)
+          const PARALLAX_DIST = [140, 210, 280, 350];
+          cards.forEach((_, idx) => {
+            const el = cardRefs.current[idx];
+            if (!el) return;
+            const pStart = idx * 0.025;
+            const pEnd = 0.10 + idx * 0.04;
+            const tCard = Math.max(0, Math.min(1, (p - pStart) / (pEnd - pStart)));
+            const eased = 1 - Math.pow(1 - tCard, 3);
+            const yOffset = PARALLAX_DIST[idx] * (1 - eased);
+            el.style.transform = `translate3d(0, ${yOffset}px, 0)`;
+          });
+
+          // 2. Liquid rising fill starts when Card 0 crosses track (p >= 0.10)
+          const P_CROSS = 0.10;
+          const pRoll = Math.max(0, Math.min(1, (p - P_CROSS) / (1 - P_CROSS)));
+
+          // Card 0: 0.00 -> 0.25
+          const c1 = Math.max(0, Math.min(1, pRoll / 0.25));
           if (coverRefs.current[0]) {
             coverRefs.current[0]!.style.height = `${c1 * 100}%`;
           }
 
-          // Card 2: 0.25 -> 0.50
-          const c2 = Math.max(0, Math.min(1, (p - 0.25) / 0.25));
+          // Card 1: 0.25 -> 0.50
+          const c2 = Math.max(0, Math.min(1, (pRoll - 0.25) / 0.25));
           if (coverRefs.current[1]) {
             coverRefs.current[1]!.style.height = `${c2 * 100}%`;
           }
 
-          // Card 3: 0.50 -> 0.75
-          const c3 = Math.max(0, Math.min(1, (p - 0.50) / 0.25));
+          // Card 2: 0.50 -> 0.75
+          const c3 = Math.max(0, Math.min(1, (pRoll - 0.50) / 0.25));
           if (coverRefs.current[2]) {
             coverRefs.current[2]!.style.height = `${c3 * 100}%`;
           }
 
-          // Card 4: 0.75 -> 1.00
-          const c4 = Math.max(0, Math.min(1, (p - 0.75) / 0.25));
+          // Card 3: 0.75 -> 1.00
+          const c4 = Math.max(0, Math.min(1, (pRoll - 0.75) / 0.25));
           if (coverRefs.current[3]) {
             coverRefs.current[3]!.style.height = `${c4 * 100}%`;
           }
 
-          // Update active card index
-          if (p < 0.25) setActiveStep(0);
-          else if (p < 0.50) setActiveStep(1);
-          else if (p < 0.75) setActiveStep(2);
+          // Update active card index based on wheel progression
+          if (pRoll < 0.25) setActiveStep(0);
+          else if (pRoll < 0.50) setActiveStep(1);
+          else if (pRoll < 0.75) setActiveStep(2);
           else setActiveStep(3);
 
-          // 2. Mobile horizontal translation so cards follow wheel
+          // 3. Mobile horizontal translation so cards follow wheel
           if (cardsWrap && window.innerWidth <= 991) {
             const isMobile = window.innerWidth <= 767;
             const maxTranslate = isMobile ? -298 : -100;
-            const xVal = p * maxTranslate;
+            const xVal = pRoll * maxTranslate;
             cardsWrap.style.transform = `translate3d(${xVal}%, 0, 0)`;
           } else if (cardsWrap) {
             cardsWrap.style.transform = 'translate3d(0, 0, 0)';
@@ -294,11 +315,12 @@ export default function CefrJourneyScroll({
 
     function render(p: number) {
       if (!ctx) return;
-      const t = Math.max(0, Math.min(1, p));
-      const span = xRight - xLeft;
-      const wheelX = lerp(xLeft, xRight, t);
 
-      const tMorph = easeInOut(t);
+      // Wheel starts moving once Card 0 crosses track (P_CROSS = 0.10)
+      const P_CROSS = 0.10;
+      const tRoll = Math.max(0, Math.min(1, (p - P_CROSS) / (1 - P_CROSS)));
+
+      const tMorph = easeInOut(tRoll);
       const tPoly = Math.min(tMorph / PHASE2, 1);
       const tCirc = Math.max(0, (tMorph - PHASE2) / (1 - PHASE2));
       const circT = easeInOut(tCirc);
@@ -320,7 +342,7 @@ export default function CefrJourneyScroll({
       let cardsLeft = 0;
       let cardsRight = W;
       let cardTop = H * 0.32;
-      let cardH = isMobile ? 480 : 580;
+      let cardH = isMobile ? 380 : 480;
 
       if (cardsWrapRef.current && pinTarget) {
         const cRect = cardsWrapRef.current.getBoundingClientRect();
@@ -333,11 +355,14 @@ export default function CefrJourneyScroll({
         }
       }
 
-      // Constrain wheel roll strictly between card edges
-      xLeft = cardsLeft + R + 12;
-      xRight = cardsRight - R - 12;
+      // Starting position: OUTSIDE Card 0 to the left
+      const xStartOutside = cardsLeft - R - 8;
+      const xEnd = cardsRight - R - 12;
+      const span = xEnd - xStartOutside;
+      const wheelX = lerp(xStartOutside, xEnd, tRoll);
 
       // Track passes inside the cards in the open space between card header and body text
+      // Track is completely FIXED at resting height
       const roadPeakY = cardTop + cardH * 0.35 + a;
       const axleY = roadPeakY - (a + (R - a) * circT);
 
@@ -347,7 +372,8 @@ export default function CefrJourneyScroll({
       // Nothing will ever draw or bleed outside the CEFR cards area
       ctx.save();
       ctx.beginPath();
-      ctx.rect(cardsLeft, cardTop, Math.max(1, cardsRight - cardsLeft), cardH);
+      const clipLeft = Math.max(0, xStartOutside - R - 12);
+      ctx.rect(clipLeft, cardTop, Math.max(1, cardsRight - clipLeft), cardH + 200);
       ctx.clip();
 
       /* ── 1. Inverted Catenary Arches Road (Pure White) ── */
@@ -403,7 +429,7 @@ export default function CefrJourneyScroll({
       ctx.restore();
 
       /* ── 3. Rolling Shape (Pure White Outline with Clean Hollow Interior) ── */
-      const d = t * span;
+      const d = tRoll * span;
       const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
       const verts = continuousVerts(nf, R);
       const vCount = verts.length / 2;
@@ -539,6 +565,9 @@ export default function CefrJourneyScroll({
               return (
                 <div
                   key={card.num}
+                  ref={(el) => {
+                    cardRefs.current[idx] = el;
+                  }}
                   className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
                   style={{
                     transformOrigin: '50% 100%',
