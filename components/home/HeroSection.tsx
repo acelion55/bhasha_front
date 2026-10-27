@@ -12,15 +12,15 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionProps) {
   return (
-    <section className="relative w-full overflow-hidden bg-[#FAF7F2] text-[#1A1A1A] select-none pt-0 sm:pt-1 md:pt-2 pb-6 sm:pb-8 md:pb-10 px-4 sm:px-8 md:px-12 lg:px-16 border-b border-[rgba(32,37,42,0.06)]">
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 items-center gap-6 lg:gap-8">
+    <section className="relative w-full overflow-hidden bg-[#FAF7F2] text-[#1A1A1A] select-none pt-0 sm:pt-1 pb-6 sm:pb-8 md:pb-12 px-4 sm:px-8 md:px-12 lg:px-16 border-b border-[rgba(32,37,42,0.06)]">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 items-start gap-6 lg:gap-8">
         
         {/* ── LEFT COLUMN: TYPOGRAPHY, CTAS & HIGHLIGHTS ── */}
         <motion.div 
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="lg:col-span-6 xl:col-span-6 flex flex-col justify-center z-10"
+          className="lg:col-span-6 xl:col-span-6 flex flex-col justify-start z-10 pt-2 sm:pt-4 md:pt-6"
         >
           {/* Eyebrow with Red Accent Line */}
           <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-5">
@@ -114,10 +114,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
 
         {/* ── RIGHT COLUMN: HERO ARTWORK & FLOATING LANGUAGE CARDS ── */}
         <div className="lg:col-span-6 xl:col-span-6 relative w-full flex items-center justify-center">
-          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[700px] h-[500px] sm:h-[560px] md:h-[630px] lg:h-[670px] flex items-center justify-center">
+          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[700px] h-[480px] sm:h-[540px] md:h-[600px] lg:h-[630px] flex items-center justify-center">
             
-            {/* 1. Red Gradient Circle Background (Enlarged & Higher Up) */}
-            <div className="absolute right-[-8%] sm:right-[-6%] lg:right-[-4%] top-[-12%] sm:top-[-10%] lg:top-[-8%] w-[105%] sm:w-[114%] md:w-[122%] aspect-[4/3] pointer-events-none z-0">
+            {/* 1. Red Gradient Circle Background (Natural Placement) */}
+            <div className="absolute right-[-4%] sm:right-[-2%] lg:right-[0%] top-[2%] sm:top-[4%] w-[100%] sm:w-[108%] md:w-[114%] aspect-[4/3] pointer-events-none z-0">
               <img
                 src="/herosectionimages/Red Gradient Circle with Highlight.png"
                 alt=""
@@ -125,8 +125,8 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
               />
             </div>
 
-            {/* 2. Grayscale Brandenburg Gate Cutout (Shifted Upwards) */}
-            <div className="absolute left-[-2%] sm:left-[0%] bottom-[12%] sm:bottom-[16%] md:bottom-[20%] w-[88%] sm:w-[92%] md:w-[96%] pointer-events-none z-10">
+            {/* 2. Grayscale Brandenburg Gate Cutout (Elevated) */}
+            <div className="absolute left-[-2%] sm:left-[0%] bottom-[6%] sm:bottom-[8%] md:bottom-[10%] w-[86%] sm:w-[90%] md:w-[94%] pointer-events-none z-10">
               <img
                 src="/herosectionimages/Grayscale Brandenburg Gate Cutout.png"
                 alt="Brandenburg Gate Berlin"
@@ -150,7 +150,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 2, transition: { duration: 0.2 } }}
-              className="absolute top-[-2%] sm:top-[0%] lg:top-[1%] right-[-2%] sm:right-[0%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
+              className="absolute top-[8%] sm:top-[10%] right-[0%] sm:right-[2%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
             >
               <div className="relative w-full">
                 <img
@@ -183,7 +183,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 2, transition: { duration: 0.2 } }}
-              className="absolute top-[33%] sm:top-[35%] right-[-6%] sm:right-[-3%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.16)]"
+              className="absolute top-[36%] sm:top-[38%] right-[-5%] sm:right-[-2%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.16)]"
             >
               <div className="relative w-full">
                 <img
@@ -216,7 +216,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 1, transition: { duration: 0.2 } }}
-              className="absolute bottom-[4%] sm:bottom-[6%] right-[8%] sm:right-[12%] w-[210px] sm:w-[260px] md:w-[300px] z-30 cursor-pointer drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
+              className="absolute bottom-[6%] sm:bottom-[8%] right-[6%] sm:right-[10%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
             >
               <div className="relative w-full">
                 <img
