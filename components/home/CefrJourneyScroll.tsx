@@ -495,8 +495,8 @@ export default function CefrJourneyScroll({
         ref={pinnedSectionRef}
         className="w-full h-screen min-h-[720px] md:min-h-[820px] max-h-[1100px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-5 md:py-7 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
       >
-        <div className="relative z-10 w-full max-w-full px-2 mb-[-10vh] mx-auto flex items-start sm:items-end justify-between gap-4">
-          <div className="max-w-[580px]">
+        <div className="relative z-10 w-full max-w-full px-2 mx-auto flex items-start sm:items-end justify-between gap-4">
+          <div className="flex-1 min-w-0">
             {/* Design + Strategy Row */}
             <div className="flex items-center gap-2 text-[1.1rem] md:text-[1.25rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-2">
               <span>Design</span>
@@ -508,7 +508,7 @@ export default function CefrJourneyScroll({
               <span className="font-bold underline decoration-2">Full Circle</span>
             </div>
 
-            <p className="text-[1.6rem] sm:text-[2.2rem] md:text-[2.6rem] font-extrabold leading-[1.1] tracking-tight text-[#20252A]">
+            <p className="text-[1.3rem] sm:text-[1.7rem] md:text-[2.1rem] lg:text-[2.5rem] font-extrabold text-[#20252A] whitespace-nowrap tracking-tight">
               The road can get <span className="font-serif italic text-[#CF1E2C] font-normal">bumpy</span>. We keep you{' '}
               <span className="font-serif italic text-[#CF1E2C] font-normal">rolling</span> regardless.
             </p>
@@ -626,6 +626,7 @@ export default function CefrJourneyScroll({
             <span>Stage {activeStep + 1} / 4</span>
           </div>
         </div>
+
       </section>
     </div>
   );
