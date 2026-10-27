@@ -25,28 +25,28 @@ export interface ProcessCardItem {
 
 export const FALLBACK_PALETTE = [
   {
-    bgColor: '#F9D9CD',      // Soft Peach (Section 2)
-    accentColor: '#9A3412',  // Terracotta / Rust
-    fillColor: '#C2410C',    // Vibrant Terracotta Peach
-    rgbaAccent: 'rgba(154, 52, 18, 0.45)',
+    bgColor: '#FDF2ED',      // Light Warm Peach
+    accentColor: '#C25E3E',  // Soft Terracotta
+    fillColor: '#D96B4F',    // Light Coral Peach
+    rgbaAccent: 'rgba(194, 94, 62, 0.35)',
   },
   {
-    bgColor: '#DCE7F0',      // Pale Blue-Gray (Section 3A)
-    accentColor: '#173B63',  // Primary Brand Oxford Navy
-    fillColor: '#173B63',    // Navy Fill
-    rgbaAccent: 'rgba(23, 59, 99, 0.45)',
+    bgColor: '#EEF4F8',      // Light Cloud Blue
+    accentColor: '#2A5987',  // Soft Ocean Blue
+    fillColor: '#3A6D9B',    // Light Slate Blue
+    rgbaAccent: 'rgba(42, 89, 135, 0.35)',
   },
   {
-    bgColor: '#DCD5F5',      // Lavender (Section 3B)
-    accentColor: '#5B3E96',  // Deep Royal Violet
-    fillColor: '#6B46C1',    // Rich Purple
-    rgbaAccent: 'rgba(91, 62, 150, 0.45)',
+    bgColor: '#F2EFFB',      // Light Lavender Mist
+    accentColor: '#6E51A2',  // Soft Iris
+    fillColor: '#7F62B8',    // Light Royal Violet
+    rgbaAccent: 'rgba(110, 81, 162, 0.35)',
   },
   {
-    bgColor: '#D8E6DB',      // Soft Sage (Section 4B)
-    accentColor: '#1F573C',  // Deep Forest Pine
-    fillColor: '#2D6A4F',    // Rich Sage Green
-    rgbaAccent: 'rgba(31, 87, 60, 0.45)',
+    bgColor: '#EDF5EF',      // Light Sage Tint
+    accentColor: '#2F7552',  // Soft Meadow Pine
+    fillColor: '#418763',    // Light Eucalyptus Sage
+    rgbaAccent: 'rgba(47, 117, 82, 0.35)',
   },
 ];
 
@@ -63,37 +63,37 @@ export function getCardPalette(idx: number, card?: ProcessCardItem) {
 const DEFAULT_CARDS: ProcessCardItem[] = [
   {
     num: '01',
-    badge: 'A1 • Foundation',
-    title: 'Discovery',
-    italicTitle: '& Strategy',
-    desc: 'We map the angles before we smooth them out. Where you are, where you’re going, and what’s standing in between.',
+    badge: 'A1 • Beginner',
+    title: 'Foundation',
+    italicTitle: '& Alphabet',
+    desc: 'Master phonetics, core sentence architecture, pronunciation, and everyday survival phrases.',
     shapeName: 'Square (4 Sides)',
     ...FALLBACK_PALETTE[0],
   },
   {
     num: '02',
-    badge: 'A2 • Building',
-    title: 'Design',
-    italicTitle: 'Iterations',
-    desc: 'Brand, visual systems, and structured flow — crafted into something credible, bespoke, and built to last. No templates.',
+    badge: 'A2 • Elementary',
+    title: 'Conversational',
+    italicTitle: 'Flow',
+    desc: 'Past tense (Perfekt), daily routines, social dialogues, and practical workplace communication.',
     shapeName: 'Hexagon (6 Sides)',
     ...FALLBACK_PALETTE[1],
   },
   {
     num: '03',
-    badge: 'B1 • Momentum',
-    title: 'Precision',
-    italicTitle: 'Build',
-    desc: 'We build with the precision of a designer and the velocity of developers who have solved it a hundred times.',
+    badge: 'B1 • Intermediate',
+    title: 'Independent',
+    italicTitle: 'Fluency',
+    desc: 'Spontaneous discussions, complex grammar, opinions, plus 10 days Goethe & telc exam preparation.',
     shapeName: 'Octagon (8 Sides)',
     ...FALLBACK_PALETTE[2],
   },
   {
     num: '04',
-    badge: 'B2 • Fluency',
-    title: 'Post-launch',
-    italicTitle: 'Support',
-    desc: 'We don’t force you to fit our process. It is the process that bends to keep you comfortable and rolling regardless.',
+    badge: 'B2 • Professional',
+    title: 'Effortless',
+    italicTitle: 'Mastery',
+    desc: 'Advanced career vocabulary, academic debate, native-speed listening, and smooth speaking reflexes.',
     shapeName: 'Circle (Smooth)',
     ...FALLBACK_PALETTE[3],
   },
@@ -623,24 +623,26 @@ export default function CefrJourneyScroll({
           <div className="flex-1 min-w-0">
             {/* Design + Strategy Row */}
             <div className="flex items-center gap-2 text-[1rem] md:text-[1.15rem] font-mono tracking-widest text-[#173B63] uppercase mb-1.5">
-              <span>Design</span>
+              <span>A1 Foundation</span>
               <span className="opacity-50">+</span>
-              <span>Strategy</span>
+              <span>A2 Practice</span>
               <span className="opacity-50">+</span>
-              <span>Velocity</span>
+              <span>B1 Fluency</span>
+              <span className="opacity-50">+</span>
+              <span>B2 Mastery</span>
               <span className="opacity-50">=</span>
-              <span className="font-bold underline decoration-2">Full Circle</span>
+              <span className="font-bold underline decoration-2">Fluency</span>
             </div>
 
             <p className="text-[1.3rem] sm:text-[1.7rem] md:text-[2.1rem] lg:text-[2.5rem] font-extrabold text-[#20252A] whitespace-nowrap tracking-tight">
-              The road can get <span className="font-serif italic text-[#173B63] font-normal">bumpy</span>. We keep you{' '}
+              The road to fluency can get <span className="font-serif italic text-[#173B63] font-normal">bumpy</span>. We keep you{' '}
               <span className="font-serif italic text-[#173B63] font-normal">rolling</span> regardless.
             </p>
           </div>
 
           {/* Right: Oval Pill Badge */}
           <div className="border border-[#173B63] rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[#173B63] font-serif italic text-[1.3rem] sm:text-[1.5rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
-            Our Process
+            CEFR Journey
           </div>
         </div>
 
