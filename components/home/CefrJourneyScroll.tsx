@@ -125,7 +125,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 export default function CefrJourneyScroll({
   cards = DEFAULT_CARDS,
-  brandColor = '#CF1E2C',
+  brandColor = '#173B63',
 }: {
   cards?: ProcessCardItem[];
   brandColor?: string;
@@ -251,8 +251,8 @@ export default function CefrJourneyScroll({
 
     const N_MIN = 4;
     const N_MAX = 12;
-    const C_RED = brandColor || '#CF1E2C';
-    const C_AXLE_RED = 'rgba(207, 30, 44, 0.45)';
+    const C_BRAND = brandColor || '#173B63';
+    const C_AXLE_BRAND = 'rgba(23, 59, 99, 0.45)';
     const C_WHITE = '#FFFFFF';
     const C_AXLE_WHITE = 'rgba(255, 255, 255, 0.75)';
     const MOBILE_BP = 767;
@@ -473,19 +473,19 @@ export default function CefrJourneyScroll({
         c.restore();
       }
 
-      // ── PASS 1: RED PASS (Strictly within the section cards) ──
+      // ── PASS 1: BRAND COLOR PASS (Strictly within the section cards) ──
       c.save();
       c.beginPath();
       c.rect(cardsLeft, cardTop, Math.max(1, cardsRight - cardsLeft), cardH + 100);
       c.clip();
-      drawScene(C_RED, C_AXLE_RED, 'rgba(207, 30, 44, 0.2)');
+      drawScene(C_BRAND, C_AXLE_BRAND, 'rgba(23, 59, 99, 0.2)');
       c.restore();
 
       // ── PASS 2: WHITE PASS (Strictly Clipped Inside Active Red Liquid Fill Covers) ──
       if (pinTarget) {
         const pRect = pinTarget.getBoundingClientRect();
-        const hasAnyRed = coverRefs.current.some((cv) => cv && cv.clientHeight > 0);
-        if (hasAnyRed) {
+        const hasAnyActiveCover = coverRefs.current.some((cv) => cv && cv.clientHeight > 0);
+        if (hasAnyActiveCover) {
           c.save();
           c.beginPath();
           coverRefs.current.forEach((coverEl) => {
@@ -497,7 +497,7 @@ export default function CefrJourneyScroll({
               c.rect(rx, ry, cr.width, cr.height);
             }
           });
-          c.clip(); // ONLY inside the liquid red covers!
+          c.clip(); // ONLY inside the liquid navy covers!
           drawScene(C_WHITE, C_AXLE_WHITE, 'rgba(0, 0, 0, 0.3)');
           c.restore();
         }
@@ -548,7 +548,7 @@ export default function CefrJourneyScroll({
         <div className="relative z-10 w-full max-w-full px-2 mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="flex-1 min-w-0">
             {/* Design + Strategy Row */}
-            <div className="flex items-center gap-2 text-[1rem] md:text-[1.15rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-1.5">
+            <div className="flex items-center gap-2 text-[1rem] md:text-[1.15rem] font-mono tracking-widest text-[#173B63] uppercase mb-1.5">
               <span>Design</span>
               <span className="opacity-50">+</span>
               <span>Strategy</span>
@@ -559,13 +559,13 @@ export default function CefrJourneyScroll({
             </div>
 
             <p className="text-[1.3rem] sm:text-[1.7rem] md:text-[2.1rem] lg:text-[2.5rem] font-extrabold text-[#20252A] whitespace-nowrap tracking-tight">
-              The road can get <span className="font-serif italic text-[#CF1E2C] font-normal">bumpy</span>. We keep you{' '}
-              <span className="font-serif italic text-[#CF1E2C] font-normal">rolling</span> regardless.
+              The road can get <span className="font-serif italic text-[#173B63] font-normal">bumpy</span>. We keep you{' '}
+              <span className="font-serif italic text-[#173B63] font-normal">rolling</span> regardless.
             </p>
           </div>
 
           {/* Right: Oval Pill Badge */}
-          <div className="border border-[#CF1E2C] rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[#CF1E2C] font-serif italic text-[1.3rem] sm:text-[1.5rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
+          <div className="border border-[#173B63] rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[#173B63] font-serif italic text-[1.3rem] sm:text-[1.5rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
             Our Process
           </div>
         </div>
@@ -598,14 +598,14 @@ export default function CefrJourneyScroll({
                   }}
                 >
                   {/* ── LAYER 1: BASE LAYER (White Background with 100% RED Text) ── */}
-                  <div className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between text-[#CF1E2C] select-none">
+                  <div className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between text-[#173B63] select-none">
                     {/* Header in Base Layer */}
                     <div className="flex items-start justify-between">
-                      <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-[#CF1E2C]">
+                      <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-[#173B63]">
                         {card.num}
                       </span>
                       {card.badge && (
-                        <span className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full text-[#CF1E2C] bg-[#CF1E2C]/10 font-medium">
+                        <span className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full text-[#173B63] bg-[#173B63]/10 font-medium">
                           {card.badge}
                         </span>
                       )}
@@ -613,17 +613,17 @@ export default function CefrJourneyScroll({
 
                     {/* Body in Base Layer */}
                     <div className="mt-auto">
-                      <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-[#CF1E2C]">
+                      <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-[#173B63]">
                         {card.title} <br />
-                        <span className="font-serif italic font-normal text-[#CF1E2C]">
+                        <span className="font-serif italic font-normal text-[#173B63]">
                           {card.italicTitle}
                         </span>
                       </h3>
-                      <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 text-[#CF1E2C]/85">
+                      <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 text-[#173B63]/85">
                         {card.desc}
                       </p>
 
-                      <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono text-[#CF1E2C]/75">
+                      <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono text-[#173B63]/75">
                         <span>PHASE {idx + 1} OF 4</span>
                       </div>
                     </div>
@@ -635,7 +635,7 @@ export default function CefrJourneyScroll({
                     ref={(el) => {
                       coverRefs.current[idx] = el;
                     }}
-                    className="absolute inset-x-0 bottom-0 bg-[#CF1E2C] z-10 overflow-hidden pointer-events-none"
+                    className="absolute inset-x-0 bottom-0 bg-[#173B63] z-10 overflow-hidden pointer-events-none"
                     style={{ height: '0%' }}
                   >
                     {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
