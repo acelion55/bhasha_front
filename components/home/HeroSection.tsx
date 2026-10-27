@@ -150,19 +150,19 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: -1, transition: { duration: 0.2 } }}
-              className="absolute top-[8%] sm:top-[10%] right-[0%] sm:right-[2%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.14)]"
+              className="absolute top-[8%] sm:top-[10%] right-[0%] sm:right-[2%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_14px_24px_rgba(0,0,0,0.14)]"
             >
               <div className="relative w-full">
                 <img
                   src="/herosectionimages/germensec3.png"
                   alt="German Course"
-                  className="w-full h-auto object-contain scale-80 pointer-events-none"
+                  className="w-full h-auto object-contain pointer-events-none"
                 />
-                <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
+                <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
+                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     Hallo!
                   </span>
-                  <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
+                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     German
                   </span>
                 </div>
@@ -183,19 +183,19 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="absolute top-[30vh] sm:top-[38%] right-[-5%] sm:right-[-2%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.16)]"
+              className="absolute top-[36%] sm:top-[38%] right-[-4%] sm:right-[-1%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.16)]"
             >
               <div className="relative w-full">
                 <img
                   src="/herosectionimages/englishsec1.png"
                   alt="English Course"
-                  className="w-full h-auto object-contain scale-80 pointer-events-none"
+                  className="w-full h-auto object-contain pointer-events-none"
                 />
-                <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
+                <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
+                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     Hello!
                   </span>
-                  <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
+                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     English
                   </span>
                 </div>
@@ -216,19 +216,19 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 1, transition: { duration: 0.2 } }}
-              className="absolute bottom-[6%] sm:bottom-[8%] right-[6%] sm:right-[10%] w-[210px] sm:w-[260px] md:w-[295px] z-30 cursor-pointer drop-shadow-[0_20px_36px_rgba(0,0,0,0.18)]"
+              className="absolute bottom-[6%] sm:bottom-[8%] right-[6%] sm:right-[10%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.18)]"
             >
               <div className="relative w-full">
                 <img
                   src="/herosectionimages/spansec2.png"
                   alt="Spanish Course"
-                  className="w-full h-auto object-contain scale-80 pointer-events-none"
+                  className="w-full h-auto object-contain pointer-events-none"
                 />
-                <div className="absolute inset-y-0 left-0 w-[58%] flex flex-col justify-center pl-[12%] pr-2 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[2.2rem] sm:text-[2.7rem] md:text-[3.1rem] text-[#CF1E2C] leading-none">
+                <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
+                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     ¡Hola!
                   </span>
-                  <span className="font-sans font-semibold text-[1.2rem] sm:text-[1.4rem] text-[#20252A] mt-1 sm:mt-1.5 tracking-tight">
+                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     Spanish
                   </span>
                 </div>
