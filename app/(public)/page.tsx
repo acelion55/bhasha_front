@@ -75,7 +75,7 @@ const FAQS = [
 export default function HomePage() {
   const [trialFormOpen, setTrialFormOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [openFaqs, setOpenFaqs] = useState<Record<number, boolean>>({ 0: true });
+  const [openFaqs, setOpenFaqs] = useState<Record<number, boolean>>({});
 
   const toggleFaq = (idx: number) => {
     setOpenFaqs((prev) => ({
