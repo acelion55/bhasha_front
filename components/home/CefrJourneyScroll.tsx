@@ -338,7 +338,7 @@ export default function CefrJourneyScroll({
       xRight = cardsRight - R - 12;
 
       // Track passes inside the cards in the open space between card header and body text
-      const roadPeakY = cardTop + cardH * 0.38 + a;
+      const roadPeakY = cardTop + cardH * 0.35 + a;
       const axleY = roadPeakY - (a + (R - a) * circT);
 
       ctx.clearRect(0, 0, W, H);
@@ -493,12 +493,12 @@ export default function CefrJourneyScroll({
       <section
         id="process"
         ref={pinnedSectionRef}
-        className="w-full h-screen min-h-[720px] md:min-h-[820px] max-h-[1100px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-5 md:py-7 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
+        className="w-full h-screen max-h-screen bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between pt-[78px] md:pt-[88px] pb-3 md:pb-5 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
       >
         <div className="relative z-10 w-full max-w-full px-2 mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="flex-1 min-w-0">
             {/* Design + Strategy Row */}
-            <div className="flex items-center gap-2 text-[1.1rem] md:text-[1.25rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-2">
+            <div className="flex items-center gap-2 text-[1rem] md:text-[1.15rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-1.5">
               <span>Design</span>
               <span className="opacity-50">+</span>
               <span>Strategy</span>
@@ -515,7 +515,7 @@ export default function CefrJourneyScroll({
           </div>
 
           {/* Right: Oval Pill Badge */}
-          <div className="border border-[#CF1E2C] rounded-full px-5 py-2 sm:px-7 sm:py-2.5 text-[#CF1E2C] font-serif italic text-[1.4rem] sm:text-[1.7rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
+          <div className="border border-[#CF1E2C] rounded-full px-4 py-1.5 sm:px-6 sm:py-2 text-[#CF1E2C] font-serif italic text-[1.3rem] sm:text-[1.5rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
             Our Process
           </div>
         </div>
@@ -539,7 +539,7 @@ export default function CefrJourneyScroll({
               return (
                 <div
                   key={card.num}
-                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
+                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[46vh] sm:h-[48vh] md:h-[50vh] min-h-[320px] max-h-[440px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
                   style={{
                     transformOrigin: '50% 100%',
                   }}
@@ -548,11 +548,11 @@ export default function CefrJourneyScroll({
                   <div className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between text-[#CF1E2C] select-none">
                     {/* Header in Base Layer */}
                     <div className="flex items-start justify-between">
-                      <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-[#CF1E2C]">
+                      <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-[#CF1E2C]">
                         {card.num}
                       </span>
                       {card.badge && (
-                        <span className="font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full text-[#CF1E2C] bg-[#CF1E2C]/10 font-medium">
+                        <span className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full text-[#CF1E2C] bg-[#CF1E2C]/10 font-medium">
                           {card.badge}
                         </span>
                       )}
@@ -560,17 +560,17 @@ export default function CefrJourneyScroll({
 
                     {/* Body in Base Layer */}
                     <div className="mt-auto">
-                      <h3 className="text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] text-[#CF1E2C]">
+                      <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-[#CF1E2C]">
                         {card.title} <br />
                         <span className="font-serif italic font-normal text-[#CF1E2C]">
                           {card.italicTitle}
                         </span>
                       </h3>
-                      <p className="mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 text-[#CF1E2C]/85">
+                      <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 text-[#CF1E2C]/85">
                         {card.desc}
                       </p>
 
-                      <div className="mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono text-[#CF1E2C]/75">
+                      <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono text-[#CF1E2C]/75">
                         <span>PHASE {idx + 1} OF 4</span>
                       </div>
                     </div>
@@ -586,14 +586,14 @@ export default function CefrJourneyScroll({
                     style={{ height: '0%' }}
                   >
                     {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
-                    <div className="absolute inset-x-0 bottom-0 h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
+                    <div className="absolute inset-x-0 bottom-0 h-[46vh] sm:h-[48vh] md:h-[50vh] min-h-[320px] max-h-[440px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
                       {/* Header in Red Overlay */}
                       <div className="flex items-start justify-between">
-                        <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-white">
+                        <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-white">
                           {card.num}
                         </span>
                         {card.badge && (
-                          <span className="font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full text-white bg-white/20 font-medium">
+                          <span className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full text-white bg-white/20 font-medium">
                             {card.badge}
                           </span>
                         )}
@@ -601,17 +601,24 @@ export default function CefrJourneyScroll({
 
                       {/* Body in Red Overlay */}
                       <div className="mt-auto">
-                        <h3 className="text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] text-white">
+                        <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-white">
                           {card.title} <br />
                           <span className="font-serif italic font-normal text-white/95">
                             {card.italicTitle}
                           </span>
                         </h3>
-                        <p className="mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 text-white/90">
+                        <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 text-white/90">
                           {card.desc}
                         </p>
 
-                       
+                        <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono text-white/80">
+                          <span>PHASE {idx + 1} OF 4</span>
+                          {isActive && (
+                            <span className="flex items-center gap-1 text-white font-bold animate-pulse">
+                              <Sparkles className="w-3.5 h-3.5" /> ACTIVE
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
