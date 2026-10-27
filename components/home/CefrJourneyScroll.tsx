@@ -230,8 +230,8 @@ export default function CefrJourneyScroll({
 
     const N_MIN = 4;
     const N_MAX = 12;
-    const C_LINE = brandColor;
-    const C_AXLE = 'rgba(207, 30, 44, 0.45)';
+    const C_WHITE = '#FFFFFF';
+    const C_AXLE_WHITE = 'rgba(255, 255, 255, 0.75)';
     const MOBILE_BP = 767;
     const TABLET_BP = 991;
     const PHASE2 = 0.35;
@@ -269,12 +269,25 @@ export default function CefrJourneyScroll({
       isMobile = W <= MOBILE_BP;
       isTabletOrMobile = W <= TABLET_BP;
 
-      const RADIUS_SCALE = isMobile ? 0.095 : 0.075;
-      R = Math.max(36, Math.min(W, H) * RADIUS_SCALE);
+      const RADIUS_SCALE = isMobile ? 0.09 : 0.07;
+      R = Math.max(34, Math.min(W, H) * RADIUS_SCALE);
 
-      // Start visible inside the viewport so Square (4 sides) is clearly seen at start!
-      xLeft = isMobile ? R + 20 : R + 48;
-      xRight = W - (isMobile ? R + 20 : R + 48);
+      // Align xLeft & xRight to cards container on desktop, or viewport on mobile
+      if (!isTabletOrMobile && cardsWrapRef.current && pinTarget) {
+        const cRect = cardsWrapRef.current.getBoundingClientRect();
+        const pRect = pinTarget.getBoundingClientRect();
+        if (cRect.width > 0) {
+          const pad = R + 48;
+          xLeft = Math.max(pad, cRect.left - pRect.left + pad);
+          xRight = Math.min(W - pad, cRect.right - pRect.left - pad);
+        } else {
+          xLeft = R + 48;
+          xRight = W - (R + 48);
+        }
+      } else {
+        xLeft = isMobile ? R + 24 : R + 48;
+        xRight = W - (isMobile ? R + 24 : R + 48);
+      }
 
       render(progressRef.current);
     }
@@ -303,14 +316,25 @@ export default function CefrJourneyScroll({
       const aHi = R * Math.cos(Math.PI / nHi);
       const a = lerp(aLo, aHi, frac);
 
-      // Vertical position of the road relative to cards below
-      const bottomCardsHeight = isMobile ? 320 : 360;
-      const roadPeakY = Math.max(160, (H - bottomCardsHeight) * 0.62 + a);
+      // Vertical position of the track inside the cards section
+      let cardTop = H * 0.32;
+      let cardH = isMobile ? 480 : 580;
+      if (cardsWrapRef.current && pinTarget) {
+        const cRect = cardsWrapRef.current.getBoundingClientRect();
+        const pRect = pinTarget.getBoundingClientRect();
+        if (cRect.height > 0) {
+          cardTop = cRect.top - pRect.top;
+          cardH = cRect.height;
+        }
+      }
+
+      // Track passes inside the cards in the open space between card header and body text
+      const roadPeakY = cardTop + cardH * 0.38 + a;
       const axleY = roadPeakY - (a + (R - a) * circT);
 
       ctx.clearRect(0, 0, W, H);
 
-      /* ── 1. Inverted Catenary Arches Road ── */
+      /* ── 1. Inverted Catenary Arches Road (Pure White) ── */
       const firstPeakX = xLeft + Math.ceil((-xLeft - s) / s) * s;
       const numArches = Math.ceil((W + s * 2) / s) + 2;
       const steps = Math.max(48, Math.round(s));
@@ -331,15 +355,21 @@ export default function CefrJourneyScroll({
           else ctx.lineTo(lx, worldY);
         }
       }
-      ctx.strokeStyle = C_LINE;
-      ctx.lineWidth = 2.0;
+      ctx.save();
+      ctx.strokeStyle = C_WHITE;
+      ctx.lineWidth = 2.4;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+      ctx.shadowBlur = 4;
       ctx.stroke();
+      ctx.restore();
 
       /* ── 2. Axle Guide (Constant Flat Horizontal Line - Stops Outside Wheel) ── */
       ctx.save();
-      ctx.strokeStyle = C_AXLE;
-      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = C_AXLE_WHITE;
+      ctx.lineWidth = 1.6;
       ctx.setLineDash([6, 8]);
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowBlur = 3;
       ctx.beginPath();
       // Draw left segment (stops before wheel)
       const leftEnd = Math.max(0, wheelX - R);
@@ -356,7 +386,7 @@ export default function CefrJourneyScroll({
       ctx.stroke();
       ctx.restore();
 
-      /* ── 3. Rolling Shape (Clean Outline with Hollow Interior) ── */
+      /* ── 3. Rolling Shape (Pure White Outline with Clean Hollow Interior) ── */
       const d = t * span;
       const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
       const verts = continuousVerts(nf, R);
@@ -389,17 +419,18 @@ export default function CefrJourneyScroll({
         ctx.arc(0, 0, R, 0, Math.PI * 2);
       }
 
-      // Fill with background color so any background elements are masked out inside
-      ctx.fillStyle = '#FAF9F6';
-      ctx.fill();
-      ctx.strokeStyle = C_LINE;
-      ctx.lineWidth = 2.4;
+      ctx.strokeStyle = C_WHITE;
+      ctx.lineWidth = 2.6;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 5;
       ctx.stroke();
 
-      // Center Axle Pin Dot
+      // Center Axle Pin Dot in Pure White
       ctx.beginPath();
-      ctx.arc(0, 0, 4, 0, Math.PI * 2);
-      ctx.fillStyle = C_LINE;
+      ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = C_WHITE;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 4;
       ctx.fill();
       ctx.restore();
 
@@ -443,7 +474,7 @@ export default function CefrJourneyScroll({
       <section
         id="process"
         ref={pinnedSectionRef}
-        className="w-full h-screen min-h-[640px] max-h-[1080px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-6 md:py-8 px-4 md:px-8 overflow-hidden select-none"
+        className="w-full h-screen min-h-[720px] md:min-h-[820px] max-h-[1100px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-6 md:py-8 px-4 md:px-8 overflow-hidden select-none"
       >
         <div className="relative z-10 w-full max-w-[1720px] mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="max-w-[580px]">
@@ -482,11 +513,11 @@ export default function CefrJourneyScroll({
           </div>
         </div>
 
-        {/* Catenary Physics Canvas Overlay */}
+        {/* Catenary Physics Canvas Overlay (z-20 so it renders inside & over the section cards) */}
         <canvas
           id="pw-canvas"
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-1"
+          className="absolute inset-0 w-full h-full pointer-events-none z-20"
         />
 
         {/* Bottom Cards Flex Wrap */}
@@ -501,67 +532,87 @@ export default function CefrJourneyScroll({
               return (
                 <div
                   key={card.num}
-                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[240px] sm:h-[280px] md:h-[300px] rounded-[14px] p-5 md:p-6 flex flex-col justify-between overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
+                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
                   style={{
                     transformOrigin: '50% 100%',
                   }}
                 >
-                  {/* The Signature Liquid Red Fill: 0% -> 100% */}
+                  {/* ── LAYER 1: BASE LAYER (White Background with 100% RED Text) ── */}
+                  <div className="relative z-0 h-full p-6 md:p-8 flex flex-col justify-between text-[#CF1E2C] select-none">
+                    {/* Header in Base Layer */}
+                    <div className="flex items-start justify-between">
+                      <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-[#CF1E2C]">
+                        {card.num}
+                      </span>
+                      {card.badge && (
+                        <span className="font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full text-[#CF1E2C] bg-[#CF1E2C]/10 font-medium">
+                          {card.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Body in Base Layer */}
+                    <div className="mt-auto">
+                      <h3 className="text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] text-[#CF1E2C]">
+                        {card.title} <br />
+                        <span className="font-serif italic font-normal text-[#CF1E2C]">
+                          {card.italicTitle}
+                        </span>
+                      </h3>
+                      <p className="mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 text-[#CF1E2C]/85">
+                        {card.desc}
+                      </p>
+
+                      <div className="mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono text-[#CF1E2C]/75">
+                        <span>PHASE {idx + 1} OF 4</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── LAYER 2: LIQUID RED FILL OVERLAY (Rising Height with 100% WHITE Text) ── */}
+                  {/* As red fill rises, it clips and reveals the identical white text directly over the red */}
                   <div
                     ref={(el) => {
                       coverRefs.current[idx] = el;
                     }}
-                    className="absolute inset-x-0 bottom-0 bg-[#CF1E2C] z-0 pointer-events-none"
+                    className="absolute inset-x-0 bottom-0 bg-[#CF1E2C] z-10 overflow-hidden pointer-events-none"
                     style={{ height: '0%' }}
-                  />
-
-                  {/* Header in Card */}
-                  <div className="relative z-10 flex items-start justify-between">
-                    <span className={`font-mono text-[1.6rem] md:text-[1.8rem] font-bold transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-[#CF1E2C]'
-                    }`}>
-                      {card.num}
-                    </span>
-                    {card.badge && (
-                      <span className={`font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full transition-colors duration-200 ${
-                        isActive
-                          ? 'text-white bg-white/20'
-                          : 'text-[#CF1E2C] bg-[#CF1E2C]/10'
-                      }`}>
-                        {card.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Body in Card: Red when red background has not appeared, White when active */}
-                  <div className="relative z-10 mt-auto">
-                    <h3 className={`text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] transition-colors duration-200 ${
-                      isActive ? 'text-white' : 'text-[#CF1E2C]'
-                    }`}>
-                      {card.title} <br />
-                      <span className={`font-serif italic font-normal transition-colors duration-200 ${
-                        isActive ? 'text-white/90' : 'text-[#CF1E2C]'
-                      }`}>
-                        {card.italicTitle}
-                      </span>
-                    </h3>
-                    <p className={`mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 transition-colors duration-200 ${
-                      isActive ? 'text-white/90' : 'text-[#CF1E2C]/85'
-                    }`}>
-                      {card.desc}
-                    </p>
-
-                    <div className={`mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono transition-colors duration-200 ${
-                      isActive
-                        ? 'text-white/80'
-                        : 'text-[#CF1E2C]/75'
-                    }`}>
-                      <span>PHASE {idx + 1} OF 4</span>
-                      {isActive && (
-                        <span className="flex items-center gap-1 text-white font-bold animate-pulse">
-                          <Sparkles className="w-3.5 h-3.5" /> ACTIVE
+                  >
+                    {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
+                    <div className="absolute inset-x-0 bottom-0 h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] p-6 md:p-8 flex flex-col justify-between text-white select-none">
+                      {/* Header in Red Overlay */}
+                      <div className="flex items-start justify-between">
+                        <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-white">
+                          {card.num}
                         </span>
-                      )}
+                        {card.badge && (
+                          <span className="font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full text-white bg-white/20 font-medium">
+                            {card.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Body in Red Overlay */}
+                      <div className="mt-auto">
+                        <h3 className="text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] text-white">
+                          {card.title} <br />
+                          <span className="font-serif italic font-normal text-white/95">
+                            {card.italicTitle}
+                          </span>
+                        </h3>
+                        <p className="mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 text-white/90">
+                          {card.desc}
+                        </p>
+
+                        <div className="mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono text-white/80">
+                          <span>PHASE {idx + 1} OF 4</span>
+                          {isActive && (
+                            <span className="flex items-center gap-1 text-white font-bold animate-pulse">
+                              <Sparkles className="w-3.5 h-3.5" /> ACTIVE
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
