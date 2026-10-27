@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from 'lenis/react';
@@ -10,394 +10,560 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-interface LevelConfig {
+export interface ProcessCardItem {
   num: string;
-  level: string;
+  badge?: string;
   title: string;
   italicTitle: string;
   desc: string;
-  initialHeight: number; // Base height before expanding to full height
+  shapeName: string;
 }
 
-const LEVELS: LevelConfig[] = [
+const DEFAULT_CARDS: ProcessCardItem[] = [
   {
     num: '01',
-    level: 'A1',
+    badge: 'A1 • Foundation',
     title: 'Discovery',
-    italicTitle: '& Phonetics',
-    desc: 'We map the rigid angles before we smooth them out. Master phonetics, alphabet, sentence order, and initial survival dialogues.',
-    initialHeight: 620, // Starts at full height
+    italicTitle: '& Strategy',
+    desc: 'We map the angles before we smooth them out. Where you are, where you’re going, and what’s standing in between.',
+    shapeName: 'Square (4 Sides)',
   },
   {
     num: '02',
-    level: 'A2',
-    title: 'Connected',
-    italicTitle: '& Dialogues',
-    desc: 'Angles begin rounding out into rhythm. Form past tense (Perfekt), navigate everyday social settings, and ask questions without freezing.',
-    initialHeight: 400, // Rises to 620px
+    badge: 'A2 • Building',
+    title: 'Design',
+    italicTitle: 'Iterations',
+    desc: 'Brand, visual systems, and structured flow — crafted into something credible, bespoke, and built to last. No templates.',
+    shapeName: 'Hexagon (6 Sides)',
   },
   {
     num: '03',
-    level: 'B1',
-    title: 'Spontaneous',
-    italicTitle: '& Debate',
-    desc: 'Rapid momentum and complex sentence flow. Defend opinions, master Konjunktiv II, and prepare for official Goethe & telc visa exams.',
-    initialHeight: 320, // Rises to 620px
+    badge: 'B1 • Momentum',
+    title: 'Precision',
+    italicTitle: 'Build',
+    desc: 'We build with the precision of a designer and the velocity of developers who have solved it a hundred times.',
+    shapeName: 'Octagon (8 Sides)',
   },
   {
     num: '04',
-    level: 'B2',
-    title: 'Effortless',
-    italicTitle: '& Fluency',
-    desc: 'The perfect circle: complete linguistic velocity. Lead workplace presentations, participate in technical debates, and speak instinctively.',
-    initialHeight: 250, // Rises to 620px
+    badge: 'B2 • Fluency',
+    title: 'Post-launch',
+    italicTitle: 'Support',
+    desc: 'We don’t force you to fit our process. It is the process that bends to keep you comfortable and rolling regardless.',
+    shapeName: 'Circle (Smooth)',
   },
 ];
 
-const FULL_HEIGHT = 620;
-const BALL_RADIUS = 44;                 // 88px diameter
-const Y_TROUGH = 260;                   // Fixed Y coordinate of road troughs (and straight flat line when A=0)
-const BALL_CENTER_Y = Y_TROUGH - BALL_RADIUS; // 216px (dashed line position)
-const BUMP_PERIOD = 72;                 // Width of each bump
-const MAX_BUMP_AMP = 26;                // Initial bump height (26px tall arches!)
+/* ── Mathematical Catenary & Ideal Vertices Helpers ────────── */
+const idealCache: Record<number, Float64Array> = {};
 
-// Dynamic shape sides: increases one-by-one
-function getShapeInfo(p: number) {
-  if (p < 0.12) return { sides: 4, name: 'Square', label: '4 Sides' };
-  if (p < 0.22) return { sides: 5, name: 'Pentagon', label: '5 Sides' };
-  if (p < 0.32) return { sides: 6, name: 'Hexagon', label: '6 Sides' };
-  if (p < 0.42) return { sides: 7, name: 'Heptagon', label: '7 Sides' };
-  if (p < 0.52) return { sides: 8, name: 'Octagon', label: '8 Sides' };
-  if (p < 0.62) return { sides: 9, name: 'Nonagon', label: '9 Sides' };
-  if (p < 0.72) return { sides: 10, name: 'Decagon', label: '10 Sides' };
-  if (p < 0.80) return { sides: 11, name: 'Hendecagon', label: '11 Sides' };
-  if (p < 0.88) return { sides: 12, name: 'Dodecagon', label: '12 Sides' };
-  if (p < 0.95) return { sides: 16, name: 'Hexadecagon', label: '16 Sides' };
-  return { sides: 36, name: 'Circle', label: 'Smooth Circle' };
+function idealVerts(n: number, r: number): Float64Array {
+  let base = idealCache[n];
+  if (!base) {
+    base = new Float64Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      const a = Math.PI / 2 + (2 * Math.PI * i) / n;
+      base[i * 2] = Math.cos(a);
+      base[i * 2 + 1] = Math.sin(a);
+    }
+    idealCache[n] = base;
+  }
+  const v = new Float64Array(n * 2);
+  for (let i = 0; i < n * 2; i++) v[i] = base[i] * r;
+  return v;
 }
 
-export default function CefrJourneyScroll() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackContainerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(1200);
+function alignedIdealVerts(n: number, r: number, refx: number, refy: number): Float64Array {
+  const raw = idealVerts(n, r);
+  const refAngle = Math.atan2(refy, refx);
+  let best = 0;
+  let bestDiff = Infinity;
+  for (let o = 0; o < n; o++) {
+    const a = Math.atan2(raw[o * 2 + 1], raw[o * 2]);
+    let d = Math.abs(a - refAngle);
+    if (d > Math.PI) d = 2 * Math.PI - d;
+    if (d < bestDiff) {
+      bestDiff = d;
+      best = o;
+    }
+  }
+  const out = new Float64Array(n * 2);
+  for (let i = 0; i < n; i++) {
+    const s = ((i + best) % n) * 2;
+    out[i * 2] = raw[s];
+    out[i * 2 + 1] = raw[s + 1];
+  }
+  return out;
+}
 
-  // Sync GSAP ScrollTrigger with Lenis
+function continuousVerts(nf: number, r: number): Float64Array {
+  const nLo = Math.floor(nf);
+  const frac = nf - nLo;
+  if (frac < 1e-9) return idealVerts(nLo, r);
+
+  const nHi = nLo + 1;
+  const base = idealVerts(nLo, r);
+  const start = new Float64Array(nHi * 2);
+  start[0] = base[0];
+  start[1] = base[1];
+  start[2] = (base[0] + base[2]) / 2;
+  start[3] = (base[1] + base[3]) / 2;
+  for (let i = 2; i < nHi; i++) {
+    start[i * 2] = base[(i - 1) * 2];
+    start[i * 2 + 1] = base[(i - 1) * 2 + 1];
+  }
+  const target = alignedIdealVerts(nHi, r, base[0], base[1]);
+  const out = new Float64Array(nHi * 2);
+  for (let i = 0; i < nHi * 2; i++) {
+    out[i] = start[i] + (target[i] - start[i]) * frac;
+  }
+  return out;
+}
+
+const easeInOut = (t: number) => t * t * (3 - 2 * t);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+export default function CefrJourneyScroll({
+  cards = DEFAULT_CARDS,
+  brandColor = '#CF1E2C',
+}: {
+  cards?: ProcessCardItem[];
+  brandColor?: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pinnedSectionRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cardsWrapRef = useRef<HTMLDivElement>(null);
+  const coverRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [currentShapeLabel, setCurrentShapeLabel] = useState('Square (4 Sides)');
+
+  // Maintain progress ref so canvas render loop always has latest smooth progress
+  const progressRef = useRef(0);
+  const targetProgressRef = useRef(0);
+
+  // Lenis synchronization
   useLenis(() => {
     ScrollTrigger.update();
   });
 
-  // Track container width
+  /* ── GSAP ScrollTrigger with Rock-Solid Pinning ───────────── */
   useEffect(() => {
-    const updateWidth = () => {
-      if (trackContainerRef.current) {
-        setContainerWidth(trackContainerRef.current.clientWidth || 1200);
-      }
-    };
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
+    const pinTarget = pinnedSectionRef.current;
+    const cardsWrap = cardsWrapRef.current;
+    if (!pinTarget) return;
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+    let st: ScrollTrigger | null = null;
 
-    let triggerInstance: ScrollTrigger | null = null;
-
-    const timer = setTimeout(() => {
-      triggerInstance = ScrollTrigger.create({
-        trigger: section,
+    const ctx = gsap.context(() => {
+      st = ScrollTrigger.create({
+        trigger: pinTarget,
         start: 'top top',
-        end: '+=2200',
+        end: '+=2600',
         pin: true,
+        pinSpacing: true,
         scrub: 0.5,
         anticipatePin: 1,
         onUpdate: (self) => {
-          setScrollProgress(self.progress);
+          const p = self.progress;
+          targetProgressRef.current = p;
+
+          // 1. Card covers: liquid rising fill 0% -> 100%
+          // Card 1: 0.00 -> 0.25
+          const c1 = Math.max(0, Math.min(1, p / 0.25));
+          if (coverRefs.current[0]) {
+            coverRefs.current[0]!.style.height = `${c1 * 100}%`;
+          }
+
+          // Card 2: 0.25 -> 0.50
+          const c2 = Math.max(0, Math.min(1, (p - 0.25) / 0.25));
+          if (coverRefs.current[1]) {
+            coverRefs.current[1]!.style.height = `${c2 * 100}%`;
+          }
+
+          // Card 3: 0.50 -> 0.75
+          const c3 = Math.max(0, Math.min(1, (p - 0.50) / 0.25));
+          if (coverRefs.current[2]) {
+            coverRefs.current[2]!.style.height = `${c3 * 100}%`;
+          }
+
+          // Card 4: 0.75 -> 1.00
+          const c4 = Math.max(0, Math.min(1, (p - 0.75) / 0.25));
+          if (coverRefs.current[3]) {
+            coverRefs.current[3]!.style.height = `${c4 * 100}%`;
+          }
+
+          // Update active card index
+          if (p < 0.25) setActiveStep(0);
+          else if (p < 0.50) setActiveStep(1);
+          else if (p < 0.75) setActiveStep(2);
+          else setActiveStep(3);
+
+          // 2. Mobile horizontal translation so cards follow wheel
+          if (cardsWrap && window.innerWidth <= 991) {
+            const isMobile = window.innerWidth <= 767;
+            const maxTranslate = isMobile ? -298 : -100;
+            const xVal = p * maxTranslate;
+            cardsWrap.style.transform = `translate3d(${xVal}%, 0, 0)`;
+          } else if (cardsWrap) {
+            cardsWrap.style.transform = 'translate3d(0, 0, 0)';
+          }
         },
       });
-    }, 100);
+    }, containerRef);
 
     return () => {
-      clearTimeout(timer);
-      if (triggerInstance) triggerInstance.kill();
+      ctx.revert();
+      if (st) st.kill();
     };
   }, []);
 
-  const p = Math.max(0, Math.min(1, scrollProgress));
+  /* ── Canvas Physics Engine (Inverted Catenary & Polygon) ──── */
+  useEffect(() => {
+    const pinTarget = pinnedSectionRef.current;
+    const canvas = canvasRef.current;
+    if (!pinTarget || !canvas) return;
 
-  // ── 1. DYNAMIC CARD HEIGHT: EXPANDS UPWARD ONE BY ONE ──
-  const cardHeights = useMemo(() => {
-    const h1 = FULL_HEIGHT;
-    const t2 = Math.max(0, Math.min(1, (p - 0.05) / 0.27));
-    const h2 = Math.round(400 + t2 * (FULL_HEIGHT - 400));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const t3 = Math.max(0, Math.min(1, (p - 0.32) / 0.30));
-    const h3 = Math.round(320 + t3 * (FULL_HEIGHT - 320));
+    const N_MIN = 4;
+    const N_MAX = 12;
+    const C_LINE = brandColor;
+    const C_AXLE = 'rgba(207, 30, 44, 0.45)';
+    const MOBILE_BP = 767;
+    const TABLET_BP = 991;
+    const PHASE2 = 0.35;
+    const SMOOTHING = 0.18;
+    const STOP_EPSILON = 0.0005;
 
-    const t4 = Math.max(0, Math.min(1, (p - 0.62) / 0.30));
-    const h4 = Math.round(250 + t4 * (FULL_HEIGHT - 250));
+    let W = 0;
+    let H = 0;
+    let R = 0;
+    let dpr = 1;
+    let isMobile = false;
+    let isTabletOrMobile = false;
+    let rafId: number | null = null;
 
-    return [h1, h2, h3, h4];
-  }, [p]);
+    let xLeft = 0;
+    let xRight = 0;
 
-  // ── 2. CURRENT SHAPE INFO (SIDES INCREASE ONE BY ONE) ──
-  const currentShape = useMemo(() => {
-    return getShapeInfo(p);
-  }, [p]);
+    function resize() {
+      if (!pinTarget || !canvas || !ctx) return;
+      dpr = window.devicePixelRatio || 1;
+      const cssW = pinTarget.clientWidth || window.innerWidth;
+      const cssH = pinTarget.clientHeight || window.innerHeight;
 
-  // ── 3. MATHEMATICAL BUMP AMPLITUDE TIED TO POLYGON SIDES ──
-  // Amplitude decays from MAX_BUMP_AMP (26px) down to 0px (Circle)
-  const currentAmp = useMemo(() => {
-    const N = currentShape.sides;
-    const denom = 1 - Math.cos(Math.PI / 4); // Square baseline
-    const ratio = (1 - Math.cos(Math.PI / N)) / denom;
-    return MAX_BUMP_AMP * Math.max(0, Math.min(1, ratio));
-  }, [currentShape.sides]);
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
 
-  // ── 4. CONTINUOUS BUMP TRACK SVG ──
-  // Troughs dip to Y_TROUGH (260px).
-  // Arches rise up to Y_TROUGH - currentAmp (peak at 234px when A=26).
-  // When A=0 (Circle), the entire line is a flat line at Y_TROUGH = 260px!
-  // The bottom of the circle is at BALL_CENTER_Y + BALL_RADIUS = 216 + 44 = 260px,
-  // resting on top of the line with 0px overlap!
-  const smoothTrackPath = useMemo(() => {
-    const W = containerWidth || 1200;
-    const numWaves = Math.ceil(W / BUMP_PERIOD);
-    const segments: string[] = [];
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
 
-    // Start at initial trough
-    segments.push(`M 0,${Y_TROUGH.toFixed(1)}`);
+      W = cssW;
+      H = cssH;
+      isMobile = W <= MOBILE_BP;
+      isTabletOrMobile = W <= TABLET_BP;
 
-    for (let i = 0; i < numWaves; i++) {
-      const x0 = i * BUMP_PERIOD;
-      const x1 = Math.min(W, (i + 1) * BUMP_PERIOD);
-      const xMid = (x0 + x1) / 2;
+      const RADIUS_SCALE = isMobile ? 0.095 : 0.075;
+      R = Math.max(36, Math.min(W, H) * RADIUS_SCALE);
 
-      if (currentAmp < 0.4) {
-        // Flat straight line
-        segments.push(`L ${x1.toFixed(1)},${Y_TROUGH}`);
+      // Start visible inside the viewport so Square (4 sides) is clearly seen at start!
+      xLeft = isMobile ? R + 20 : R + 48;
+      xRight = W - (isMobile ? R + 20 : R + 48);
+
+      render(progressRef.current);
+    }
+
+    function render(p: number) {
+      if (!ctx) return;
+      const t = Math.max(0, Math.min(1, p));
+      const span = xRight - xLeft;
+      const wheelX = lerp(xLeft, xRight, t);
+
+      const tMorph = easeInOut(t);
+      const tPoly = Math.min(tMorph / PHASE2, 1);
+      const tCirc = Math.max(0, (tMorph - PHASE2) / (1 - PHASE2));
+      const circT = easeInOut(tCirc);
+
+      const nf = N_MIN + tPoly * (N_MAX - N_MIN);
+      const nLo = Math.floor(nf);
+      const nHi = Math.min(N_MAX, nLo + 1);
+      const frac = nf - nLo;
+
+      const sLo = 2 * R * Math.sin(Math.PI / nLo);
+      const sHi = 2 * R * Math.sin(Math.PI / nHi);
+      const s = lerp(sLo, sHi, frac);
+
+      const aLo = R * Math.cos(Math.PI / nLo);
+      const aHi = R * Math.cos(Math.PI / nHi);
+      const a = lerp(aLo, aHi, frac);
+
+      // Vertical position of the road relative to cards below
+      const bottomCardsHeight = isMobile ? 320 : 360;
+      const roadPeakY = Math.max(160, (H - bottomCardsHeight) * 0.62 + a);
+      const axleY = roadPeakY - (a + (R - a) * circT);
+
+      ctx.clearRect(0, 0, W, H);
+
+      /* ── 1. Inverted Catenary Arches Road ── */
+      const firstPeakX = xLeft + Math.ceil((-xLeft - s) / s) * s;
+      const numArches = Math.ceil((W + s * 2) / s) + 2;
+      const steps = Math.max(48, Math.round(s));
+      const invA = 1 / a;
+      const oneMinusCirc = 1 - circT;
+
+      ctx.beginPath();
+      for (let ai = 0; ai < numArches; ai++) {
+        const peakX = firstPeakX + ai * s;
+        const archLeft = peakX - s / 2;
+        for (let si = 0; si <= steps; si++) {
+          const frac2 = si / steps;
+          const lx = archLeft + frac2 * s;
+          const localX = lx - peakX;
+          const catenaryY = roadPeakY + a * Math.cosh(localX * invA) - a;
+          const worldY = catenaryY * oneMinusCirc + roadPeakY * circT;
+          if (si === 0) ctx.moveTo(lx, worldY);
+          else ctx.lineTo(lx, worldY);
+        }
+      }
+      ctx.strokeStyle = C_LINE;
+      ctx.lineWidth = 2.0;
+      ctx.stroke();
+
+      /* ── 2. Axle Guide (Constant Flat Horizontal Line) ── */
+      ctx.save();
+      ctx.strokeStyle = C_AXLE;
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([6, 8]);
+      ctx.beginPath();
+      ctx.moveTo(0, axleY);
+      ctx.lineTo(W, axleY);
+      ctx.stroke();
+      ctx.restore();
+
+      /* ── 3. Rolling Shape with Spokes ── */
+      const d = t * span;
+      const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
+      const verts = continuousVerts(nf, R);
+      const vCount = verts.length / 2;
+
+      ctx.save();
+      ctx.translate(wheelX, axleY);
+      ctx.rotate(rotation);
+      ctx.beginPath();
+
+      if (circT < 0.999) {
+        const STEPS = isMobile ? 90 : 360;
+        const per = vCount / STEPS;
+        for (let i = 0; i <= STEPS; i++) {
+          const vi = i * per;
+          const vi0 = Math.floor(vi) % vCount;
+          const vi1 = (vi0 + 1) % vCount;
+          const vf = vi - Math.floor(vi);
+          const px = lerp(verts[vi0 * 2], verts[vi1 * 2], vf);
+          const py = lerp(verts[vi0 * 2 + 1], verts[vi1 * 2 + 1], vf);
+          const pr = Math.sqrt(px * px + py * py);
+          const scale = lerp(pr, R, circT) / pr;
+          const bx = px * scale;
+          const by = py * scale;
+          if (i === 0) ctx.moveTo(bx, by);
+          else ctx.lineTo(bx, by);
+        }
+        ctx.closePath();
       } else {
-        // Quadratic bezier arch:
-        // Starts at Y_TROUGH, control point at Y_TROUGH - 2*currentAmp, ends at Y_TROUGH.
-        // Midpoint apex reaches exactly Y_TROUGH - currentAmp!
-        const yCtrl = Y_TROUGH - 2 * currentAmp;
-        segments.push(`Q ${xMid.toFixed(1)},${yCtrl.toFixed(1)} ${x1.toFixed(1)},${Y_TROUGH.toFixed(1)}`);
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+      }
+
+      ctx.strokeStyle = C_LINE;
+      ctx.lineWidth = 2.4;
+      ctx.stroke();
+
+      // Center Axle Pin Dot
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fillStyle = C_LINE;
+      ctx.fill();
+      ctx.restore();
+
+      // Update shape name badge
+      if (circT > 0.8) {
+        setCurrentShapeLabel('Smooth Circle (Effortless)');
+      } else {
+        const currentSides = Math.round(nf);
+        if (currentSides === 4) setCurrentShapeLabel('Square (4 Sides)');
+        else if (currentSides <= 6) setCurrentShapeLabel('Hexagon (6 Sides)');
+        else if (currentSides <= 8) setCurrentShapeLabel('Octagon (8 Sides)');
+        else if (currentSides <= 10) setCurrentShapeLabel('Decagon (10 Sides)');
+        else setCurrentShapeLabel('Dodecagon (12 Sides)');
       }
     }
 
-    return segments.join(' ');
-  }, [containerWidth, currentAmp]);
+    function loop() {
+      const target = targetProgressRef.current;
+      progressRef.current = lerp(progressRef.current, target, SMOOTHING);
+      if (Math.abs(target - progressRef.current) < STOP_EPSILON) {
+        progressRef.current = target;
+      }
 
-  // ── 5. ROLLING SHAPE POSITION & SYNCHRONIZED ROTATION ──
-  const W = containerWidth || 1200;
-  // Starting position X0 is centered over a trough (corner dips into the dip between bumps)
-  const startX = 36;
-  const endX = W - 60;
-  const currentX = startX + p * (endX - startX);
-
-  // Synchronized rolling rotation:
-  // Traveling one bump (72px) rotates the shape by 90 deg (pi / 2).
-  // At startX (p=0), initial rotation is 45 deg (pi / 4) so bottom corner points straight into the trough!
-  const traveledDistance = currentX - startX;
-  const rotation = (Math.PI / 4) + (traveledDistance / BUMP_PERIOD) * (Math.PI / 2);
-
-  const shapeData = useMemo(() => {
-    const sides = currentShape.sides;
-    const isCircle = sides >= 32;
-
-    const points: string[] = [];
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides + rotation;
-      const x = BALL_RADIUS * Math.cos(angle);
-      const y = BALL_RADIUS * Math.sin(angle);
-      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      render(progressRef.current);
+      rafId = requestAnimationFrame(loop);
     }
 
-    return {
-      sides,
-      isCircle,
-      points: points.join(' '),
-    };
-  }, [currentShape.sides, rotation]);
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    rafId = requestAnimationFrame(loop);
 
-  const activeIndex = Math.min(3, Math.floor(p * 4));
+    return () => {
+      window.removeEventListener('resize', resize);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [brandColor]);
 
   return (
-    <section 
-      ref={sectionRef} 
-      className="w-full min-h-screen bg-[#F7F6F2] py-[4vh] px-[2.5vw] md:px-[4vw] flex flex-col justify-center select-none overflow-hidden"
-    >
-      <div className="max-w-[1440px] w-full mx-auto flex flex-col justify-between">
-        
-        {/* ── TOP HEADER / TRACK METRIC ROW ── */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-[3vh] border-b border-[rgba(32,37,42,0.1)] pb-[2vh]">
-          <div className="flex items-center gap-3">
-            <span className="text-[1.3rem] font-black uppercase tracking-widest text-[#CF1E2C] flex items-center gap-1.5">
-              <span>A1</span>
-              <ArrowRight className="w-4 h-4 stroke-[3]" />
-              <span>B2</span>
-            </span>
-            <span className="text-[1.2rem] text-[#626B73] font-medium tracking-wide">
-              • THE CEFR TRANSFORMATION ROADMAP
-            </span>
-          </div>
+    <div ref={containerRef} className="w-full relative">
+      {/* ── Rock-Solid GSAP-Pinned Section ── */}
+      <section
+        id="process"
+        ref={pinnedSectionRef}
+        className="w-full h-screen min-h-[640px] max-h-[1080px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-6 md:py-8 px-4 md:px-8 overflow-hidden select-none"
+      >
+        {/* Top Header Row */}
+        <div className="relative z-10 w-full max-w-[1720px] mx-auto flex items-start sm:items-end justify-between gap-4">
+          <div className="max-w-[580px]">
+            {/* Design + Strategy Row */}
+            <div className="flex items-center gap-2 text-[1.1rem] md:text-[1.25rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-2">
+              <span>Design</span>
+              <span className="opacity-50">+</span>
+              <span>Strategy</span>
+              <span className="opacity-50">+</span>
+              <span>Velocity</span>
+              <span className="opacity-50">=</span>
+              <span className="font-bold underline decoration-2">Full Circle</span>
+            </div>
 
-          <div className="text-left md:text-right">
-            <p className="text-[1.5rem] sm:text-[1.7rem] font-bold text-[#20252A] leading-snug">
-              Square on Catenary Road:{' '}
-              <span className="italic font-serif text-[#CF1E2C] font-normal">
-                {currentShape.name} ({currentShape.label})
+            <p className="text-[1.6rem] sm:text-[2.2rem] md:text-[2.6rem] font-extrabold leading-[1.1] tracking-tight text-[#20252A]">
+              The road can get <span className="font-serif italic text-[#CF1E2C] font-normal">bumpy</span>. We keep you{' '}
+              <span className="font-serif italic text-[#CF1E2C] font-normal">rolling</span> regardless.
+            </p>
+
+            {/* A -> B Badge */}
+            <div className="mt-2.5 inline-flex items-center gap-2 text-[#CF1E2C] font-mono text-[1.15rem] md:text-[1.25rem] font-bold">
+              <span className="px-2 py-0.5 rounded border border-[#CF1E2C]/30 bg-[#CF1E2C]/5">A</span>
+              <span className="flex items-center">
+                <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
               </span>
-            </p>
-            <p className="text-[1.25rem] text-[#626B73]">
-              Corner dips between bumps • Shape covers each bump • Rest on top of the road
-            </p>
-          </div>
-        </div>
-
-        {/* ── 4 RED EDITORIAL CARDS CONTAINER (WITH DYNAMIC EXPANSION) ── */}
-        <div 
-          ref={trackContainerRef}
-          className="relative w-full grid grid-cols-1 md:grid-cols-4 gap-[2vw] md:gap-[1.2vw] items-end"
-          style={{ height: `${FULL_HEIGHT}px` }}
-        >
-          {LEVELS.map((lvl, idx) => {
-            const currentHeight = cardHeights[idx];
-            const isActive = activeIndex === idx;
-
-            return (
-              <div
-                key={lvl.num}
-                style={{ 
-                  height: `${currentHeight}px`,
-                  transition: 'height 0.12s ease-out, box-shadow 0.2s ease',
-                }}
-                className={`relative w-full bg-[#CF1E2C] text-white rounded-[10px] p-[2.5vw] md:p-[2vw] flex flex-col justify-between overflow-hidden shadow-md ${
-                  isActive ? 'ring-2 ring-white/80 shadow-2xl' : 'opacity-95'
-                }`}
-              >
-                {/* ── TOP BADGE / STEP NUMBER ── */}
-                <div className="flex justify-between items-start z-10">
-                  <span className="text-[1.4rem] font-mono font-bold tracking-wider text-white/90">
-                    {lvl.num}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {isActive && (
-                      <span className="text-[1.1rem] font-mono text-white/90 font-bold bg-white/20 px-2.5 py-0.5 rounded-full">
-                        {currentShape.label}
-                      </span>
-                    )}
-                    <span className="text-[1.2rem] font-mono font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-xs">
-                      {lvl.level}
-                    </span>
-                  </div>
-                </div>
-
-                {/* ── BOTTOM EDITORIAL TYPOGRAPHY (PROMINENT & UNCLIPPED) ── */}
-                <div className="z-10 mt-auto pt-[4vh] pb-[1vh]">
-                  <div className="mb-[1.5vh]">
-                    <div className="text-[1.15rem] font-mono uppercase tracking-wider text-white/70 mb-1">
-                      {idx === activeIndex ? currentShape.name : idx === 0 ? 'Square' : idx === 1 ? 'Octagon' : idx === 2 ? 'Dodecagon' : 'Circle'}
-                    </div>
-                    <h3 className="text-[2.6rem] sm:text-[3rem] font-extrabold tracking-tight leading-none text-white">
-                      {lvl.title}
-                    </h3>
-                    <div className="text-[2.2rem] sm:text-[2.6rem] font-serif italic text-white/95 leading-tight">
-                      {lvl.italicTitle}
-                    </div>
-                  </div>
-
-                  <p className="text-[1.35rem] text-white/90 leading-relaxed font-normal">
-                    {lvl.desc}
-                  </p>
-
-                  <div className="mt-[2vh] pt-[1.5vh] border-t border-white/20 flex items-center justify-between text-[1.15rem] font-mono text-white/70">
-                    <span>STAGE {idx + 1} OF 4</span>
-                    {isActive && (
-                      <span className="flex items-center gap-1 text-white font-bold animate-pulse">
-                        <Sparkles className="w-3.5 h-3.5" /> ACTIVE
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* ── FIXED TRACK & BASELINE OVERLAY (100% FIXED IN PLACE) ── */}
-          <div 
-            className="absolute inset-x-0 top-0 pointer-events-none z-10 hidden md:block" 
-            style={{ height: `${FULL_HEIGHT}px` }}
-          >
-            {/* Dashed baseline running straight through center axis */}
-            <div 
-              className="absolute left-[0.5vw] right-[0.5vw] border-t border-dashed border-white/40 h-0"
-              style={{ top: `${BALL_CENTER_Y}px` }}
-            />
-
-            {/* Continuous SVG track line: bumps flatten as polygon gains more sides */}
-            <svg 
-              className="absolute inset-0 w-full h-full overflow-visible text-white/85 stroke-current fill-none stroke-[2.4]"
-              style={{ pointerEvents: 'none' }}
-            >
-              <path d={smoothTrackPath} />
-            </svg>
-          </div>
-
-          {/* ── ROLLING SHAPE OVERLAY (RESTS PERFECTLY ON THE ROAD) ── */}
-          <div 
-            className="absolute inset-x-0 pointer-events-none hidden md:block z-20"
-            style={{ top: `${BALL_CENTER_Y}px` }}
-          >
-            <div 
-              className="absolute -top-[44px] -ml-[44px] will-change-transform"
-              style={{
-                left: `${currentX}px`,
-              }}
-            >
-              <svg width="88" height="88" viewBox="-44 -44 88 88" className="overflow-visible drop-shadow-md">
-                {shapeData.isCircle ? (
-                  <circle
-                    cx="0"
-                    cy="0"
-                    r={BALL_RADIUS}
-                    fill="rgba(255,255,255,0.15)"
-                    stroke="#FFFFFF"
-                    strokeWidth="2.5"
-                  />
-                ) : (
-                  <polygon
-                    points={shapeData.points}
-                    fill="rgba(255,255,255,0.15)"
-                    stroke="#FFFFFF"
-                    strokeWidth="2.5"
-                  />
-                )}
-                {/* Center axis white dot pinned precisely on the dashed baseline */}
-                <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
-              </svg>
+              <span className="px-2 py-0.5 rounded border border-[#CF1E2C]/30 bg-[#CF1E2C]/5">B</span>
+              <span className="ml-2 text-[#626B73] font-normal text-[1.1rem]">
+                • Constant Axle Height ({currentShapeLabel})
+              </span>
             </div>
           </div>
 
-        </div>
-
-        {/* ── MOBILE SCROLL PROGRESS INDICATOR ── */}
-        <div className="mt-[3vh] md:hidden flex flex-col gap-2">
-          <div className="flex justify-between text-[1.2rem] font-mono text-[#626B73]">
-            <span>A1 (Square: 4 Sides)</span>
-            <span>B2 (Circle: Smooth)</span>
-          </div>
-          <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-[#CF1E2C] transition-all duration-150"
-              style={{ width: `${Math.round(p * 100)}%` }}
-            />
+          {/* Right: Oval Pill Badge */}
+          <div className="border border-[#CF1E2C] rounded-full px-5 py-2 sm:px-7 sm:py-2.5 text-[#CF1E2C] font-serif italic text-[1.4rem] sm:text-[1.7rem] tracking-wide shadow-xs bg-white/80 backdrop-blur-xs flex-none">
+            Our Process
           </div>
         </div>
 
-      </div>
-    </section>
+        {/* Catenary Physics Canvas Overlay */}
+        <canvas
+          id="pw-canvas"
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-1"
+        />
+
+        {/* Bottom Cards Flex Wrap */}
+        <div className="relative z-10 w-full max-w-[1720px] mx-auto">
+          <div
+            ref={cardsWrapRef}
+            className="flex flex-nowrap gap-3 md:gap-4 items-end transition-transform duration-75 ease-out w-full"
+          >
+            {cards.map((card, idx) => {
+              const isActive = activeStep === idx;
+
+              return (
+                <div
+                  key={card.num}
+                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[240px] sm:h-[280px] md:h-[300px] rounded-[14px] p-5 md:p-6 flex flex-col justify-between overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
+                  style={{
+                    transformOrigin: '50% 100%',
+                  }}
+                >
+                  {/* The Signature Liquid Red Fill: 0% -> 100% */}
+                  <div
+                    ref={(el) => {
+                      coverRefs.current[idx] = el;
+                    }}
+                    className="absolute inset-x-0 bottom-0 bg-[#CF1E2C] z-0 pointer-events-none"
+                    style={{ height: '0%' }}
+                  />
+
+                  {/* Header in Card */}
+                  <div className="relative z-10 flex items-start justify-between">
+                    <span className={`font-mono text-[1.6rem] md:text-[1.8rem] font-bold transition-colors duration-200 ${
+                      isActive ? 'text-white' : 'text-[#CF1E2C]'
+                    }`}>
+                      {card.num}
+                    </span>
+                    {card.badge && (
+                      <span className={`font-mono text-[1.05rem] md:text-[1.15rem] px-2.5 py-0.5 rounded-full transition-colors duration-200 ${
+                        isActive
+                          ? 'text-white bg-white/20'
+                          : 'text-[#CF1E2C] bg-[#CF1E2C]/10'
+                      }`}>
+                        {card.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Body in Card: Red when red background has not appeared, White when active */}
+                  <div className="relative z-10 mt-auto">
+                    <h3 className={`text-[1.9rem] sm:text-[2.2rem] md:text-[2.4rem] font-extrabold leading-[1.1] transition-colors duration-200 ${
+                      isActive ? 'text-white' : 'text-[#CF1E2C]'
+                    }`}>
+                      {card.title} <br />
+                      <span className={`font-serif italic font-normal transition-colors duration-200 ${
+                        isActive ? 'text-white/90' : 'text-[#CF1E2C]'
+                      }`}>
+                        {card.italicTitle}
+                      </span>
+                    </h3>
+                    <p className={`mt-2 text-[1.2rem] sm:text-[1.3rem] leading-relaxed line-clamp-3 transition-colors duration-200 ${
+                      isActive ? 'text-white/90' : 'text-[#CF1E2C]/85'
+                    }`}>
+                      {card.desc}
+                    </p>
+
+                    <div className={`mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono transition-colors duration-200 ${
+                      isActive
+                        ? 'text-white/80'
+                        : 'text-[#CF1E2C]/75'
+                    }`}>
+                      <span>PHASE {idx + 1} OF 4</span>
+                      {isActive && (
+                        <span className="flex items-center gap-1 text-white font-bold animate-pulse">
+                          <Sparkles className="w-3.5 h-3.5" /> ACTIVE
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Mobile / Tablet Step Guide */}
+          <div className="mt-2.5 md:hidden flex justify-between items-center text-[1.15rem] font-mono text-[#718096]">
+            <span>Scroll to roll shape & progress cards</span>
+            <span>Stage {activeStep + 1} / 4</span>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
