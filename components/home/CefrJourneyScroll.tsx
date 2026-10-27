@@ -335,18 +335,28 @@ export default function CefrJourneyScroll({
       ctx.lineWidth = 2.0;
       ctx.stroke();
 
-      /* ── 2. Axle Guide (Constant Flat Horizontal Line) ── */
+      /* ── 2. Axle Guide (Constant Flat Horizontal Line - Stops Outside Wheel) ── */
       ctx.save();
       ctx.strokeStyle = C_AXLE;
       ctx.lineWidth = 1.4;
       ctx.setLineDash([6, 8]);
       ctx.beginPath();
-      ctx.moveTo(0, axleY);
-      ctx.lineTo(W, axleY);
+      // Draw left segment (stops before wheel)
+      const leftEnd = Math.max(0, wheelX - R);
+      if (leftEnd > 0) {
+        ctx.moveTo(0, axleY);
+        ctx.lineTo(leftEnd, axleY);
+      }
+      // Draw right segment (starts after wheel)
+      const rightStart = Math.min(W, wheelX + R);
+      if (rightStart < W) {
+        ctx.moveTo(rightStart, axleY);
+        ctx.lineTo(W, axleY);
+      }
       ctx.stroke();
       ctx.restore();
 
-      /* ── 3. Rolling Shape with Spokes ── */
+      /* ── 3. Rolling Shape (Clean Outline with Hollow Interior) ── */
       const d = t * span;
       const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
       const verts = continuousVerts(nf, R);
@@ -379,6 +389,9 @@ export default function CefrJourneyScroll({
         ctx.arc(0, 0, R, 0, Math.PI * 2);
       }
 
+      // Fill with background color so any background elements are masked out inside
+      ctx.fillStyle = '#FAF9F6';
+      ctx.fill();
       ctx.strokeStyle = C_LINE;
       ctx.lineWidth = 2.4;
       ctx.stroke();
@@ -432,7 +445,6 @@ export default function CefrJourneyScroll({
         ref={pinnedSectionRef}
         className="w-full h-screen min-h-[640px] max-h-[1080px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-6 md:py-8 px-4 md:px-8 overflow-hidden select-none"
       >
-        {/* Top Header Row */}
         <div className="relative z-10 w-full max-w-[1720px] mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="max-w-[580px]">
             {/* Design + Strategy Row */}
