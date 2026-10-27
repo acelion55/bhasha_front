@@ -100,6 +100,9 @@
 }
 
 /* ── Typography Roles ── */
+.font-serif {
+  font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+}
 .display-text { font-size: 3.2rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.16px; }
 .h1-text { font-size: 2.0rem; font-weight: 600; line-height: 1.4; color: var(--starbucks-green); letter-spacing: -0.16px; }
 .h2-text { font-size: 1.8rem; font-weight: 600; line-height: 1.4; letter-spacing: -0.16px; }
