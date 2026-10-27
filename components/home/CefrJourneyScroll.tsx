@@ -357,11 +357,11 @@ export default function CefrJourneyScroll({
         }
       }
 
-      // Starting position: OUTSIDE Card 0 to the left
-      const xStartOutside = cardsLeft - R - 8;
+      // Starting position: start of Card 01 (strictly inside section cards)
+      const xStart = cardsLeft + R + 12;
       const xEnd = cardsRight - R - 12;
-      const span = xEnd - xStartOutside;
-      const wheelX = lerp(xStartOutside, xEnd, tRoll);
+      const span = xEnd - xStart;
+      const wheelX = lerp(xStart, xEnd, tRoll);
 
       // Track passes inside the cards in the open space between card header and body text
       // Track is completely FIXED at resting height
@@ -473,11 +473,10 @@ export default function CefrJourneyScroll({
         c.restore();
       }
 
-      // ── PASS 1: RED PASS (Over White Card Background) ──
+      // ── PASS 1: RED PASS (Strictly within the section cards) ──
       c.save();
-      const clipLeft = Math.max(0, xStartOutside - R - 12);
       c.beginPath();
-      c.rect(clipLeft, cardTop, Math.max(1, cardsRight - clipLeft), cardH + 200);
+      c.rect(cardsLeft, cardTop, Math.max(1, cardsRight - cardsLeft), cardH + 100);
       c.clip();
       drawScene(C_RED, C_AXLE_RED, 'rgba(207, 30, 44, 0.2)');
       c.restore();
