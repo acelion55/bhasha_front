@@ -357,11 +357,11 @@ export default function CefrJourneyScroll({
         }
       }
 
-      // Starting position: start of Card 01 (strictly inside section cards)
-      const xStart = cardsLeft + R + 12;
+      // Starting position: OUTSIDE Card 01 to the left (hidden by clip until it rolls into the section)
+      const xStartOutside = cardsLeft - R * 1.6;
       const xEnd = cardsRight - R - 12;
-      const span = xEnd - xStart;
-      const wheelX = lerp(xStart, xEnd, tRoll);
+      const span = xEnd - xStartOutside;
+      const wheelX = lerp(xStartOutside, xEnd, tRoll);
 
       // Track passes inside the cards in the open space between card header and body text
       // Track is completely FIXED at resting height
