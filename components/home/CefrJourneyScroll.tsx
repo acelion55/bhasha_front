@@ -17,6 +17,47 @@ export interface ProcessCardItem {
   italicTitle: string;
   desc: string;
   shapeName: string;
+  bgColor?: string;
+  accentColor?: string;
+  fillColor?: string;
+  rgbaAccent?: string;
+}
+
+export const FALLBACK_PALETTE = [
+  {
+    bgColor: '#F9D9CD',      // Soft Peach (Section 2)
+    accentColor: '#9A3412',  // Terracotta / Rust
+    fillColor: '#C2410C',    // Vibrant Terracotta Peach
+    rgbaAccent: 'rgba(154, 52, 18, 0.45)',
+  },
+  {
+    bgColor: '#DCE7F0',      // Pale Blue-Gray (Section 3A)
+    accentColor: '#173B63',  // Primary Brand Oxford Navy
+    fillColor: '#173B63',    // Navy Fill
+    rgbaAccent: 'rgba(23, 59, 99, 0.45)',
+  },
+  {
+    bgColor: '#DCD5F5',      // Lavender (Section 3B)
+    accentColor: '#5B3E96',  // Deep Royal Violet
+    fillColor: '#6B46C1',    // Rich Purple
+    rgbaAccent: 'rgba(91, 62, 150, 0.45)',
+  },
+  {
+    bgColor: '#D8E6DB',      // Soft Sage (Section 4B)
+    accentColor: '#1F573C',  // Deep Forest Pine
+    fillColor: '#2D6A4F',    // Rich Sage Green
+    rgbaAccent: 'rgba(31, 87, 60, 0.45)',
+  },
+];
+
+export function getCardPalette(idx: number, card?: ProcessCardItem) {
+  const fb = FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+  return {
+    bgColor: card?.bgColor || fb.bgColor,
+    accentColor: card?.accentColor || fb.accentColor,
+    fillColor: card?.fillColor || fb.fillColor,
+    rgbaAccent: card?.rgbaAccent || fb.rgbaAccent,
+  };
 }
 
 const DEFAULT_CARDS: ProcessCardItem[] = [
@@ -27,6 +68,7 @@ const DEFAULT_CARDS: ProcessCardItem[] = [
     italicTitle: '& Strategy',
     desc: 'We map the angles before we smooth them out. Where you are, where you’re going, and what’s standing in between.',
     shapeName: 'Square (4 Sides)',
+    ...FALLBACK_PALETTE[0],
   },
   {
     num: '02',
@@ -35,6 +77,7 @@ const DEFAULT_CARDS: ProcessCardItem[] = [
     italicTitle: 'Iterations',
     desc: 'Brand, visual systems, and structured flow — crafted into something credible, bespoke, and built to last. No templates.',
     shapeName: 'Hexagon (6 Sides)',
+    ...FALLBACK_PALETTE[1],
   },
   {
     num: '03',
@@ -43,6 +86,7 @@ const DEFAULT_CARDS: ProcessCardItem[] = [
     italicTitle: 'Build',
     desc: 'We build with the precision of a designer and the velocity of developers who have solved it a hundred times.',
     shapeName: 'Octagon (8 Sides)',
+    ...FALLBACK_PALETTE[2],
   },
   {
     num: '04',
@@ -51,6 +95,7 @@ const DEFAULT_CARDS: ProcessCardItem[] = [
     italicTitle: 'Support',
     desc: 'We don’t force you to fit our process. It is the process that bends to keep you comfortable and rolling regardless.',
     shapeName: 'Circle (Smooth)',
+    ...FALLBACK_PALETTE[3],
   },
 ];
 
@@ -473,13 +518,42 @@ export default function CefrJourneyScroll({
         c.restore();
       }
 
-      // ── PASS 1: BRAND COLOR PASS (Strictly within the section cards) ──
-      c.save();
-      c.beginPath();
-      c.rect(cardsLeft, cardTop, Math.max(1, cardsRight - cardsLeft), cardH + 100);
-      c.clip();
-      drawScene(C_BRAND, C_AXLE_BRAND, 'rgba(23, 59, 99, 0.2)');
-      c.restore();
+      // ── PASS 1: PER-CARD ACCENT COLOR PASS (Strictly within each card section) ──
+      if (pinTarget) {
+        const pRect = pinTarget.getBoundingClientRect();
+        cards.forEach((cItem, i) => {
+          const cardEl = cardRefs.current[i];
+          if (!cardEl) return;
+          const cr = cardEl.getBoundingClientRect();
+          if (cr.width <= 0) return;
+
+          const cl = cr.left - pRect.left;
+          const crRight = cr.right - pRect.left;
+
+          // Segment boundaries dividing at the gap midpoint between cards
+          const prevEl = i > 0 ? cardRefs.current[i - 1] : null;
+          const nextEl = i < cards.length - 1 ? cardRefs.current[i + 1] : null;
+
+          const segLeft = prevEl
+            ? ((prevEl.getBoundingClientRect().right - pRect.left) + cl) / 2
+            : cardsLeft;
+
+          const segRight = nextEl
+            ? (crRight + (nextEl.getBoundingClientRect().left - pRect.left)) / 2
+            : cardsRight;
+
+          if (segRight <= segLeft) return;
+
+          const pal = getCardPalette(i, cItem);
+
+          c.save();
+          c.beginPath();
+          c.rect(segLeft, cardTop - 50, segRight - segLeft, cardH + 200);
+          c.clip();
+          drawScene(pal.accentColor, pal.rgbaAccent, pal.rgbaAccent.replace('0.45', '0.2'));
+          c.restore();
+        });
+      }
 
       // ── PASS 2: WHITE PASS (Strictly Clipped Inside Active Red Liquid Fill Covers) ──
       if (pinTarget) {
@@ -585,6 +659,7 @@ export default function CefrJourneyScroll({
           >
             {cards.map((card, idx) => {
               const isActive = activeStep === idx;
+              const palette = getCardPalette(idx, card);
 
               return (
                 <div
@@ -592,20 +667,26 @@ export default function CefrJourneyScroll({
                   ref={(el) => {
                     cardRefs.current[idx] = el;
                   }}
-                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
+                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] rounded-[16px] overflow-hidden backdrop-blur-xs shadow-md border border-[rgba(32,37,42,0.08)]"
                   style={{
                     transformOrigin: '50% 100%',
+                    backgroundColor: palette.bgColor,
                   }}
                 >
-                  {/* ── LAYER 1: BASE LAYER (White Background with 100% RED Text) ── */}
-                  <div className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between text-[#173B63] select-none">
+                  {/* ── LAYER 1: BASE LAYER (Pastel Background with Card Accent Text) ── */}
+                  <div
+                    className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between select-none"
+                    style={{ color: palette.accentColor }}
+                  >
                     {/* Header in Base Layer */}
                     <div className="flex items-start justify-between">
-                      <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-[#173B63]">
+                      <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold">
                         {card.num}
                       </span>
                       {card.badge && (
-                        <span className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full text-[#173B63] bg-[#173B63]/10 font-medium">
+                        <span
+                          className="font-mono text-[0.95rem] md:text-[1.05rem] px-2.5 py-0.5 rounded-full font-semibold bg-white/70 backdrop-blur-xs border border-black/5 shadow-2xs"
+                        >
                           {card.badge}
                         </span>
                       )}
@@ -613,34 +694,36 @@ export default function CefrJourneyScroll({
 
                     {/* Body in Base Layer */}
                     <div className="mt-auto">
-                      <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-[#173B63]">
+                      <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15]">
                         {card.title} <br />
-                        <span className="font-serif italic font-normal text-[#173B63]">
+                        <span className="font-serif italic font-normal">
                           {card.italicTitle}
                         </span>
                       </h3>
-                      <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 text-[#173B63]/85">
+                      <p className="mt-1.5 text-[1.1rem] sm:text-[1.2rem] leading-relaxed line-clamp-2 opacity-90">
                         {card.desc}
                       </p>
 
-                      <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono text-[#173B63]/75">
+                      <div className="mt-2.5 pt-2 flex items-center justify-between text-[0.95rem] font-mono opacity-80">
                         <span>PHASE {idx + 1} OF 4</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* ── LAYER 2: LIQUID RED FILL OVERLAY (Rising Height with 100% WHITE Text) ── */}
-                  {/* As red fill rises, it clips and reveals the identical white text directly over the red */}
+                  {/* ── LAYER 2: LIQUID FILL OVERLAY (Rising Height with 100% WHITE Text) ── */}
                   <div
                     ref={(el) => {
                       coverRefs.current[idx] = el;
                     }}
-                    className="absolute inset-x-0 bottom-0 bg-[#173B63] z-10 overflow-hidden pointer-events-none"
-                    style={{ height: '0%' }}
+                    className="absolute inset-x-0 bottom-0 z-10 overflow-hidden pointer-events-none"
+                    style={{
+                      height: '0%',
+                      backgroundColor: palette.fillColor,
+                    }}
                   >
                     {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
                     <div className="absolute inset-x-0 bottom-0 h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
-                      {/* Header in Red Overlay */}
+                      {/* Header in Overlay */}
                       <div className="flex items-start justify-between">
                         <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-white">
                           {card.num}
@@ -652,7 +735,7 @@ export default function CefrJourneyScroll({
                         )}
                       </div>
 
-                      {/* Body in Red Overlay */}
+                      {/* Body in Overlay */}
                       <div className="mt-auto">
                         <h3 className="text-[1.5rem] sm:text-[1.7rem] md:text-[1.9rem] font-extrabold leading-[1.15] text-white">
                           {card.title} <br />
