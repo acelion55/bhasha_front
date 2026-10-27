@@ -277,16 +277,16 @@ export default function CefrJourneyScroll({
         const cRect = cardsWrapRef.current.getBoundingClientRect();
         const pRect = pinTarget.getBoundingClientRect();
         if (cRect.width > 0) {
-          const pad = R + 48;
+          const pad = R + 12;
           xLeft = Math.max(pad, cRect.left - pRect.left + pad);
           xRight = Math.min(W - pad, cRect.right - pRect.left - pad);
         } else {
-          xLeft = R + 48;
-          xRight = W - (R + 48);
+          xLeft = R + 12;
+          xRight = W - (R + 12);
         }
       } else {
-        xLeft = isMobile ? R + 24 : R + 48;
-        xRight = W - (isMobile ? R + 24 : R + 48);
+        xLeft = isMobile ? R + 12 : R + 20;
+        xRight = W - (isMobile ? R + 12 : R + 20);
       }
 
       render(progressRef.current);
@@ -317,16 +317,25 @@ export default function CefrJourneyScroll({
       const a = lerp(aLo, aHi, frac);
 
       // Vertical position of the track inside the cards section
+      let cardsLeft = 0;
+      let cardsRight = W;
       let cardTop = H * 0.32;
       let cardH = isMobile ? 480 : 580;
+
       if (cardsWrapRef.current && pinTarget) {
         const cRect = cardsWrapRef.current.getBoundingClientRect();
         const pRect = pinTarget.getBoundingClientRect();
-        if (cRect.height > 0) {
+        if (cRect.width > 0) {
+          cardsLeft = Math.max(0, cRect.left - pRect.left);
+          cardsRight = Math.min(W, cRect.right - pRect.left);
           cardTop = cRect.top - pRect.top;
           cardH = cRect.height;
         }
       }
+
+      // Constrain wheel roll strictly between card edges
+      xLeft = cardsLeft + R + 12;
+      xRight = cardsRight - R - 12;
 
       // Track passes inside the cards in the open space between card header and body text
       const roadPeakY = cardTop + cardH * 0.38 + a;
@@ -334,9 +343,16 @@ export default function CefrJourneyScroll({
 
       ctx.clearRect(0, 0, W, H);
 
+      // STRICT CEFR CLIP MASK: Clip all canvas drawings strictly within the CEFR cards
+      // Nothing will ever draw or bleed outside the CEFR cards area
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cardsLeft, cardTop, Math.max(1, cardsRight - cardsLeft), cardH);
+      ctx.clip();
+
       /* ── 1. Inverted Catenary Arches Road (Pure White) ── */
-      const firstPeakX = xLeft + Math.ceil((-xLeft - s) / s) * s;
-      const numArches = Math.ceil((W + s * 2) / s) + 2;
+      const firstPeakX = cardsLeft + Math.ceil((-cardsLeft - s) / s) * s;
+      const numArches = Math.ceil((cardsRight - cardsLeft + s * 2) / s) + 2;
       const steps = Math.max(48, Math.round(s));
       const invA = 1 / a;
       const oneMinusCirc = 1 - circT;
@@ -371,17 +387,17 @@ export default function CefrJourneyScroll({
       ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
       ctx.shadowBlur = 3;
       ctx.beginPath();
-      // Draw left segment (stops before wheel)
-      const leftEnd = Math.max(0, wheelX - R);
-      if (leftEnd > 0) {
-        ctx.moveTo(0, axleY);
+      // Draw left segment (starts at cardsLeft and stops before wheel)
+      const leftEnd = Math.max(cardsLeft, wheelX - R);
+      if (leftEnd > cardsLeft) {
+        ctx.moveTo(cardsLeft, axleY);
         ctx.lineTo(leftEnd, axleY);
       }
-      // Draw right segment (starts after wheel)
-      const rightStart = Math.min(W, wheelX + R);
-      if (rightStart < W) {
+      // Draw right segment (starts after wheel and stops at cardsRight)
+      const rightStart = Math.min(cardsRight, wheelX + R);
+      if (rightStart < cardsRight) {
         ctx.moveTo(rightStart, axleY);
-        ctx.lineTo(W, axleY);
+        ctx.lineTo(cardsRight, axleY);
       }
       ctx.stroke();
       ctx.restore();
@@ -434,6 +450,9 @@ export default function CefrJourneyScroll({
       ctx.fill();
       ctx.restore();
 
+      // Restore the main CEFR clip mask
+      ctx.restore();
+
       // Update shape name badge
       if (circT > 0.8) {
         setCurrentShapeLabel('Smooth Circle (Effortless)');
@@ -474,9 +493,9 @@ export default function CefrJourneyScroll({
       <section
         id="process"
         ref={pinnedSectionRef}
-        className="w-full h-screen min-h-[720px] md:min-h-[820px] max-h-[1100px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-6 md:py-8 px-4 md:px-8 overflow-hidden select-none"
+        className="w-full h-screen min-h-[720px] md:min-h-[820px] max-h-[1100px] bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between py-5 md:py-7 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
       >
-        <div className="relative z-10 w-full max-w-[1720px] mx-auto flex items-start sm:items-end justify-between gap-4">
+        <div className="relative z-10 w-full max-w-full px-2 mb-[-10vh] mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="max-w-[580px]">
             {/* Design + Strategy Row */}
             <div className="flex items-center gap-2 text-[1.1rem] md:text-[1.25rem] font-mono tracking-widest text-[#CF1E2C] uppercase mb-2">
@@ -493,18 +512,6 @@ export default function CefrJourneyScroll({
               The road can get <span className="font-serif italic text-[#CF1E2C] font-normal">bumpy</span>. We keep you{' '}
               <span className="font-serif italic text-[#CF1E2C] font-normal">rolling</span> regardless.
             </p>
-
-            {/* A -> B Badge */}
-            <div className="mt-2.5 inline-flex items-center gap-2 text-[#CF1E2C] font-mono text-[1.15rem] md:text-[1.25rem] font-bold">
-              <span className="px-2 py-0.5 rounded border border-[#CF1E2C]/30 bg-[#CF1E2C]/5">A</span>
-              <span className="flex items-center">
-                <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
-              </span>
-              <span className="px-2 py-0.5 rounded border border-[#CF1E2C]/30 bg-[#CF1E2C]/5">B</span>
-              <span className="ml-2 text-[#626B73] font-normal text-[1.1rem]">
-                • Constant Axle Height ({currentShapeLabel})
-              </span>
-            </div>
           </div>
 
           {/* Right: Oval Pill Badge */}
@@ -521,10 +528,10 @@ export default function CefrJourneyScroll({
         />
 
         {/* Bottom Cards Flex Wrap */}
-        <div className="relative z-10 w-full max-w-[1720px] mx-auto">
+        <div className="relative z-10 w-full max-w-full px-2 mx-auto">
           <div
             ref={cardsWrapRef}
-            className="flex flex-nowrap gap-3 md:gap-4 items-end transition-transform duration-75 ease-out w-full"
+            className="flex flex-nowrap gap-2 md:gap-3 items-end transition-transform duration-75 ease-out w-full"
           >
             {cards.map((card, idx) => {
               const isActive = activeStep === idx;
@@ -538,7 +545,7 @@ export default function CefrJourneyScroll({
                   }}
                 >
                   {/* ── LAYER 1: BASE LAYER (White Background with 100% RED Text) ── */}
-                  <div className="relative z-0 h-full p-6 md:p-8 flex flex-col justify-between text-[#CF1E2C] select-none">
+                  <div className="relative z-0 h-full p-4 sm:p-5 md:p-6 flex flex-col justify-between text-[#CF1E2C] select-none">
                     {/* Header in Base Layer */}
                     <div className="flex items-start justify-between">
                       <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-[#CF1E2C]">
@@ -579,7 +586,7 @@ export default function CefrJourneyScroll({
                     style={{ height: '0%' }}
                   >
                     {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
-                    <div className="absolute inset-x-0 bottom-0 h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] p-6 md:p-8 flex flex-col justify-between text-white select-none">
+                    <div className="absolute inset-x-0 bottom-0 h-[480px] sm:h-[520px] md:h-[560px] lg:h-[600px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
                       {/* Header in Red Overlay */}
                       <div className="flex items-start justify-between">
                         <span className="font-mono text-[1.6rem] md:text-[1.8rem] font-bold text-white">
@@ -604,14 +611,7 @@ export default function CefrJourneyScroll({
                           {card.desc}
                         </p>
 
-                        <div className="mt-3 pt-2.5 flex items-center justify-between text-[1.05rem] font-mono text-white/80">
-                          <span>PHASE {idx + 1} OF 4</span>
-                          {isActive && (
-                            <span className="flex items-center gap-1 text-white font-bold animate-pulse">
-                              <Sparkles className="w-3.5 h-3.5" /> ACTIVE
-                            </span>
-                          )}
-                        </div>
+                       
                       </div>
                     </div>
                   </div>
