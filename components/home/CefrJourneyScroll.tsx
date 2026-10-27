@@ -493,7 +493,7 @@ export default function CefrJourneyScroll({
       <section
         id="process"
         ref={pinnedSectionRef}
-        className="w-full h-screen max-h-screen bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between pt-[78px] md:pt-[88px] pb-3 md:pb-5 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
+        className="w-full h-screen max-h-screen bg-[#FAF9F6] text-[#20252A] flex flex-col justify-start gap-3 sm:gap-4 md:gap-5 pt-[78px] md:pt-[88px] pb-3 md:pb-5 px-1 sm:px-2 md:px-3 overflow-hidden select-none"
       >
         <div className="relative z-10 w-full max-w-full px-2 mx-auto flex items-start sm:items-end justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -528,7 +528,7 @@ export default function CefrJourneyScroll({
         />
 
         {/* Bottom Cards Flex Wrap */}
-        <div className="relative z-10 w-full max-w-full px-2 mx-auto">
+        <div className="relative z-10 w-full max-w-full px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end">
           <div
             ref={cardsWrapRef}
             className="flex flex-nowrap gap-2 md:gap-3 items-end transition-transform duration-75 ease-out w-full"
@@ -539,7 +539,7 @@ export default function CefrJourneyScroll({
               return (
                 <div
                   key={card.num}
-                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[46vh] sm:h-[48vh] md:h-[50vh] min-h-[320px] max-h-[440px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
+                  className="relative flex-none md:flex-1 w-[88vw] sm:w-[48vw] md:w-auto h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] rounded-[16px] overflow-hidden bg-white/95 backdrop-blur-xs shadow-md"
                   style={{
                     transformOrigin: '50% 100%',
                   }}
@@ -586,7 +586,7 @@ export default function CefrJourneyScroll({
                     style={{ height: '0%' }}
                   >
                     {/* Inner content pinned to bottom with matching card height so text aligns pixel-perfect */}
-                    <div className="absolute inset-x-0 bottom-0 h-[46vh] sm:h-[48vh] md:h-[50vh] min-h-[320px] max-h-[440px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
+                    <div className="absolute inset-x-0 bottom-0 h-[55vh] sm:h-[58vh] md:h-[62vh] min-h-[380px] max-h-[540px] p-4 sm:p-5 md:p-6 flex flex-col justify-between text-white select-none">
                       {/* Header in Red Overlay */}
                       <div className="flex items-start justify-between">
                         <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-white">
