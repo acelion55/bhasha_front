@@ -251,6 +251,8 @@ export default function CefrJourneyScroll({
 
     const N_MIN = 4;
     const N_MAX = 12;
+    const C_RED = brandColor || '#CF1E2C';
+    const C_AXLE_RED = 'rgba(207, 30, 44, 0.45)';
     const C_WHITE = '#FFFFFF';
     const C_AXLE_WHITE = 'rgba(255, 255, 255, 0.75)';
     const MOBILE_BP = 767;
@@ -368,116 +370,139 @@ export default function CefrJourneyScroll({
 
       ctx.clearRect(0, 0, W, H);
 
-      // STRICT CEFR CLIP MASK: Clip all canvas drawings strictly within the CEFR cards
-      // Nothing will ever draw or bleed outside the CEFR cards area
-      ctx.save();
-      ctx.beginPath();
-      const clipLeft = Math.max(0, xStartOutside - R - 12);
-      ctx.rect(clipLeft, cardTop, Math.max(1, cardsRight - clipLeft), cardH + 200);
-      ctx.clip();
+      const c = ctx;
 
-      /* ── 1. Inverted Catenary Arches Road (Pure White) ── */
+      /* ── Shared Physics Drawing Function for Dual Pass (Red & White) ── */
       const firstPeakX = cardsLeft + Math.ceil((-cardsLeft - s) / s) * s;
       const numArches = Math.ceil((cardsRight - cardsLeft + s * 2) / s) + 2;
       const steps = Math.max(48, Math.round(s));
       const invA = 1 / a;
       const oneMinusCirc = 1 - circT;
 
-      ctx.beginPath();
-      for (let ai = 0; ai < numArches; ai++) {
-        const peakX = firstPeakX + ai * s;
-        const archLeft = peakX - s / 2;
-        for (let si = 0; si <= steps; si++) {
-          const frac2 = si / steps;
-          const lx = archLeft + frac2 * s;
-          const localX = lx - peakX;
-          const catenaryY = roadPeakY + a * Math.cosh(localX * invA) - a;
-          const worldY = catenaryY * oneMinusCirc + roadPeakY * circT;
-          if (si === 0) ctx.moveTo(lx, worldY);
-          else ctx.lineTo(lx, worldY);
-        }
-      }
-      ctx.save();
-      ctx.strokeStyle = C_WHITE;
-      ctx.lineWidth = 2.4;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-      ctx.shadowBlur = 4;
-      ctx.stroke();
-      ctx.restore();
-
-      /* ── 2. Axle Guide (Constant Flat Horizontal Line - Stops Outside Wheel) ── */
-      ctx.save();
-      ctx.strokeStyle = C_AXLE_WHITE;
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash([6, 8]);
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-      ctx.shadowBlur = 3;
-      ctx.beginPath();
-      // Draw left segment (starts at cardsLeft and stops before wheel)
-      const leftEnd = Math.max(cardsLeft, wheelX - R);
-      if (leftEnd > cardsLeft) {
-        ctx.moveTo(cardsLeft, axleY);
-        ctx.lineTo(leftEnd, axleY);
-      }
-      // Draw right segment (starts after wheel and stops at cardsRight)
-      const rightStart = Math.min(cardsRight, wheelX + R);
-      if (rightStart < cardsRight) {
-        ctx.moveTo(rightStart, axleY);
-        ctx.lineTo(cardsRight, axleY);
-      }
-      ctx.stroke();
-      ctx.restore();
-
-      /* ── 3. Rolling Shape (Pure White Outline with Clean Hollow Interior) ── */
       const d = tRoll * span;
       const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
       const verts = continuousVerts(nf, R);
       const vCount = verts.length / 2;
 
-      ctx.save();
-      ctx.translate(wheelX, axleY);
-      ctx.rotate(rotation);
-      ctx.beginPath();
-
-      if (circT < 0.999) {
-        const STEPS = isMobile ? 90 : 360;
-        const per = vCount / STEPS;
-        for (let i = 0; i <= STEPS; i++) {
-          const vi = i * per;
-          const vi0 = Math.floor(vi) % vCount;
-          const vi1 = (vi0 + 1) % vCount;
-          const vf = vi - Math.floor(vi);
-          const px = lerp(verts[vi0 * 2], verts[vi1 * 2], vf);
-          const py = lerp(verts[vi0 * 2 + 1], verts[vi1 * 2 + 1], vf);
-          const pr = Math.sqrt(px * px + py * py);
-          const scale = lerp(pr, R, circT) / pr;
-          const bx = px * scale;
-          const by = py * scale;
-          if (i === 0) ctx.moveTo(bx, by);
-          else ctx.lineTo(bx, by);
+      function drawScene(lineColor: string, axleColor: string, shadow: string) {
+        /* ── 1. Inverted Catenary Arches Road ── */
+        c.beginPath();
+        for (let ai = 0; ai < numArches; ai++) {
+          const peakX = firstPeakX + ai * s;
+          const archLeft = peakX - s / 2;
+          for (let si = 0; si <= steps; si++) {
+            const frac2 = si / steps;
+            const lx = archLeft + frac2 * s;
+            const localX = lx - peakX;
+            const catenaryY = roadPeakY + a * Math.cosh(localX * invA) - a;
+            const worldY = catenaryY * oneMinusCirc + roadPeakY * circT;
+            if (si === 0) c.moveTo(lx, worldY);
+            else c.lineTo(lx, worldY);
+          }
         }
-        ctx.closePath();
-      } else {
-        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        c.save();
+        c.strokeStyle = lineColor;
+        c.lineWidth = 2.4;
+        c.shadowColor = shadow;
+        c.shadowBlur = 4;
+        c.stroke();
+        c.restore();
+
+        /* ── 2. Axle Guide (Constant Flat Horizontal Line - Stops Outside Wheel) ── */
+        c.save();
+        c.strokeStyle = axleColor;
+        c.lineWidth = 1.6;
+        c.setLineDash([6, 8]);
+        c.shadowColor = shadow;
+        c.shadowBlur = 3;
+        c.beginPath();
+        const leftEnd = Math.max(cardsLeft, wheelX - R);
+        if (leftEnd > cardsLeft) {
+          c.moveTo(cardsLeft, axleY);
+          c.lineTo(leftEnd, axleY);
+        }
+        const rightStart = Math.min(cardsRight, wheelX + R);
+        if (rightStart < cardsRight) {
+          c.moveTo(rightStart, axleY);
+          c.lineTo(cardsRight, axleY);
+        }
+        c.stroke();
+        c.restore();
+
+        /* ── 3. Rolling Shape ── */
+        c.save();
+        c.translate(wheelX, axleY);
+        c.rotate(rotation);
+        c.beginPath();
+
+        if (circT < 0.999) {
+          const STEPS = isMobile ? 90 : 360;
+          const per = vCount / STEPS;
+          for (let i = 0; i <= STEPS; i++) {
+            const vi = i * per;
+            const vi0 = Math.floor(vi) % vCount;
+            const vi1 = (vi0 + 1) % vCount;
+            const vf = vi - Math.floor(vi);
+            const px = lerp(verts[vi0 * 2], verts[vi1 * 2], vf);
+            const py = lerp(verts[vi0 * 2 + 1], verts[vi1 * 2 + 1], vf);
+            const pr = Math.sqrt(px * px + py * py);
+            const scale = lerp(pr, R, circT) / pr;
+            const bx = px * scale;
+            const by = py * scale;
+            if (i === 0) c.moveTo(bx, by);
+            else c.lineTo(bx, by);
+          }
+          c.closePath();
+        } else {
+          c.arc(0, 0, R, 0, Math.PI * 2);
+        }
+
+        c.strokeStyle = lineColor;
+        c.lineWidth = 2.6;
+        c.shadowColor = shadow;
+        c.shadowBlur = 5;
+        c.stroke();
+
+        // Center Axle Pin Dot
+        c.beginPath();
+        c.arc(0, 0, 4.5, 0, Math.PI * 2);
+        c.fillStyle = lineColor;
+        c.shadowColor = shadow;
+        c.shadowBlur = 4;
+        c.fill();
+        c.restore();
       }
 
-      ctx.strokeStyle = C_WHITE;
-      ctx.lineWidth = 2.6;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowBlur = 5;
-      ctx.stroke();
+      // ── PASS 1: RED PASS (Over White Card Background) ──
+      c.save();
+      const clipLeft = Math.max(0, xStartOutside - R - 12);
+      c.beginPath();
+      c.rect(clipLeft, cardTop, Math.max(1, cardsRight - clipLeft), cardH + 200);
+      c.clip();
+      drawScene(C_RED, C_AXLE_RED, 'rgba(207, 30, 44, 0.2)');
+      c.restore();
 
-      // Center Axle Pin Dot in Pure White
-      ctx.beginPath();
-      ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
-      ctx.fillStyle = C_WHITE;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-      ctx.shadowBlur = 4;
-      ctx.fill();
-      ctx.restore();
-
-      // Restore the main CEFR clip mask
-      ctx.restore();
+      // ── PASS 2: WHITE PASS (Strictly Clipped Inside Active Red Liquid Fill Covers) ──
+      if (pinTarget) {
+        const pRect = pinTarget.getBoundingClientRect();
+        const hasAnyRed = coverRefs.current.some((cv) => cv && cv.clientHeight > 0);
+        if (hasAnyRed) {
+          c.save();
+          c.beginPath();
+          coverRefs.current.forEach((coverEl) => {
+            if (!coverEl) return;
+            const cr = coverEl.getBoundingClientRect();
+            if (cr.height > 0 && cr.width > 0) {
+              const rx = cr.left - pRect.left;
+              const ry = cr.top - pRect.top;
+              c.rect(rx, ry, cr.width, cr.height);
+            }
+          });
+          c.clip(); // ONLY inside the liquid red covers!
+          drawScene(C_WHITE, C_AXLE_WHITE, 'rgba(0, 0, 0, 0.3)');
+          c.restore();
+        }
+      }
 
       // Update shape name badge
       if (circT > 0.8) {
