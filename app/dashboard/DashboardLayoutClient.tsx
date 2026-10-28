@@ -64,6 +64,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
   const adminNav = [
     { name: 'Users Engine', shortName: 'Users', path: '/dashboard/admin/users', icon: Users },
+    { name: 'Student Chats', shortName: 'Chats', path: '/dashboard/admin/chats', icon: MessagesSquare },
     { name: 'Analytics', shortName: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
     { name: 'Classes Studio', shortName: 'Classes', path: '/dashboard/admin/classes', icon: Layers },
     { name: 'Public Classes', shortName: 'Public', path: '/dashboard/admin/masterclasses', icon: Calendar },
