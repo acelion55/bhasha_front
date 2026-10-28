@@ -471,8 +471,8 @@ export default function CefrJourneyScroll({
       let cardsRight = W;
 
       if (curIsMobile) {
-        // MOBILE VIEW: Shape & road placed in middle of screen (elevated slightly higher up)
-        roadPeakY = Math.round(H * 0.36) + a;
+        // MOBILE VIEW: Shape & road placed in middle of screen (elevated higher up)
+        roadPeakY = Math.round(H * 0.32) + a;
         axleY = roadPeakY - (a + (R - a) * circT);
         cardsLeft = 16;
         cardsRight = W - 16;
@@ -776,7 +776,7 @@ export default function CefrJourneyScroll({
         />
 
         {/* ── Cards Area: Desktop Flex Row OR Mobile Stacking Cards ── */}
-        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end sm:justify-center pb-7 sm:pb-4 md:pb-6">
+        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end sm:justify-center pb-10 sm:pb-4 md:pb-6">
           
           {/* ──────── DESKTOP & TABLET CARDS LAYOUT (Visible on Tablet & Desktop) ──────── */}
           <div
@@ -883,7 +883,7 @@ export default function CefrJourneyScroll({
           </div>
 
           {/* ──────── MOBILE PHONE CARDS LAYOUT (Visible on Mobile Phone) ──────── */}
-          <div className="sm:hidden relative w-full h-[275px] sm:h-[310px] mb-5 sm:mb-2 md:mb-0">
+          <div className="sm:hidden relative w-full h-[275px] sm:h-[310px] mb-9 sm:mb-2 md:mb-0">
             {cards.map((card, idx) => {
               const isActive = activeStep === idx;
               const palette = getCardPalette(idx, card);
