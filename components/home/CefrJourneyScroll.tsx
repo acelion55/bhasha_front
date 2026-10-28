@@ -738,7 +738,7 @@ export default function CefrJourneyScroll({
       <section
         id="process"
         ref={pinnedSectionRef}
-        className="w-full h-screen max-h-screen bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between pt-[74px] sm:pt-[82px] md:pt-[88px] pb-4 md:pb-6 px-3 sm:px-4 md:px-6 overflow-hidden select-none"
+        className="w-full h-screen max-h-screen bg-[#FAF9F6] text-[#20252A] flex flex-col justify-between pt-[74px] sm:pt-[76px] md:pt-[80px] pb-3 sm:pb-4 md:pb-6 px-3 sm:px-4 md:px-6 overflow-hidden select-none"
       >
         {/* Top Header Row */}
         <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex items-start sm:items-end justify-between gap-3">
@@ -776,7 +776,7 @@ export default function CefrJourneyScroll({
         />
 
         {/* ── Cards Area: Desktop Flex Row OR Mobile Stacking Cards ── */}
-        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end pb-8 sm:pb-0">
+        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-center pb-4 sm:pb-4 md:pb-6">
           
           {/* ──────── DESKTOP & TABLET CARDS LAYOUT (Visible on Tablet & Desktop) ──────── */}
           <div
@@ -793,7 +793,7 @@ export default function CefrJourneyScroll({
                   ref={(el) => {
                     desktopCardRefs.current[idx] = el;
                   }}
-                  className="relative flex-1 h-[55vh] md:h-[60vh] min-h-[380px] max-h-[530px] rounded-[16px] overflow-hidden backdrop-blur-xs shadow-md border border-[rgba(32,37,42,0.08)]"
+                  className="relative flex-1 h-[62vh] sm:h-[68vh] md:h-[68vh] min-h-[440px] max-h-[660px] rounded-[16px] overflow-hidden backdrop-blur-xs shadow-md border border-[rgba(32,37,42,0.08)]"
                   style={{
                     transformOrigin: '50% 100%',
                     backgroundColor: palette.bgColor,
@@ -843,7 +843,7 @@ export default function CefrJourneyScroll({
                       backgroundColor: palette.fillColor,
                     }}
                   >
-                    <div className="absolute inset-x-0 bottom-0 h-[55vh] md:h-[60vh] min-h-[380px] max-h-[530px] p-5 md:p-6 flex flex-col justify-between text-white select-none">
+                    <div className="absolute inset-x-0 bottom-0 h-[62vh] sm:h-[68vh] md:h-[68vh] min-h-[440px] max-h-[660px] p-5 md:p-6 flex flex-col justify-between text-white select-none">
                       <div className="flex items-start justify-between">
                         <span className="font-mono text-[1.5rem] md:text-[1.7rem] font-bold text-white">
                           {card.num}
