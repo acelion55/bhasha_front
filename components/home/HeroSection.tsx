@@ -31,14 +31,22 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
           </div>
 
           {/* Main Display Headline */}
-          <h1 className="font-serif tracking-tight leading-[0.98] mb-4 sm:mb-6 text-[#14171A]">
-            <span className="block text-[4.6rem] sm:text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold">
+          <h1 className="font-serif tracking-tight leading-[1.02] sm:leading-[0.98] mb-4 sm:mb-6 text-[#14171A]">
+            {/* Mobile View: "Learn Languages" on one single line */}
+            <span className="block sm:hidden text-[3.1rem] xs:text-[3.6rem] font-bold">
+              Learn Languages
+            </span>
+
+            {/* Desktop / Tablet View (sm+): "Learn" and "Languages" stacked */}
+            <span className="hidden sm:block text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold">
               Learn
             </span>
-            <span className="block text-[4.6rem] sm:text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold">
+            <span className="hidden sm:block text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold">
               Languages
             </span>
-            <span className="block text-[4.6rem] sm:text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold italic text-[#CF1E2C]">
+
+            {/* "Online" italic red accent */}
+            <span className="block text-[3.4rem] xs:text-[4.0rem] sm:text-[6.2rem] md:text-[7.4rem] lg:text-[8.2rem] font-bold italic text-[#CF1E2C]">
               Online
             </span>
           </h1>
@@ -114,10 +122,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
 
         {/* ── RIGHT COLUMN: HERO ARTWORK & FLOATING LANGUAGE CARDS ── */}
         <div className="lg:col-span-6 xl:col-span-6 relative w-full flex items-center justify-center">
-          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[700px] h-[480px] sm:h-[540px] md:h-[600px] lg:h-[630px] flex items-center justify-center">
+          <div className="relative w-full max-w-[580px] sm:max-w-[640px] lg:max-w-[700px] h-[390px] xs:h-[430px] sm:h-[540px] md:h-[600px] lg:h-[630px] flex items-center justify-center">
             
-            {/* 1. Red Gradient Circle Background (Natural Placement) */}
-            <div className="absolute right-[-4%] sm:right-[-2%] lg:right-[0%] top-[-2%] sm:top-[4%] w-[100%] sm:w-[108%] md:w-[114%] aspect-[4/3] pointer-events-none z-0">
+            {/* 1. Red Gradient Circle Background */}
+            <div className="absolute right-[-4%] sm:right-[-2%] lg:right-[0%] top-[-3%] sm:top-[4%] w-[100%] sm:w-[108%] md:w-[114%] aspect-[4/3] pointer-events-none z-0">
               <img
                 src="/herosectionimages/Red Gradient Circle with Highlight.png"
                 alt=""
@@ -125,16 +133,16 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
               />
             </div>
 
-            {/* 2. Grayscale Brandenburg Gate Cutout (Elevated) */}
-            <div className="absolute left-[-2%] sm:left-[0%] top-[21vh] sm:bottom-[8%] md:bottom-[10%] w-[86%] sm:w-[90%] md:w-[94%] pointer-events-none z-10">
+            {/* 2. Grayscale Brandenburg Gate Cutout (Shifted higher up on mobile) */}
+            <div className="absolute left-[-2%] sm:left-[0%] top-[5%] xs:top-[7%] sm:top-auto sm:bottom-[8%] md:bottom-[10%] w-[86%] sm:w-[90%] md:w-[94%] pointer-events-none z-10">
               <img
                 src="/herosectionimages/Grayscale Brandenburg Gate Cutout.png"
                 alt="Brandenburg Gate Berlin"
-                className="w-full h-auto object-contain scale-130 pointer-events-none select-none drop-shadow-lg"
+                className="w-full h-auto object-contain scale-120 sm:scale-130 pointer-events-none select-none drop-shadow-lg"
               />
             </div>
 
-            {/* 3. Floating Language Cards (Diagonal Stacking) */}
+            {/* 3. Floating Language Cards (Made smaller and shifted higher up in mobile view) */}
             
             {/* Card 1: German (Hallo!) */}
             <motion.div
@@ -150,7 +158,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: -1, transition: { duration: 0.2 } }}
-              className="absolute top-[8%] sm:top-[10%] right-[0%] sm:right-[2%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_14px_24px_rgba(0,0,0,0.14)]"
+              className="absolute top-[1%] xs:top-[3%] sm:top-[10%] right-[0%] sm:right-[2%] w-[136px] xs:w-[155px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_12px_22px_rgba(0,0,0,0.14)]"
             >
               <div className="relative w-full">
                 <img
@@ -159,10 +167,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     Hallo!
                   </span>
-                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     German
                   </span>
                 </div>
@@ -183,7 +191,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="absolute top-[36%] sm:top-[38%] right-[-4%] sm:right-[-1%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.16)]"
+              className="absolute top-[22%] xs:top-[25%] sm:top-[38%] right-[-3%] sm:right-[-1%] w-[136px] xs:w-[155px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_14px_24px_rgba(0,0,0,0.16)]"
             >
               <div className="relative w-full">
                 <img
@@ -192,10 +200,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     Hello!
                   </span>
-                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     English
                   </span>
                 </div>
@@ -216,7 +224,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 1, transition: { duration: 0.2 } }}
-              className="absolute bottom-[6%] sm:bottom-[8%] right-[6%] sm:right-[10%] w-[180px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_18px_32px_rgba(0,0,0,0.18)]"
+              className="absolute top-[44%] xs:top-[47%] sm:top-auto sm:bottom-[8%] right-[4%] sm:right-[10%] w-[136px] xs:w-[155px] sm:w-[220px] md:w-[255px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)]"
             >
               <div className="relative w-full">
                 <img
@@ -225,10 +233,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.8rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[2.1rem] md:text-[2.4rem] text-[#CF1E2C] leading-tight">
                     ¡Hola!
                   </span>
-                  <span className="font-sans font-semibold text-[1.1rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.25rem] md:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     Spanish
                   </span>
                 </div>
