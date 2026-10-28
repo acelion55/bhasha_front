@@ -207,7 +207,7 @@ export default function CefrJourneyScroll({
     let st: ScrollTrigger | null = null;
 
     const ctx = gsap.context(() => {
-      const isMobile = window.innerWidth < 768;
+      const isMobile = window.innerWidth < 640;
       // Generous scroll distance on mobile so cards advance comfortably and deliberately
       const scrollDistance = isMobile ? '+=4800' : '+=3000';
 
@@ -223,7 +223,7 @@ export default function CefrJourneyScroll({
           const p = self.progress;
           targetProgressRef.current = p;
 
-          const curIsMobile = window.innerWidth < 768;
+          const curIsMobile = window.innerWidth < 640;
 
           if (curIsMobile) {
             /* ──────────────────────────────────────────────────────────
@@ -371,7 +371,7 @@ export default function CefrJourneyScroll({
     const N_MAX = 12;
     const C_WHITE = '#FFFFFF';
     const C_AXLE_WHITE = 'rgba(255, 255, 255, 0.75)';
-    const MOBILE_BP = 767;
+    const MOBILE_BP = 639;
     const PHASE2 = 0.35;
     const SMOOTHING = 0.18;
     const STOP_EPSILON = 0.0005;
@@ -514,7 +514,10 @@ export default function CefrJourneyScroll({
       // On mobile: shape is fixed at center, rotates in place, track moves under it by distance d
       const mobileTotalRoll = s * 14;
       const d = curIsMobile ? tRoll * mobileTotalRoll : tRoll * span;
-      const rotation = (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
+      // In mobile view: zero phase offset so vertex aligns with catenary valley with exact contact
+      const rotation = curIsMobile 
+        ? (d / s) * (2 * Math.PI / nf) 
+        : (d / s) * (2 * Math.PI / nf) - Math.PI / nf;
       const verts = continuousVerts(nf, R);
       const vCount = verts.length / 2;
 
@@ -773,12 +776,12 @@ export default function CefrJourneyScroll({
         />
 
         {/* ── Cards Area: Desktop Flex Row OR Mobile Stacking Cards ── */}
-        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end pb-8 sm:pb-10 md:pb-0">
+        <div className="relative z-10 w-full max-w-full px-1 sm:px-2 mx-auto flex-1 min-h-0 flex flex-col justify-end pb-8 sm:pb-0">
           
-          {/* ──────── DESKTOP CARDS LAYOUT (Visible on Desktop) ──────── */}
+          {/* ──────── DESKTOP & TABLET CARDS LAYOUT (Visible on Tablet & Desktop) ──────── */}
           <div
             ref={desktopCardsWrapRef}
-            className="hidden md:flex flex-nowrap gap-2 md:gap-3 items-end transition-transform duration-75 ease-out w-full"
+            className="hidden sm:flex flex-nowrap gap-2 md:gap-3 items-end transition-transform duration-75 ease-out w-full"
           >
             {cards.map((card, idx) => {
               const isActive = activeStep === idx;
@@ -879,8 +882,8 @@ export default function CefrJourneyScroll({
             })}
           </div>
 
-          {/* ──────── MOBILE CARDS LAYOUT (Visible on Mobile) ──────── */}
-          <div className="md:hidden relative w-full h-[280px] sm:h-[310px] mb-2 sm:mb-3 md:mb-0">
+          {/* ──────── MOBILE PHONE CARDS LAYOUT (Visible on Mobile Phone) ──────── */}
+          <div className="sm:hidden relative w-full h-[280px] sm:h-[310px] mb-2 sm:mb-3 md:mb-0">
             {cards.map((card, idx) => {
               const isActive = activeStep === idx;
               const palette = getCardPalette(idx, card);
