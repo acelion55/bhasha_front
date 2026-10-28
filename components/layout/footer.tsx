@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Heart, Languages, Mail, MapPin, Phone } from 'lucide-react';
+import { Heart, Languages, Mail, MapPin, Phone, ExternalLink } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -71,6 +71,20 @@ export default function Footer() {
 
       <div className="max-w-none mx-auto px-[4vw] md:px-8 lg:px-12 mt-[6vh] pt-[3vh] border-t border-[var(--ceramic)] text-[1.4rem] text-[var(--text-black-soft)] font-medium flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
         <span>© {new Date().getFullYear()} BhashaSchool. All rights reserved.</span>
+        
+        <span className="inline-flex items-center gap-2 text-[1.35rem]">
+          <span>Developed by</span>
+          <a
+            href="https://www.linkedin.com/in/harsh-vardhan-479b50318/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-bold text-[#173B63] hover:text-[#CF1E2C] bg-white border border-[rgba(32,37,42,0.14)] hover:border-[#173B63]/40 px-3 py-1 rounded-full shadow-2xs hover:shadow-xs transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <span>Harshvardhan</span>
+            <ExternalLink className="w-3.5 h-3.5 opacity-75" />
+          </a>
+        </span>
+
         <span className="flex items-center gap-2">Made with <Heart className="w-4 h-4 fill-red-500 text-red-500" /> for language learners worldwide</span>
       </div>
     </footer>
