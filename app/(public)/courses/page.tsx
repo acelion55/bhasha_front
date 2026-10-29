@@ -1,365 +1,1105 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CheckCircle,
+  Check,
   BookOpen,
-  IndianRupee,
-  Clock,
-  CalendarDays,
-  Award,
   FileText,
-  MapPin,
-  Globe2,
-  GraduationCap,
+  Headphones,
+  UserCheck,
+  Award,
+  Lightbulb,
+  Monitor,
+  Users,
+  Compass,
+  X,
+  PhoneCall,
+  Calendar,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
-import { api } from '@/lib/api';
 
-interface Course {
-  _id: string;
+interface CourseModalData {
   title: string;
-  language: 'German' | 'English';
-  level?: string;
-  description?: string;
-  price: number;
-  currency?: string;
-  billingPeriod?: 'one-time' | 'monthly';
-  feeNote?: string;
-  durationDays?: number;
-  durationLabel?: string;
-  classDuration?: string;
-  schedule?: string;
-  features?: string[];
-  examPrep?: string;
-  certificate?: string;
-  order?: number;
+  levelBadge: string;
+  price: string;
+  feeNote: string;
+  themeColor: string;
+  iconBg: string;
+  iconText: string;
+  description: string;
+  curriculum: string[];
+  schedule: string;
+  duration: string;
+  materials: string[];
+  examTarget?: string;
 }
 
-const germanNotes = [
-  {
-    icon: FileText,
-    title: 'PDF Learning Material',
-    desc: 'All learning material is shared with students in PDF form.',
-  },
-  {
-    icon: MapPin,
-    title: 'Offline Practice in Agra',
-    desc: 'After 2 weeks, we conduct offline classes in a café, hotel or park in Agra.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Profile Stays Active',
-    desc: "A learner's profile remains active for as long as they want to stay on it for speaking.",
-  },
-  {
-    icon: Award,
-    title: 'Certificates',
-    desc: 'A certificate is provided after completing B1 or B2.',
-  },
-];
-
 export default function CoursesPage() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<CourseModalData | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await api.get<Course[]>('/courses/public');
-        if (active) setCourses(Array.isArray(res.data) ? res.data : []);
-      } catch (err: any) {
-        if (active) setError(err?.response?.data?.message || 'Failed to load courses');
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+  const openCourseModal = (data: CourseModalData) => {
+    setSelectedCourse(data);
+  };
 
-  const german = courses.filter((c) => c.language === 'German');
-  const english = courses.filter((c) => c.language === 'English');
-
-  const renderCard = (course: Course, accent: 'emerald' | 'amber') => {
-    const isMonthly = course.billingPeriod === 'monthly';
-    const accentClasses =
-      accent === 'emerald'
-        ? 'bg-[var(--green-light)] text-[var(--starbucks-green)] border-[var(--green-accent)]'
-        : 'bg-amber-100 text-amber-700 border-amber-300';
-    return (
-      <div
-        key={course._id}
-        className="content-card bg-white border border-[var(--ceramic)] shadow-md flex flex-col"
-      >
-        <div className="flex items-start justify-between gap-[1vw] mb-[2vh]">
-          <div>
-            <h3 className="display-text text-[3.2rem] text-[var(--text-black)] leading-tight">
-              {course.title}
-            </h3>
-            {course.level && course.level !== course.title && (
-              <span className="inline-block mt-[1vh] text-[1.3rem] font-bold px-[1.2vw] py-[0.4vh] rounded-[6px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black-soft)]">
-                {course.level}
-              </span>
-            )}
-          </div>
-          <div className="text-right shrink-0">
-            <div className="flex items-baseline justify-end gap-0.5 text-[var(--starbucks-green)]">
-              <IndianRupee className="w-5 h-5" />
-              <span className="display-text text-[3.2rem] leading-none">
-                {(course.price ?? 0).toLocaleString('en-IN')}
-              </span>
-              {isMonthly && (
-                <span className="text-[1.4rem] font-bold text-[var(--text-black-soft)]">/mo</span>
-              )}
-            </div>
-            <p className="text-[1.2rem] font-bold text-[var(--text-black-soft)] mt-[0.5vh]">
-              {isMonthly ? 'Billed monthly' : 'One-time fee'}
-            </p>
-          </div>
-        </div>
-
-        {course.description && (
-          <p className="body-text text-[var(--text-black-soft)] leading-relaxed mb-[3vh]">
-            {course.description}
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-[1vw] mb-[3vh]">
-          {course.durationLabel && (
-            <span className="inline-flex items-center gap-1.5 text-[1.3rem] font-bold px-[1.2vw] py-[0.5vh] rounded-[8px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black-soft)]">
-              <CalendarDays className="w-4 h-4 text-[var(--starbucks-green)]" />
-              {course.durationLabel}
-            </span>
-          )}
-          {course.classDuration && (
-            <span className="inline-flex items-center gap-1.5 text-[1.3rem] font-bold px-[1.2vw] py-[0.5vh] rounded-[8px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black-soft)]">
-              <Clock className="w-4 h-4 text-[var(--starbucks-green)]" />
-              {course.classDuration}
-            </span>
-          )}
-          {course.schedule && (
-            <span className="inline-flex items-center gap-1.5 text-[1.3rem] font-bold px-[1.2vw] py-[0.5vh] rounded-[8px] bg-[var(--neutral-warm)] border border-[var(--ceramic)] text-[var(--text-black-soft)]">
-              <BookOpen className="w-4 h-4 text-[var(--starbucks-green)]" />
-              {course.schedule}
-            </span>
-          )}
-        </div>
-
-        {course.features && course.features.length > 0 && (
-          <ul className="space-y-[1.2vh] mb-[3vh]">
-            {course.features.map((f) => (
-              <li
-                key={f}
-                className="flex items-start gap-[1vw] body-text text-[var(--text-black-soft)] font-medium"
-              >
-                <CheckCircle className="w-5 h-5 text-[var(--starbucks-green)] flex-shrink-0 mt-0.5" />
-                {f}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {(course.examPrep || course.certificate || course.feeNote) && (
-          <div className="space-y-[0.8vh] mb-[3vh] text-[1.3rem] font-semibold text-[var(--text-black-soft)] bg-[var(--neutral-warm)] border border-[var(--ceramic)] rounded-[10px] p-[1.2vw]">
-            {course.feeNote && (
-              <p className="flex items-center gap-1.5">
-                <IndianRupee className="w-4 h-4 text-[var(--starbucks-green)]" /> {course.feeNote}
-              </p>
-            )}
-            {course.examPrep && (
-              <p className="flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-[var(--starbucks-green)]" /> {course.examPrep}
-              </p>
-            )}
-            {course.certificate && (
-              <p className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-[var(--starbucks-green)]" /> {course.certificate}
-              </p>
-            )}
-          </div>
-        )}
-
-        <Link
-          href="/register"
-          className={`btn-primary w-full flex justify-center items-center gap-[1vw] py-[2vh] text-[1.8rem] !rounded-[12px] shadow-lg mt-auto ${accentClasses}`}
-        >
-          Enrol in {course.title} <ArrowRight className="w-5 h-5" />
-        </Link>
-      </div>
-    );
+  const closeCourseModal = () => {
+    setSelectedCourse(null);
   };
 
   return (
-    <div className="min-h-screen bg-[var(--neutral-warm)] pb-[10vh]">
-      {/* Hero */}
-      <section className="pt-[6vh] pb-[3vh] md:py-[8vh] text-center bg-gradient-to-b from-[var(--white)] to-[var(--neutral-warm)]">
-        <div className="max-w-none mx-auto px-4 md:px-8 lg:px-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--green-light)] border border-[var(--ceramic)] text-[var(--starbucks-green)] text-sm font-bold mb-4 shadow-sm">
-            <BookOpen className="w-5 h-5" />
-            German &amp; English Courses
+    <div className="min-h-screen bg-[#FAF7F2] text-gray-800 font-[Plus_Jakarta_Sans] selection:bg-emerald-100 selection:text-emerald-900 pb-20">
+      
+      {/* ── 1. HERO SECTION: "Learn a Language for a Bigger World" ── */}
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-20 border-b border-[rgba(32,37,42,0.06)] bg-gradient-to-b from-[#FBF8F4] via-[#FAF7F2] to-[#FAF7F2]">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5F3FE] text-[#1E75C8] text-[11px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs">
+                <span>OUR COURSES &amp; FEES</span>
+              </div>
+
+              {/* Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-gray-900 tracking-tight leading-[1.12]">
+                Learn a Language <br className="hidden sm:inline" />
+                for a <span className="text-[#3048D4]">Bigger</span> <span className="text-[#FF5938]">World</span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
+                Structured courses based on the CEFR framework with expert guidance, interactive classes and a global community.
+              </p>
+
+              {/* Whimsical Left Note: "Same Language, More Opportunities" */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 border border-red-100/80 shadow-2xs backdrop-blur-xs">
+                  <span className="text-xs font-serif italic text-[#E02B3A] font-extrabold flex items-center gap-1.5">
+                    <span className="text-sm">✈</span> Same Language, More Opportunities
+                  </span>
+                  <span className="text-[10px] text-amber-500 font-black">✦ ✦</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href="#german-courses"
+                    className="text-xs font-bold text-gray-700 hover:text-emerald-800 underline underline-offset-4 transition-colors"
+                  >
+                    Explore German ↓
+                  </a>
+                  <span className="text-gray-300">•</span>
+                  <a
+                    href="#english-courses"
+                    className="text-xs font-bold text-gray-700 hover:text-emerald-800 underline underline-offset-4 transition-colors"
+                  >
+                    Explore English ↓
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Artwork: Fanned Polaroid Landmarks */}
+            <div className="lg:col-span-5 flex items-center justify-center relative">
+              {/* Soft ambient radial glow */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-200/40 via-rose-200/30 to-sky-200/40 rounded-full blur-3xl pointer-events-none transform scale-90" />
+              
+              <div className="relative w-full max-w-[420px] sm:max-w-[460px] lg:max-w-[500px] flex items-center justify-center">
+                <img
+                  src="/courses-images/hero-polaroids-exact.png"
+                  alt="Travel landmarks: Brandenburg Gate, Eiffel Tower, Colosseum"
+                  className="w-full h-auto object-contain drop-shadow-[0_18px_32px_rgba(0,0,0,0.12)] select-none hover:scale-[1.02] transition-transform duration-500"
+                />
+              </div>
+            </div>
+
           </div>
-          <h1 className="display-text text-[var(--text-black)] mb-3">
-            Our <span className="text-[var(--starbucks-green)]">Courses &amp; Fees</span>
-          </h1>
-          <p className="body-text text-lg sm:text-xl text-[var(--text-black-soft)] max-w-3xl mx-auto leading-relaxed">
-            A structured path from your very first lesson to B1/B2 certification. Taught live, Monday to
-            Friday, with all material provided in PDF form.
-          </p>
         </div>
       </section>
 
-      {loading ? (
-        <section className="max-w-none mx-auto px-4 md:px-8 lg:px-12 py-[4vh] grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="content-card bg-white border border-[var(--ceramic)] animate-pulse h-[40vh]" />
-          ))}
-        </section>
-      ) : error ? (
-        <section className="max-w-[800px] mx-auto px-4 py-[6vh]">
-          <div className="content-card bg-white border border-[var(--ceramic)] text-center py-[6vh]">
-            <p className="body-text text-[var(--text-black-soft)]">{error}</p>
+      {/* ── 2. GERMAN TEACHING STRUCTURE SECTION ── */}
+      <section id="german-courses" className="pt-12 sm:pt-16 pb-8 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2.5">
+            <span className="w-8 h-8 rounded-full overflow-hidden inline-flex items-center justify-center shadow-xs border border-gray-200 flex-shrink-0 text-xl leading-none">
+              🇩🇪
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+              German Teaching Structure
+            </h2>
           </div>
-        </section>
-      ) : (
-        <>
-          {/* German structure */}
-          <section className="max-w-none mx-auto px-4 md:px-8 lg:px-12 py-[4vh]">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm bg-[var(--green-light)] text-[var(--starbucks-green)] border-2 border-[var(--green-accent)]">
-                DE
+          <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1 ml-10">
+            Build your German language skills step by step with our structured courses based on the CEFR framework.
+          </p>
+        </div>
+
+        {/* 4 Cards Grid (2 columns on tablet/desktop, 1 column on mobile) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7">
+
+          {/* ── CARD 1: Baustein + A1 ── */}
+          <div className="bg-white border border-[#FEE2E2] rounded-[26px] p-6 sm:p-7 shadow-[0_4px_20px_rgba(239,68,68,0.04)] hover:shadow-[0_12px_28px_rgba(239,68,68,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div>
+              {/* Top Row: Icon + Title + Price */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-red-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FFF0F2] text-[#E02B3A] flex items-center justify-center shadow-2xs flex-shrink-0">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                      Baustein + A1
+                    </h3>
+                    <p className="text-xs text-gray-500 font-medium">From Baustein to A1</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                    ₹9,500
+                  </div>
+                  <div className="text-[11px] text-gray-400 font-medium mt-1">
+                    (Total Course Fees)
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Middle: Checklist + Landmark Arch */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
+                {/* Left Checklist */}
+                <div className="sm:col-span-7 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-red-100 text-[#E02B3A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Basic vocabulary and everyday expressions
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-red-100 text-[#E02B3A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Introduction to grammar and sentence structure
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-red-100 text-[#E02B3A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Listening, speaking, reading and writing practice
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-red-100 text-[#E02B3A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Interactive classes with expert guidance
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Landmark Arch: Brandenburg Gate */}
+                <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
+                  <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src="/courses-images/card-a1-arch.png"
+                      alt="Brandenburg Gate Berlin"
+                      className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-4 border-t border-red-50 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  openCourseModal({
+                    title: 'German Baustein + A1',
+                    levelBadge: 'A1 Beginner',
+                    price: '₹9,500',
+                    feeNote: 'Total Course Fee (No hidden charges)',
+                    themeColor: 'border-red-200',
+                    iconBg: 'bg-red-50',
+                    iconText: 'text-red-700',
+                    description:
+                      'Baustein is our signature 15-day foundational syllabus taught before opening the standard textbook. Combined with A1, you master foundational pronunciation, sentence structures, cases, and everyday conversational fluency.',
+                    curriculum: [
+                      'Week 1-2: Baustein Fundamentals (German sounds, alphabet, gender rules & verb conjugation)',
+                      'Week 3-4: Everyday Situations (Introductions, shopping, food & ordering at cafés)',
+                      'Week 5-6: Nominative & Accusative cases, modal verbs and personal pronouns',
+                      'Week 7-8: Daily routine, telling time, appointments and interactive speaking club drills',
+                    ],
+                    schedule: 'Monday to Friday (1 Hour live per session)',
+                    duration: 'Approximately 30-45 Days',
+                    materials: [
+                      'Complete curated PDF learning guide',
+                      'Vocabulary flashcards & audio pronunciation files',
+                      'Speaking partner matching via Language Exchange',
+                    ],
+                    examTarget: 'Goethe-Zertifikat A1 / Telc Deutsch A1',
+                  })
+                }
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#FFE6E8] hover:bg-[#FFD9DC] text-[#D92D3E] font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <span>View Course Details</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <Link
+                href="/register"
+                className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors hidden sm:inline-block"
+              >
+                Book Free Trial →
+              </Link>
+            </div>
+          </div>
+
+          {/* ── CARD 2: A2 ── */}
+          <div className="bg-white border border-[#FEF3C7] rounded-[26px] p-6 sm:p-7 shadow-[0_4px_20px_rgba(245,158,11,0.04)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div>
+              {/* Top Row */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-amber-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FFFBEB] text-[#D97706] flex items-center justify-center shadow-2xs flex-shrink-0">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                      A2
+                    </h3>
+                    <p className="text-xs text-gray-500 font-medium">From A1 to A2</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                    ₹11,000
+                  </div>
+                  <div className="text-[11px] text-gray-400 font-medium mt-1">
+                    (Total Course Fees)
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
+                <div className="sm:col-span-7 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-amber-100 text-[#D97706] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Expand vocabulary for daily life and work
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-amber-100 text-[#D97706] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Build confidence in real-life conversations
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-amber-100 text-[#D97706] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Improve reading and listening comprehension
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-amber-100 text-[#D97706] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Interactive classes with expert guidance
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Landmark Arch: Tower Bridge */}
+                <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
+                  <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src="/courses-images/card-a2-arch.png"
+                      alt="London Tower Bridge"
+                      className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-4 border-t border-amber-50 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  openCourseModal({
+                    title: 'German A2 Elementary',
+                    levelBadge: 'A2 Elementary',
+                    price: '₹11,000',
+                    feeNote: 'Total Course Fee (No hidden charges)',
+                    themeColor: 'border-amber-200',
+                    iconBg: 'bg-amber-50',
+                    iconText: 'text-amber-700',
+                    description:
+                      'Level A2 elevates your German from survival phrases to fluid conversation. Express opinions, discuss past events using Perfekt and Präteritum, describe your professional background, and handle daily life in Germany.',
+                    curriculum: [
+                      'Past Tenses: Master Perfekt with haben/sein and spoken narratives',
+                      'Dative case mastery, reflexive verbs & two-way prepositions (Wechselpräpositionen)',
+                      'Professional & social scenarios: Workplace conversations, doctor visits, apartment hunting',
+                      'Advanced sentence connectors (weil, dass, wenn, obwohl) and clause inversion',
+                    ],
+                    schedule: 'Monday to Friday (1:30 Hours per session)',
+                    duration: 'Approximately 40 Days',
+                    materials: [
+                      'Complete A2 PDF Textbook & Workbook',
+                      'Real-life listening tracks and transcription exercises',
+                      'Weekly 1-on-1 speaking evaluations',
+                    ],
+                    examTarget: 'Goethe-Zertifikat A2 / Telc Deutsch A2',
+                  })
+                }
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#FFF0D4] hover:bg-[#FFE6B8] text-[#B87A00] font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <span>View Course Details</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <Link
+                href="/register"
+                className="text-xs font-bold text-gray-500 hover:text-amber-700 transition-colors hidden sm:inline-block"
+              >
+                Book Free Trial →
+              </Link>
+            </div>
+          </div>
+
+          {/* ── CARD 3: B1 ── */}
+          <div className="bg-white border border-[#D1FAE5] rounded-[26px] p-6 sm:p-7 shadow-[0_4px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div>
+              {/* Top Row */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-emerald-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#ECFDF5] text-[#059669] flex items-center justify-center shadow-2xs flex-shrink-0">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                      B1
+                    </h3>
+                    <p className="text-xs text-gray-500 font-medium">From A2 to B1</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                    ₹12,500
+                  </div>
+                  <div className="text-[11px] text-gray-400 font-medium mt-1">
+                    (Total Course Fees)
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
+                <div className="sm:col-span-7 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Handle most situations while traveling, studying or working
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Improve fluency and accuracy
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Build advanced grammar and vocabulary
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-100 text-[#059669] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Interactive classes with expert guidance
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Landmark Arch: Sagrada Família */}
+                <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
+                  <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src="/courses-images/card-b1-arch.png"
+                      alt="Sagrada Família"
+                      className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-4 border-t border-emerald-50 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  openCourseModal({
+                    title: 'German B1 Intermediate',
+                    levelBadge: 'B1 Intermediate',
+                    price: '₹12,500',
+                    feeNote: 'Total Course Fee (Includes 10-day dedicated Exam Prep)',
+                    themeColor: 'border-emerald-200',
+                    iconBg: 'bg-emerald-50',
+                    iconText: 'text-emerald-700',
+                    description:
+                      'B1 is the pivotal official threshold required for German vocational training (Ausbildung), job visas, and university admission in Germany. Learn to discuss plans, argue perspectives, write official letters, and speak spontaneously.',
+                    curriculum: [
+                      'Subjunctive II (Konjunktiv II) for wishes, polite requests and hypotheticals',
+                      'Passive voice (Passiv Vorgang & Zustand) and complex relative clauses',
+                      'Official correspondence: Formal German letters, email etiquette & complaint drafting',
+                      '10 Full days of dedicated Telc & Goethe B1 model test drills and exam simulation',
+                    ],
+                    schedule: 'Monday to Friday (1:30 Hours per session)',
+                    duration: 'Approximately 50 Days + 10 Days Exam Prep',
+                    materials: [
+                      'Complete B1 PDF Course Book & Exam Pack',
+                      'Official Goethe / Telc past exam papers with answer keys',
+                      'Certificate issued upon completion of curriculum',
+                    ],
+                    examTarget: 'Goethe-Zertifikat B1 / Telc Deutsch B1 / ÖSD B1',
+                  })
+                }
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#DDF7E8] hover:bg-[#CFF0DC] text-[#1E824C] font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <span>View Course Details</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <Link
+                href="/register"
+                className="text-xs font-bold text-gray-500 hover:text-emerald-700 transition-colors hidden sm:inline-block"
+              >
+                Book Free Trial →
+              </Link>
+            </div>
+          </div>
+
+          {/* ── CARD 4: B2 ── */}
+          <div className="bg-white border border-[#EDE9FE] rounded-[26px] p-6 sm:p-7 shadow-[0_4px_20px_rgba(139,92,246,0.04)] hover:shadow-[0_12px_28px_rgba(139,92,246,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div>
+              {/* Top Row */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-purple-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#F5F3FF] text-[#7C3AED] flex items-center justify-center shadow-2xs flex-shrink-0">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                      B2
+                    </h3>
+                    <p className="text-xs text-gray-500 font-medium">From B1 to B2</p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                    ₹14,000
+                  </div>
+                  <div className="text-[11px] text-gray-400 font-medium mt-1">
+                    (Total Course Fees)
+                  </div>
+                </div>
+              </div>
+
+              {/* Middle */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
+                <div className="sm:col-span-7 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Express yourself clearly and in detail on a wide range of topics
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Develop advanced communication skills
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Refine grammar and vocabulary
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                      Interactive classes with expert guidance
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Landmark Arch: Eiffel Tower */}
+                <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
+                  <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src="/courses-images/card-b2-arch.png"
+                      alt="Eiffel Tower Paris"
+                      className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-4 border-t border-purple-50 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  openCourseModal({
+                    title: 'German B2 Upper-Intermediate',
+                    levelBadge: 'B2 Upper-Intermediate',
+                    price: '₹14,000',
+                    feeNote: 'Total Course Fee (Covering B2.1 & B2.2)',
+                    themeColor: 'border-purple-200',
+                    iconBg: 'bg-purple-50',
+                    iconText: 'text-purple-700',
+                    description:
+                      'B2 is the golden standard for medical professionals (nurses, doctors), engineers, and corporate employees in Germany, Austria, and Switzerland. Taught in two comprehensive modules: B2.1 and B2.2.',
+                    curriculum: [
+                      'Part 1 (B2.1): Complex texts, abstract concepts, nuance in argumentation & debate',
+                      'Part 2 (B2.2): Professional German, technical presentations & academic writing styles',
+                      'Mastery of modal particles (doch, ja, mal), nominal style (Nominalstil), and advanced idioms',
+                      'Comprehensive Telc B2 / Goethe B2 examination simulation and error analysis',
+                    ],
+                    schedule: 'Monday to Friday (1:30 Hours per session)',
+                    duration: 'Approximately 60 Days (2 Months across B2.1 & B2.2)',
+                    materials: [
+                      'Advanced B2 Textbook, Audio & Grammar Drill Packs',
+                      'Academic and technical reading supplements',
+                      'Official B2 completion certificate',
+                    ],
+                    examTarget: 'Goethe-Zertifikat B2 / Telc Deutsch B2',
+                  })
+                }
+                className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#EDE5FF] hover:bg-[#E3D6FF] text-[#6938D3] font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <span>View Course Details</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <Link
+                href="/register"
+                className="text-xs font-bold text-gray-500 hover:text-purple-700 transition-colors hidden sm:inline-block"
+              >
+                Book Free Trial →
+              </Link>
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── 3. BANNER: "How Our German Course Works" ── */}
+        <div className="bg-[#EBF5FF] border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 mt-9 shadow-xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            
+            {/* Left Narrative */}
+            <div className="lg:col-span-7 flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#FFEBA5] text-amber-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <Lightbulb className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="display-text text-3xl sm:text-4xl text-[var(--text-black)] leading-none">
-                  German Teaching Structure
-                </h2>
-                <p className="body-text text-sm sm:text-base text-[var(--text-black-soft)] mt-2">
-                  <b>Baustein</b> — our own designed course — is taught first, before the foreign language
-                  book. It is a 15-day syllabus in which you learn the basic structure of the language.
+                <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight">
+                  How Our German Course Works
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium mt-1.5 leading-relaxed">
+                  Our German courses are designed using the CEFR framework, ensuring a step-by-step learning journey from basic to advanced levels. You&apos;ll get expert guidance, interactive classes and plenty of practice to build real-world confidence.
                 </p>
               </div>
             </div>
 
-            {german.length === 0 ? (
-              <p className="body-text text-[var(--text-black-soft)]">
-                German courses will be published soon.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {german.map((c) => renderCard(c, 'emerald'))}
+            {/* Right 4 Icons */}
+            <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-xl bg-red-100 text-[#D92D3E] flex items-center justify-center mb-1.5 shadow-2xs">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                  Structured Curriculum
+                </span>
+                <span className="text-[10px] text-gray-500 font-semibold">(CEFR Aligned)</span>
               </div>
-            )}
 
-            <div className="mt-8 content-card bg-[var(--house-green)] text-white shadow-xl">
-              <h3 className="h2-text text-white mb-4">How the full German path works</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 body-text text-[rgba(255,255,255,0.85)] leading-relaxed">
-                <p>
-                  <b className="text-white">A1</b> is completed in about 30 days. <b className="text-white">A2</b>{' '}
-                  takes about 40 days. <b className="text-white">B1</b> takes about 50 days, plus 10 days of
-                  exam preparation for B1 Telc or Goethe. That makes the intermediate German path (A1–B1)
-                  roughly <b className="text-white">150 days</b>.
-                </p>
-                <p>
-                  We prepare students directly for the <b className="text-white">B1 and B2 exams</b>. B2 is
-                  taught over 2 months in two parts — <b className="text-white">B2.1 and B2.2</b>. Baustein
-                  classes are 1 hour; other classes are 1:30 hours, Monday to Friday.
-                </p>
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#1E75C8] flex items-center justify-center mb-1.5 shadow-2xs">
+                  <Monitor className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                  Interactive
+                </span>
+                <span className="text-[10px] text-gray-500 font-semibold">Live Classes</span>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#D97706] flex items-center justify-center mb-1.5 shadow-2xs">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                  Expert
+                </span>
+                <span className="text-[10px] text-gray-500 font-semibold">Guidance</span>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#059669] flex items-center justify-center mb-1.5 shadow-2xs">
+                  <Users className="w-5 h-5" />
+                </div>
+                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                  Global
+                </span>
+                <span className="text-[10px] text-gray-500 font-semibold">Community</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-              {germanNotes.map((n) => {
-                const Icon = n.icon;
-                return (
-                  <div
-                    key={n.title}
-                    className="content-card bg-white border border-[var(--ceramic)] shadow-sm text-center"
-                  >
-                    <div className="w-14 h-14 mx-auto rounded-full bg-[var(--green-light)] text-[var(--starbucks-green)] flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <h4 className="h2-text text-[var(--text-black)] mb-2">{n.title}</h4>
-                    <p className="body-text text-sm text-[var(--text-black-soft)]">{n.desc}</p>
+          </div>
+        </div>
+
+        {/* ── 4. FOUR VALUE PROPS ROW ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mt-6">
+          
+          {/* Box 1: PDF */}
+          <div className="bg-[#FFF0F2] border border-[#FFE0E4] rounded-2xl p-5 text-center flex flex-col items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#FFE2E6] text-[#E02B3A] flex items-center justify-center mb-2.5">
+              <FileText className="w-5 h-5" />
+            </div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">PDF Learning Material</h4>
+            <p className="text-xs text-gray-500 font-medium">
+              Comprehensive and easy to follow study material.
+            </p>
+          </div>
+
+          {/* Box 2: Offline */}
+          <div className="bg-[#F0F7FF] border border-[#D9EBFF] rounded-2xl p-5 text-center flex flex-col items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#E0F0FE] text-[#1E75C8] flex items-center justify-center mb-2.5">
+              <Headphones className="w-5 h-5" />
+            </div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Offline Practice</h4>
+            <p className="text-xs text-gray-500 font-medium">
+              Practice anytime, anywhere.
+            </p>
+          </div>
+
+          {/* Box 3: Profile */}
+          <div className="bg-[#FFFBEA] border border-[#FEF3C7] rounded-2xl p-5 text-center flex flex-col items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#FEF08A] text-[#B45309] flex items-center justify-center mb-2.5">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Profile Stays Active</h4>
+            <p className="text-xs text-gray-500 font-medium">
+              Continue your learning progress anytime.
+            </p>
+          </div>
+
+          {/* Box 4: Certificates */}
+          <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-2xl p-5 text-center flex flex-col items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-xl bg-[#DCFCE7] text-[#15803D] flex items-center justify-center mb-2.5">
+              <Award className="w-5 h-5" />
+            </div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Certificates</h4>
+            <p className="text-xs text-gray-500 font-medium">
+              Get certified upon course completion.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ── 5. ENGLISH LEARNING STRUCTURE SECTION ── */}
+      <section id="english-courses" className="pt-12 sm:pt-16 pb-8 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2.5">
+            <span className="w-8 h-8 rounded-full overflow-hidden inline-flex items-center justify-center shadow-xs border border-gray-200 flex-shrink-0 text-xl leading-none">
+              🇬🇧
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+              English Learning Structure
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-500 font-medium mt-1 ml-10">
+            Improve your English skills with our structured course designed for real-world communication.
+          </p>
+        </div>
+
+        {/* English Content Grid: Left Card + Right Big Ben Artwork */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center">
+          
+          {/* Card: Intermediate English (lg:col-span-7) */}
+          <div className="lg:col-span-7 bg-white border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(30,117,200,0.05)] hover:shadow-[0_12px_28px_rgba(30,117,200,0.1)] transition-all flex flex-col justify-between relative overflow-hidden">
+            <div>
+              {/* Top Row: Icon + Title + Price */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-blue-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#EAF4FE] text-[#1351B4] flex items-center justify-center shadow-2xs flex-shrink-0">
+                    <BookOpen className="w-5 h-5" />
                   </div>
-                );
-              })}
-            </div>
-          </section>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                        Intermediate English
+                      </h3>
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[#EBF5FF] text-[#1351B4] border border-[#CEE3FD]">
+                        Intermediate
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-          {/* English structure */}
-          <section className="bg-[var(--white)] py-12 mt-8 border-y border-[var(--ceramic)]">
-            <div className="max-w-none mx-auto px-4 md:px-8 lg:px-12">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold shadow-sm bg-amber-100 text-amber-700 border-2 border-amber-300">
-                  EN
+                <div className="text-right flex-shrink-0">
+                  <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                    ₹450<span className="text-base font-bold text-gray-500">/mo</span>
+                  </div>
+                  <div className="text-[11px] text-gray-400 font-medium mt-1">
+                    (Monthly Fees)
+                  </div>
+                </div>
+              </div>
+
+              {/* Checklist */}
+              <div className="space-y-3 pt-5 pb-5">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                    Build advanced vocabulary and grammar
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                    Improve reading, writing, listening and speaking
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                    Real-life conversation practice
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                    Interactive classes with expert guidance
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-4 border-t border-blue-50 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  openCourseModal({
+                    title: 'Intermediate Conversational English',
+                    levelBadge: 'Intermediate (B1–B2)',
+                    price: '₹450 / month',
+                    feeNote: 'Affordable monthly subscription, cancel anytime',
+                    themeColor: 'border-blue-200',
+                    iconBg: 'bg-blue-50',
+                    iconText: 'text-blue-700',
+                    description:
+                      'Designed for students and professionals looking to conquer hesitation, speak with natural fluency, polish pronunciation, and master formal email & presentation skills.',
+                    curriculum: [
+                      'Month 1: Conversational Fluency & Overcoming Hesitation in Spoken English',
+                      'Month 2: Grammar in Action (Conditionals, idioms, active vs passive speaking)',
+                      'Month 3: Professional English (Interviews, client calls, email drafting & debates)',
+                      'Month 4: Accent Neutralization & Spontaneous Public Speaking',
+                    ],
+                    schedule: 'Monday to Friday (1:30 Hours per session)',
+                    duration: '4 to 5 Months (Continuous mentor support)',
+                    materials: [
+                      'Digital practice worksheets & idiom decks',
+                      'Daily conversation rooms with co-learners',
+                      'Personalized feedback from certified trainers',
+                    ],
+                    examTarget: 'IELTS Speaking / TOEFL / Corporate Readiness',
+                  })
+                }
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#1351B4] hover:bg-[#0E3E8C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                <span>View Course Details</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <Link
+                href="/register"
+                className="text-xs font-bold text-[#1351B4] hover:underline hidden sm:inline-block"
+              >
+                Start Monthly Subscription →
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Artwork: Big Ben with Note (lg:col-span-5) */}
+          <div className="lg:col-span-5 flex items-center justify-center relative">
+            <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
+              <img
+                src="/courses-images/english-banner-ben.png"
+                alt="Big Ben London with handwritten note: Better English, Bigger Opportunities"
+                className="w-full h-auto object-contain select-none hover:scale-105 transition-transform duration-500 drop-shadow-md"
+              />
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ── 6. "Not Sure Where to Start?" CTA CARD ── */}
+      <section className="pt-8 pb-12 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-[#FFF5EC] via-[#FFF9F2] to-[#FFF1E6] border border-[#FED7AA] rounded-[28px] p-7 sm:p-9 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+          
+          {/* Left Icon + Text */}
+          <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFEDD5] text-[#EA580C] flex items-center justify-center shadow-2xs flex-shrink-0">
+              <Compass className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                Not Sure Where to Start?
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600 font-medium mt-1">
+                We&apos;re here to help you choose the right course based on your goals and current level.
+              </p>
+              
+              {/* Buttons */}
+              <div className="mt-4 flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
+                >
+                  <span>Get Started</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+
+                <a
+                  href="https://wa.me/919105326128?text=Hello%20BhashaSchool!%20I%20would%20like%20guidance%20on%20choosing%20the%20right%20course."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95"
+                >
+                  <PhoneCall className="w-3.5 h-3.5 text-gray-500" />
+                  <span>Talk to Our Team</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Flight Path Graphic: "Your Language Journey Starts Here" */}
+          <div className="flex-shrink-0 flex items-center justify-center">
+            <div className="w-40 sm:w-48 h-auto">
+              <img
+                src="/courses-images/cta-journey-note.png"
+                alt="Your Language Journey Starts Here with paper airplane"
+                className="w-full h-auto object-contain select-none"
+              />
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── 7. INTERACTIVE COURSE DETAILS MODAL ── */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`w-12 h-12 rounded-2xl ${selectedCourse.iconBg} ${selectedCourse.iconText} flex items-center justify-center flex-shrink-0 shadow-2xs`}
+                >
+                  <BookOpen className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="display-text text-3xl sm:text-4xl text-[var(--text-black)] leading-none">
-                    English Learning Structure
-                  </h2>
-                  <p className="body-text text-sm sm:text-base text-[var(--text-black-soft)] mt-2">
-                    Intermediate English is taught over 4–5 months, with continuous mentor and teacher
-                    support until you can express yourself confidently.
+                  <h3 className="text-xl font-black text-gray-900 leading-tight">
+                    {selectedCourse.title}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                      {selectedCourse.levelBadge}
+                    </span>
+                    <span className="text-xs font-black text-emerald-700">
+                      {selectedCourse.price}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={closeCourseModal}
+                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs sm:text-sm">
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1.5">
+                  About the Course
+                </h4>
+                <p className="text-gray-700 leading-relaxed font-medium">
+                  {selectedCourse.description}
+                </p>
+              </div>
+
+              {/* Schedule & Duration */}
+              <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
+                <div>
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px]">
+                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>TIMINGS</span>
+                  </div>
+                  <p className="font-extrabold text-gray-900 mt-0.5 text-xs">
+                    {selectedCourse.schedule}
+                  </p>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px]">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>DURATION</span>
+                  </div>
+                  <p className="font-extrabold text-gray-900 mt-0.5 text-xs">
+                    {selectedCourse.duration}
                   </p>
                 </div>
               </div>
 
-              {english.length === 0 ? (
-                <p className="body-text text-[var(--text-black-soft)]">
-                  English courses will be published soon.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {english.map((c) => renderCard(c, 'amber'))}
+              {/* Curriculum */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2">
+                  Curriculum Highlights
+                </h4>
+                <ul className="space-y-2">
+                  {selectedCourse.curriculum.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-gray-700">
+                      <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 text-[10px] font-black">
+                        {idx + 1}
+                      </div>
+                      <span className="leading-snug font-medium">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Materials */}
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2">
+                  Included Study Material
+                </h4>
+                <div className="space-y-1.5">
+                  {selectedCourse.materials.map((mat, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-gray-600">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                      <span className="font-medium text-xs">{mat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Exam Target */}
+              {selectedCourse.examTarget && (
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-xs">
+                  <span className="font-black text-amber-900 block">Exam Certification Target:</span>
+                  <span className="text-amber-800 font-medium">{selectedCourse.examTarget}</span>
                 </div>
               )}
+            </div>
 
-              <div className="mt-8 content-card bg-white border border-[var(--ceramic)] shadow-sm">
-                <h3 className="h2-text text-[var(--text-black)] mb-3 flex items-center gap-2">
-                  <Globe2 className="w-6 h-6 text-amber-600" /> What Intermediate English covers
-                </h3>
-                <p className="body-text text-[var(--text-black-soft)] leading-relaxed">
-                  Learners work not only on <b>speaking</b> but also on <b>reading</b>, <b>writing</b> and{' '}
-                  <b>listening</b>. Classes run Monday to Friday for 1:30 hours, and every learner is
-                  continuously assisted by a mentor and teacher until they can express themselves.
-                </p>
+            {/* Modal Footer */}
+            <div className="p-5 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+              <div>
+                <span className="text-xs text-gray-400 font-medium block">Total Investment</span>
+                <span className="text-lg font-black text-gray-900">{selectedCourse.price}</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={closeCourseModal}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 rounded-xl"
+                >
+                  Close
+                </button>
+                <Link
+                  href="/register"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                >
+                  Enroll Now →
+                </Link>
               </div>
             </div>
-          </section>
-        </>
-      )}
-
-      {/* CTA */}
-      <section className="py-16 text-center bg-[var(--neutral-warm)]">
-        <div className="max-w-xl mx-auto px-4">
-          <h2 className="display-text text-[var(--text-black)] mb-3 text-3xl sm:text-4xl">
-            Not Sure Where to <span className="text-[var(--starbucks-green)]">Start?</span>
-          </h2>
-          <p className="body-text text-base sm:text-lg text-[var(--text-black-soft)] mb-8">
-            Talk to us and we&apos;ll recommend the right level for you — or join a free public taster
-            class first.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/register"
-              className="btn-primary flex justify-center items-center gap-2 py-3.5 px-8 text-base !bg-[var(--gold)] !border-[var(--gold)] !text-white shadow-xl rounded-xl"
-            >
-              Get Started <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/classes"
-              className="btn-outline flex justify-center items-center gap-2 py-3.5 px-8 text-base rounded-xl"
-            >
-              View Free Classes
-            </Link>
           </div>
         </div>
-      </section>
+      )}
+
     </div>
   );
 }
