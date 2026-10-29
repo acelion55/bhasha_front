@@ -122,8 +122,8 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
               />
             </div>
 
-            {/* 2. Grayscale Brandenburg Gate Cutout (Shifted up on mobile and tablet to eliminate dead white space) */}
-            <div className="absolute left-[-2%] sm:left-[0%] top-[4%] xs:top-[5%] sm:top-[5%] md:top-[6%] lg:top-auto lg:bottom-[8%] w-[86%] sm:w-[90%] md:w-[94%] pointer-events-none z-10">
+            {/* 2. Grayscale Brandenburg Gate Cutout (Shifted up on mobile, tablet, and desktop) */}
+            <div className="absolute left-[-2%] sm:left-[0%] top-[4%] xs:top-[5%] sm:top-[5%] md:top-[6%] lg:top-auto lg:bottom-[16%] w-[86%] sm:w-[90%] md:w-[94%] pointer-events-none z-10">
               <img
                 src="/herosectionimages/Grayscale Brandenburg Gate Cutout.png"
                 alt="Brandenburg Gate Berlin"
