@@ -147,7 +147,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: -1, transition: { duration: 0.2 } }}
-              className="absolute top-[1%] xs:top-[2%] sm:top-[3%] lg:top-[10%] right-[0%] sm:right-[2%] w-[136px] xs:w-[155px] sm:w-[185px] md:w-[210px] lg:w-[255px] z-30 cursor-pointer drop-shadow-[0_12px_22px_rgba(0,0,0,0.14)]"
+              className="absolute top-[0%] xs:top-[1%] sm:top-[2%] lg:top-[4%] right-[0%] sm:right-[2%] w-[130px] xs:w-[148px] sm:w-[175px] md:w-[195px] lg:w-[225px] z-30 cursor-pointer drop-shadow-[0_12px_22px_rgba(0,0,0,0.14)]"
             >
               <div className="relative w-full">
                 <img
@@ -156,10 +156,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[1.8rem] md:text-[2.0rem] lg:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.3rem] xs:text-[1.45rem] sm:text-[1.65rem] md:text-[1.85rem] lg:text-[2.15rem] text-[#CF1E2C] leading-tight">
                     Hallo!
                   </span>
-                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.15rem] md:text-[1.25rem] lg:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.9rem] xs:text-[0.98rem] sm:text-[1.05rem] md:text-[1.15rem] lg:text-[1.25rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     German
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 6, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-              className="absolute top-[22%] xs:top-[24%] sm:top-[26%] lg:top-[38%] right-[-3%] sm:right-[-1%] w-[136px] xs:w-[155px] sm:w-[185px] md:w-[210px] lg:w-[255px] z-30 cursor-pointer drop-shadow-[0_14px_24px_rgba(0,0,0,0.16)]"
+              className="absolute top-[19%] xs:top-[21%] sm:top-[23%] lg:top-[31%] right-[-3%] sm:right-[-1%] w-[130px] xs:w-[148px] sm:w-[175px] md:w-[195px] lg:w-[225px] z-30 cursor-pointer drop-shadow-[0_14px_24px_rgba(0,0,0,0.16)]"
             >
               <div className="relative w-full">
                 <img
@@ -189,10 +189,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[1.8rem] md:text-[2.0rem] lg:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.3rem] xs:text-[1.45rem] sm:text-[1.65rem] md:text-[1.85rem] lg:text-[2.15rem] text-[#CF1E2C] leading-tight">
                     Hello!
                   </span>
-                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.15rem] md:text-[1.25rem] lg:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.9rem] xs:text-[0.98rem] sm:text-[1.05rem] md:text-[1.15rem] lg:text-[1.25rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     English
                   </span>
                 </div>
@@ -213,7 +213,7 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                 rotate: { duration: 5.8, repeat: Infinity, ease: "easeInOut" }
               }}
               whileHover={{ scale: 1.05, rotate: 1, transition: { duration: 0.2 } }}
-              className="absolute top-[44%] xs:top-[46%] sm:top-[48%] lg:top-auto lg:bottom-[8%] right-[4%] sm:right-[10%] w-[136px] xs:w-[155px] sm:w-[185px] md:w-[210px] lg:w-[255px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)]"
+              className="absolute top-[39%] xs:top-[41%] sm:top-[43%] lg:top-auto lg:bottom-[15%] right-[4%] sm:right-[10%] w-[130px] xs:w-[148px] sm:w-[175px] md:w-[195px] lg:w-[225px] z-30 cursor-pointer drop-shadow-[0_16px_28px_rgba(0,0,0,0.18)]"
             >
               <div className="relative w-full">
                 <img
@@ -222,10 +222,10 @@ export default function HeroSection({ onOpenTrial, onOpenVideo }: HeroSectionPro
                   className="w-full h-auto object-contain pointer-events-none"
                 />
                 <div className="absolute inset-y-0 left-0 w-[52%] flex flex-col justify-center pl-[14%] pr-1 select-none pointer-events-none">
-                  <span className="font-serif italic font-extrabold text-[1.35rem] xs:text-[1.55rem] sm:text-[1.8rem] md:text-[2.0rem] lg:text-[2.4rem] text-[#CF1E2C] leading-tight">
+                  <span className="font-serif italic font-extrabold text-[1.3rem] xs:text-[1.45rem] sm:text-[1.65rem] md:text-[1.85rem] lg:text-[2.15rem] text-[#CF1E2C] leading-tight">
                     ¡Hola!
                   </span>
-                  <span className="font-sans font-semibold text-[0.95rem] xs:text-[1.05rem] sm:text-[1.15rem] md:text-[1.25rem] lg:text-[1.35rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="font-sans font-semibold text-[0.9rem] xs:text-[0.98rem] sm:text-[1.05rem] md:text-[1.15rem] lg:text-[1.25rem] text-[#20252A] mt-0.5 sm:mt-1 tracking-tight">
                     Spanish
                   </span>
                 </div>
