@@ -32,6 +32,7 @@ interface CourseItem {
   currency?: string;
   billingPeriod?: 'one-time' | 'monthly';
   feeNote?: string;
+  imageUrl?: string;
   durationDays?: number;
   durationLabel?: string;
   classDuration?: string;
@@ -52,6 +53,7 @@ const emptyForm = {
   price: 0,
   billingPeriod: 'one-time' as 'one-time' | 'monthly',
   feeNote: '',
+  imageUrl: '',
   durationDays: 0,
   durationLabel: '',
   classDuration: '1:30 hours',
@@ -103,6 +105,7 @@ export default function AdminCoursesPage() {
       price: course.price ?? 0,
       billingPeriod: course.billingPeriod || 'one-time',
       feeNote: course.feeNote || '',
+      imageUrl: course.imageUrl || '',
       durationDays: course.durationDays ?? 0,
       durationLabel: course.durationLabel || '',
       classDuration: course.classDuration || '',
@@ -209,18 +212,31 @@ export default function AdminCoursesPage() {
                     className="bg-white border border-emerald-100/90 rounded-2xl p-4 shadow-xs"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-black text-gray-900 text-sm truncate">{course.title}</h3>
-                          {course.isPublic === false && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
-                              Hidden
-                            </span>
+                      <div className="flex items-start gap-3 min-w-0">
+                        {course.imageUrl ? (
+                          <img
+                            src={course.imageUrl}
+                            alt={course.title}
+                            className="w-12 h-12 object-contain rounded-xl bg-gray-50 border border-gray-100 p-1 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs border border-emerald-100 flex-shrink-0">
+                            {course.level || '📚'}
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-black text-gray-900 text-sm truncate">{course.title}</h3>
+                            {course.isPublic === false && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                                Hidden
+                              </span>
+                            )}
+                          </div>
+                          {course.level && (
+                            <p className="text-[11px] font-bold text-emerald-700 mt-0.5">{course.level}</p>
                           )}
                         </div>
-                        {course.level && (
-                          <p className="text-[11px] font-bold text-emerald-700 mt-0.5">{course.level}</p>
-                        )}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <button
@@ -386,10 +402,108 @@ export default function AdminCoursesPage() {
                         type="text"
                         value={form.feeNote}
                         onChange={(e) => setForm({ ...form, feeNote: e.target.value })}
-                        placeholder="e.g. â‚¹10,000 (45 days)"
+                        placeholder="e.g. ₹10,000 (Total Course Fees)"
                         className={fieldClass}
                       />
                     </div>
+                  </div>
+                </section>
+
+                <section className="border-t border-gray-100 pt-5">
+                  <h3 className={sectionTitle}>Landmark / Arch Image</h3>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    Display image on the course card (choose a landmark arch preset or enter an image URL).
+                  </p>
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label className={labelClass}>Image URL or Path</label>
+                      <input
+                        type="text"
+                        value={form.imageUrl}
+                        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                        placeholder="e.g. /courses-images/card-a1-arch.png or https://..."
+                        className={fieldClass}
+                      />
+                    </div>
+
+                    <div>
+                      <span className="mb-1.5 block text-[11px] font-bold text-gray-500">
+                        Quick Landmark Arch Presets:
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-a1-arch.png' })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                            form.imageUrl === '/courses-images/card-a1-arch.png'
+                              ? 'border-red-400 bg-red-50 text-red-700 ring-2 ring-red-200'
+                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          🏛️ A1 Brandenburg Gate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-a2-arch.png' })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                            form.imageUrl === '/courses-images/card-a2-arch.png'
+                              ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200'
+                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          🌉 A2 Tower Bridge
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-b1-arch.png' })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                            form.imageUrl === '/courses-images/card-b1-arch.png'
+                              ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200'
+                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          ⛪ B1 Sagrada Família
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-b2-arch.png' })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                            form.imageUrl === '/courses-images/card-b2-arch.png'
+                              ? 'border-purple-400 bg-purple-50 text-purple-700 ring-2 ring-purple-200'
+                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          🗼 B2 Eiffel Tower
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/english-banner-ben.png' })}
+                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                            form.imageUrl === '/courses-images/english-banner-ben.png'
+                              ? 'border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
+                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          🕰️ Big Ben (English)
+                        </button>
+                      </div>
+                    </div>
+
+                    {form.imageUrl && (
+                      <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-2.5">
+                        <img
+                          src={form.imageUrl}
+                          alt="Preview"
+                          className="h-14 w-14 rounded-lg border border-gray-200 bg-white object-contain p-1"
+                        />
+                        <div className="min-w-0 flex-1 text-xs text-gray-600">
+                          <span className="block font-bold text-gray-800">Preview</span>
+                          <span className="block truncate font-mono text-[11px] text-gray-500">
+                            {form.imageUrl}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </section>
 
