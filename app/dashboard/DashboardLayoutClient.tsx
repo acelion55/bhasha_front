@@ -81,13 +81,13 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   }
 
   return (
-    <div className={`h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] dashboard-mobile-type ${user.role === 'admin' ? 'admin-panel' : user.role === 'mentor' || user.role === 'teacher' ? '' : 'student-panel'}`}>
+    <div className={`h-[100dvh] h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] dashboard-mobile-type dashboard-touch-root ${user.role === 'admin' ? 'admin-panel' : user.role === 'mentor' || user.role === 'teacher' ? '' : 'student-panel'}`}>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-screen overflow-hidden text-gray-200">
+      <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-full overflow-hidden text-gray-200">
 
         {/* Scrollable Nav Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4 overscroll-y-contain touch-pan-y">
 
           {/* Brand Header */}
           <div className="flex items-center justify-between pt-1 pb-2 px-1">
@@ -138,8 +138,8 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
+      {/* Main Content Column */}
+      <div className="flex-1 flex flex-col h-full min-h-0 min-w-0 overflow-hidden">
 
         {/* Mobile Header (Slightly larger, prominent branding) */}
         <header className="md:hidden flex items-center justify-between px-6 py-4.5 bg-[#0c1913] border-b border-[#152a20] text-gray-200 shrink-0 shadow-sm">
@@ -164,7 +164,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
+        <main className="dashboard-main-scroll flex-1 overflow-y-auto overscroll-y-contain touch-pan-y min-h-0 bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-28 md:pb-8">
           {children}
         </main>
       </div>

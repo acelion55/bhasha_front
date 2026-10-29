@@ -255,7 +255,7 @@ export default function LearnerChatPage() {
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="dashboard-scroll-panel flex-1 overflow-y-auto overscroll-y-contain touch-pan-y p-2">
             {loading ? (
               <div className="flex h-full items-center justify-center">
                 <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
@@ -363,7 +363,7 @@ export default function LearnerChatPage() {
                 </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-[#f8faf9] p-3 sm:p-4">
+              <div ref={scrollRef} className="dashboard-scroll-panel flex-1 space-y-2 overflow-y-auto overscroll-y-contain touch-pan-y bg-[#f8faf9] p-3 sm:p-4">
                 {messages.length === 0 ? (
                   <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
                     <MessageCircle className="w-8 h-8 text-emerald-300" />

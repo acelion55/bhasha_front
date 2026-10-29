@@ -369,7 +369,7 @@ export default function AdminChatsPage() {
           </div>
 
           {/* Conversations Scroll Area */}
-          <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+          <div className="dashboard-scroll-panel flex-1 overflow-y-auto overscroll-y-contain touch-pan-y divide-y divide-gray-100">
             {loading && conversations.length === 0 ? (
               <div className="p-8 text-center text-gray-400 text-xs">
                 <RefreshCw className="w-5 h-5 mx-auto animate-spin mb-2 text-emerald-600" />
@@ -565,7 +565,7 @@ export default function AdminChatsPage() {
               </div>
 
               {/* Message Transcript Feed */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+              <div className="dashboard-scroll-panel flex-1 overflow-y-auto overscroll-y-contain touch-pan-y p-4 sm:p-6 space-y-6">
                 {loadingMessages ? (
                   <div className="h-full flex items-center justify-center text-xs text-gray-400">
                     <RefreshCw className="w-5 h-5 animate-spin mr-2 text-emerald-600" />
