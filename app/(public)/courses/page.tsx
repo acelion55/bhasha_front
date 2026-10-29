@@ -144,68 +144,64 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-[#FAF7F2] text-gray-800 font-[Plus_Jakarta_Sans] selection:bg-emerald-100 selection:text-emerald-900 pb-20">
       
       {/* ── 1. HERO SECTION: "Learn a Language for a Bigger World" ── */}
-      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-20 border-b border-[rgba(32,37,42,0.06)] bg-gradient-to-b from-[#FBF8F4] via-[#FAF7F2] to-[#FAF7F2]">
-        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
+      <section className="relative overflow-hidden border-b border-[rgba(32,37,42,0.06)] bg-gradient-to-b from-[#F2F8FE] via-[#FAF7F2] to-[#FAF7F2]">
+        <div className="relative max-w-[1440px] mx-auto min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] xl:min-h-[620px] flex items-center">
+          
+          {/* Panoramic Hero Art Background (Visible on Tablet/Desktop) */}
+          <div className="absolute inset-0 hidden sm:block pointer-events-none select-none">
+            <img
+              src="/courses-images/heroimage.png"
+              alt="Learn a Language for a Bigger World"
+              className="w-full h-full object-cover object-[center_right_10%] lg:object-center drop-shadow-xs"
+            />
+          </div>
+
+          {/* Foreground Text Content */}
+          <div className="relative z-10 w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+            <div className="max-w-xl lg:max-w-lg space-y-5 text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5F3FE] text-[#1E75C8] text-[11px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5F3FE] text-[#1E75C8] text-[11px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs backdrop-blur-xs">
                 <span>OUR COURSES &amp; FEES</span>
               </div>
 
               {/* Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-gray-900 tracking-tight leading-[1.12]">
-                Learn a Language <br className="hidden sm:inline" />
+                Learn a Language <br />
                 for a <span className="text-[#3048D4]">Bigger</span> <span className="text-[#FF5938]">World</span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed max-w-md">
                 Structured courses based on the CEFR framework with expert guidance, interactive classes and a global community.
               </p>
 
-              {/* Whimsical Left Note */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 border border-red-100/80 shadow-2xs backdrop-blur-xs">
-                  <span className="text-xs font-serif italic text-[#E02B3A] font-extrabold flex items-center gap-1.5">
-                    <span className="text-sm">✈</span> Same Language, More Opportunities
-                  </span>
-                  <span className="text-[10px] text-amber-500 font-black">✦ ✦</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <a
-                    href="#german-courses"
-                    className="text-xs font-bold text-gray-700 hover:text-emerald-800 underline underline-offset-4 transition-colors"
-                  >
-                    Explore German ↓
-                  </a>
-                  <span className="text-gray-300">•</span>
-                  <a
-                    href="#english-courses"
-                    className="text-xs font-bold text-gray-700 hover:text-emerald-800 underline underline-offset-4 transition-colors"
-                  >
-                    Explore English ↓
-                  </a>
-                </div>
+              {/* Quick Navigation Action Buttons */}
+              <div className="pt-2 flex items-center gap-3 flex-wrap">
+                <a
+                  href="#german-courses"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#E02B3A] hover:bg-[#C82331] text-white text-xs font-bold shadow-xs transition-all active:scale-95"
+                >
+                  <span>Explore German ↓</span>
+                </a>
+                <a
+                  href="#english-courses"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold shadow-2xs transition-all active:scale-95"
+                >
+                  <span>Explore English ↓</span>
+                </a>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Right Artwork: Fanned Polaroid Landmarks */}
-            <div className="lg:col-span-5 flex items-center justify-center relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-amber-200/40 via-rose-200/30 to-sky-200/40 rounded-full blur-3xl pointer-events-none transform scale-90" />
-              
-              <div className="relative w-full max-w-[420px] sm:max-w-[460px] lg:max-w-[500px] flex items-center justify-center">
-                <img
-                  src="/courses-images/hero-polaroids-exact.png"
-                  alt="Travel landmarks: Brandenburg Gate, Eiffel Tower, Colosseum"
-                  className="w-full h-auto object-contain drop-shadow-[0_18px_32px_rgba(0,0,0,0.12)] select-none hover:scale-[1.02] transition-transform duration-500"
-                />
-              </div>
-            </div>
-
+        {/* Mobile View: Full Artwork rendered cleanly below the text */}
+        <div className="sm:hidden px-4 pb-8 -mt-2">
+          <div className="rounded-2xl overflow-hidden shadow-xs border border-amber-100/80">
+            <img
+              src="/courses-images/heroimage.png"
+              alt="Landmark polaroids: Brandenburg Gate, Eiffel Tower, Colosseum"
+              className="w-full h-auto object-contain"
+            />
           </div>
         </div>
       </section>
