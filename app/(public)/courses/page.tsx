@@ -70,8 +70,6 @@ const GERMAN_STYLE_PALETTE = [
     checkBg: 'bg-red-100',
     checkText: 'text-[#E02B3A]',
     btnBg: 'bg-[#FFE6E8] hover:bg-[#FFD9DC] text-[#D92D3E]',
-    subText: 'From Baustein to A1',
-    defaultImg: '/courses-images/card-a1-arch.png',
   },
   {
     cardBorder: 'border-[#FEF3C7]',
@@ -81,8 +79,6 @@ const GERMAN_STYLE_PALETTE = [
     checkBg: 'bg-amber-100',
     checkText: 'text-[#D97706]',
     btnBg: 'bg-[#FFF0D4] hover:bg-[#FFE6B8] text-[#B87A00]',
-    subText: 'From A1 to A2',
-    defaultImg: '/courses-images/card-a2-arch.png',
   },
   {
     cardBorder: 'border-[#D1FAE5]',
@@ -92,8 +88,6 @@ const GERMAN_STYLE_PALETTE = [
     checkBg: 'bg-emerald-100',
     checkText: 'text-[#059669]',
     btnBg: 'bg-[#DDF7E8] hover:bg-[#CFF0DC] text-[#1E824C]',
-    subText: 'From A2 to B1',
-    defaultImg: '/courses-images/card-b1-arch.png',
   },
   {
     cardBorder: 'border-[#EDE9FE]',
@@ -103,130 +97,12 @@ const GERMAN_STYLE_PALETTE = [
     checkBg: 'bg-purple-100',
     checkText: 'text-[#7C3AED]',
     btnBg: 'bg-[#EDE5FF] hover:bg-[#E3D6FF] text-[#6938D3]',
-    subText: 'From B1 to B2',
-    defaultImg: '/courses-images/card-b2-arch.png',
-  },
-];
-
-const DEFAULT_GERMAN_COURSES: PublicCourseItem[] = [
-  {
-    _id: 'default-a1',
-    title: 'Baustein + A1',
-    language: 'German',
-    level: 'From Baustein to A1',
-    price: 9500,
-    feeNote: '(Total Course Fees)',
-    imageUrl: '/courses-images/card-a1-arch.png',
-    description:
-      'Baustein is our signature 15-day foundational syllabus taught before opening the standard textbook. Combined with A1, you master foundational pronunciation, sentence structures, cases, and everyday conversational fluency.',
-    features: [
-      'Basic vocabulary and everyday expressions',
-      'Introduction to grammar and sentence structure',
-      'Listening, speaking, reading and writing practice',
-      'Interactive classes with expert guidance',
-    ],
-    schedule: 'Monday to Friday (1 Hour live per session)',
-    durationLabel: 'Approximately 30-45 Days',
-    classDuration: '1 Hour live daily',
-    examPrep: 'Goethe-Zertifikat A1 / Telc Deutsch A1',
-    certificate: 'Official Certificate upon A1 completion',
-  },
-  {
-    _id: 'default-a2',
-    title: 'A2',
-    language: 'German',
-    level: 'From A1 to A2',
-    price: 11000,
-    feeNote: '(Total Course Fees)',
-    imageUrl: '/courses-images/card-a2-arch.png',
-    description:
-      'Level A2 elevates your German from survival phrases to fluid conversation. Express opinions, discuss past events using Perfekt and Präteritum, describe your professional background, and handle daily life in Germany.',
-    features: [
-      'Expand vocabulary for daily life and work',
-      'Build confidence in real-life conversations',
-      'Improve reading and listening comprehension',
-      'Interactive classes with expert guidance',
-    ],
-    schedule: 'Monday to Friday (1:30 Hours per session)',
-    durationLabel: 'Approximately 40 Days',
-    classDuration: '1:30 hours daily',
-    examPrep: 'Goethe-Zertifikat A2 / Telc Deutsch A2',
-    certificate: 'Official Certificate upon A2 completion',
-  },
-  {
-    _id: 'default-b1',
-    title: 'B1',
-    language: 'German',
-    level: 'From A2 to B1',
-    price: 12500,
-    feeNote: '(Total Course Fees)',
-    imageUrl: '/courses-images/card-b1-arch.png',
-    description:
-      'B1 is the pivotal official threshold required for German vocational training (Ausbildung), job visas, and university admission in Germany. Learn to discuss plans, argue perspectives, write official letters, and speak spontaneously.',
-    features: [
-      'Handle most situations while traveling, studying or working',
-      'Improve fluency and accuracy',
-      'Build advanced grammar and vocabulary',
-      'Interactive classes with expert guidance',
-    ],
-    schedule: 'Monday to Friday (1:30 Hours per session)',
-    durationLabel: 'Approximately 50 Days + 10 Days Exam Prep',
-    classDuration: '1:30 hours daily',
-    examPrep: 'Goethe-Zertifikat B1 / Telc Deutsch B1 / ÖSD B1',
-    certificate: 'Official Certificate upon B1 completion',
-  },
-  {
-    _id: 'default-b2',
-    title: 'B2',
-    language: 'German',
-    level: 'From B1 to B2',
-    price: 14000,
-    feeNote: '(Total Course Fees)',
-    imageUrl: '/courses-images/card-b2-arch.png',
-    description:
-      'B2 is the golden standard for medical professionals (nurses, doctors), engineers, and corporate employees in Germany, Austria, and Switzerland. Taught in two comprehensive modules: B2.1 and B2.2.',
-    features: [
-      'Express yourself clearly and in detail on a wide range of topics',
-      'Develop advanced communication skills',
-      'Refine grammar and vocabulary',
-      'Interactive classes with expert guidance',
-    ],
-    schedule: 'Monday to Friday (1:30 Hours per session)',
-    durationLabel: 'Approximately 60 Days (2 Months across B2.1 & B2.2)',
-    classDuration: '1:30 hours daily',
-    examPrep: 'Goethe-Zertifikat B2 / Telc Deutsch B2',
-    certificate: 'Official Certificate upon B2 completion',
-  },
-];
-
-const DEFAULT_ENGLISH_COURSES: PublicCourseItem[] = [
-  {
-    _id: 'default-eng',
-    title: 'Intermediate English',
-    language: 'English',
-    level: 'Intermediate',
-    price: 450,
-    billingPeriod: 'monthly',
-    feeNote: '(Monthly Fees)',
-    imageUrl: '/courses-images/english-banner-ben.png',
-    description:
-      'Designed for students and professionals looking to conquer hesitation, speak with natural fluency, polish pronunciation, and master formal email & presentation skills.',
-    features: [
-      'Build advanced vocabulary and grammar',
-      'Improve reading, writing, listening and speaking',
-      'Real-life conversation practice',
-      'Interactive classes with expert guidance',
-    ],
-    schedule: 'Monday to Friday (1:30 Hours per session)',
-    durationLabel: '4 to 5 Months (Continuous mentor support)',
-    classDuration: '1:30 hours daily',
-    examPrep: 'IELTS Speaking / TOEFL / Corporate Readiness',
-    certificate: 'Course Completion Certificate',
   },
 ];
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<PublicCourseItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<CourseModalData | null>(null);
 
   useEffect(() => {
@@ -234,28 +110,27 @@ export default function CoursesPage() {
     api
       .get<PublicCourseItem[]>('/courses/public')
       .then((res) => {
-        if (isMounted && Array.isArray(res.data) && res.data.length > 0) {
+        if (isMounted && Array.isArray(res.data)) {
           setCourses(res.data);
         }
       })
       .catch((err) => {
-        console.warn('Could not load dynamic public courses, falling back to defaults:', err);
+        console.error('Failed to load courses from DB:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
       });
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Separate courses by language from backend, or fall back to defaults
-  const backendGerman = courses.filter(
+  const germanCourses = courses.filter(
     (c) => (c.language || 'German').toLowerCase() === 'german',
   );
-  const backendEnglish = courses.filter(
+  const englishCourses = courses.filter(
     (c) => (c.language || '').toLowerCase() === 'english',
   );
-
-  const germanCourses = backendGerman.length > 0 ? backendGerman : DEFAULT_GERMAN_COURSES;
-  const englishCourses = backendEnglish.length > 0 ? backendEnglish : DEFAULT_ENGLISH_COURSES;
 
   const openCourseModal = (data: CourseModalData) => {
     setSelectedCourse(data);
@@ -354,141 +229,141 @@ export default function CoursesPage() {
         </div>
 
         {/* Dynamic Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7">
-          {germanCourses.map((course, idx) => {
-            const palette = GERMAN_STYLE_PALETTE[idx % GERMAN_STYLE_PALETTE.length];
-            // Primary image from course table in DB, fallback to landmark arch preset
-            const cardImg = course.imageUrl && course.imageUrl.trim() ? course.imageUrl.trim() : palette.defaultImg;
-            const featuresList =
-              Array.isArray(course.features) && course.features.length > 0
-                ? course.features
-                : [
-                    'Basic vocabulary and everyday expressions',
-                    'Introduction to grammar and sentence structure',
-                    'Listening, speaking, reading and writing practice',
-                    'Interactive classes with expert guidance',
-                  ];
+        {loading ? (
+          <div className="py-12 flex justify-center items-center">
+            <div className="text-sm font-bold text-gray-500 animate-pulse">
+              Loading German courses from database...
+            </div>
+          </div>
+        ) : germanCourses.length === 0 ? (
+          <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center text-gray-500 font-medium text-sm">
+            No German courses available in database.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7">
+            {germanCourses.map((course, idx) => {
+              const palette = GERMAN_STYLE_PALETTE[idx % GERMAN_STYLE_PALETTE.length];
+              const cardImg = course.imageUrl?.trim() || '';
+              const featuresList = Array.isArray(course.features) ? course.features : [];
 
-            return (
-              <div
-                key={course._id || idx}
-                className={`bg-white border ${palette.cardBorder} rounded-[26px] p-6 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group`}
-              >
-                <div>
-                  {/* Top Row: Icon + Title + Price */}
-                  <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-11 h-11 rounded-2xl ${palette.iconBg} ${palette.iconText} flex items-center justify-center shadow-2xs flex-shrink-0`}
-                      >
-                        <BookOpen className="w-5 h-5" />
+              return (
+                <div
+                  key={course._id || idx}
+                  className={`bg-white border ${palette.cardBorder} rounded-[26px] p-6 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group`}
+                >
+                  <div>
+                    {/* Top Row: Icon + Title + Price */}
+                    <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-11 h-11 rounded-2xl ${palette.iconBg} ${palette.iconText} flex items-center justify-center shadow-2xs flex-shrink-0`}
+                        >
+                          <BookOpen className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                            {course.title}
+                          </h3>
+                          {course.level && (
+                            <p className="text-xs text-gray-500 font-medium">
+                              {course.level}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                          {course.title}
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium">
-                          {course.level || palette.subText}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
-                        ₹{(course.price ?? 0).toLocaleString('en-IN')}
-                        {course.billingPeriod === 'monthly' && (
-                          <span className="text-base font-bold text-gray-500">/mo</span>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                          ₹{(course.price ?? 0).toLocaleString('en-IN')}
+                          {course.billingPeriod === 'monthly' && (
+                            <span className="text-base font-bold text-gray-500">/mo</span>
+                          )}
+                        </div>
+                        {course.feeNote && (
+                          <div className="text-[11px] text-gray-400 font-medium mt-1">
+                            {course.feeNote}
+                          </div>
                         )}
                       </div>
-                      <div className="text-[11px] text-gray-400 font-medium mt-1">
-                        {course.feeNote || (course.billingPeriod === 'monthly' ? '(Monthly Fees)' : '(Total Course Fees)')}
-                      </div>
                     </div>
-                  </div>
 
-                  {/* Card Middle: Checklist + Landmark Arch Image */}
-                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
-                    {/* Left Checklist */}
-                    <div className="sm:col-span-7 space-y-2.5">
-                      {featuresList.slice(0, 4).map((feat, fIdx) => (
-                        <div key={fIdx} className="flex items-start gap-2.5">
-                          <div
-                            className={`w-4 h-4 rounded-full ${palette.checkBg} ${palette.checkText} flex items-center justify-center flex-shrink-0 mt-0.5`}
-                          >
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    {/* Card Middle: Checklist + Landmark Arch Image */}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
+                      {/* Left Checklist */}
+                      <div className={`${cardImg ? 'sm:col-span-7' : 'sm:col-span-12'} space-y-2.5`}>
+                        {featuresList.slice(0, 5).map((feat, fIdx) => (
+                          <div key={fIdx} className="flex items-start gap-2.5">
+                            <div
+                              className={`w-4 h-4 rounded-full ${palette.checkBg} ${palette.checkText} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                            >
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                            <span className="text-xs text-gray-700 font-medium leading-relaxed">
+                              {feat}
+                            </span>
                           </div>
-                          <span className="text-xs text-gray-700 font-medium leading-relaxed">
-                            {feat}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Right Landmark Arch: Fetched directly from Course table in DB */}
-                    <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
-                      <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
-                        <img
-                          src={cardImg}
-                          alt={course.title}
-                          className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
-                          onError={(e) => {
-                            // If custom URL fails to load, gracefully fall back to arch graphic
-                            const target = e.currentTarget as HTMLImageElement;
-                            if (target.src !== palette.defaultImg) {
-                              target.src = palette.defaultImg;
-                            }
-                          }}
-                        />
+                        ))}
                       </div>
+
+                      {/* Right Landmark Arch: Fetched directly from Course table in DB */}
+                      {cardImg && (
+                        <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
+                          <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                            <img
+                              src={cardImg}
+                              alt={course.title}
+                              className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Bottom Button */}
-                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <button
-                    onClick={() =>
-                      openCourseModal({
-                        title: course.title,
-                        levelBadge: course.level || palette.subText,
-                        price: `₹${(course.price ?? 0).toLocaleString('en-IN')}${
-                          course.billingPeriod === 'monthly' ? ' / mo' : ''
-                        }`,
-                        feeNote: course.feeNote || 'Total Course Fee (No hidden charges)',
-                        themeColor: palette.cardBorder,
-                        iconBg: palette.iconBg,
-                        iconText: palette.iconText,
-                        description:
-                          course.description ||
-                          `${course.title} is designed under the CEFR framework to give learners solid grammar, fluid pronunciation, and interactive conversational fluency.`,
-                        curriculum: featuresList,
-                        schedule: course.schedule || 'Monday to Friday (1:30 Hours live per session)',
-                        duration: course.durationLabel || (course.durationDays ? `${course.durationDays} Days` : 'Approximately 40 Days'),
-                        materials: [
-                          'Complete curated PDF learning guide & workbook',
-                          'Vocabulary flashcards & audio pronunciation files',
-                          'Language exchange partner drills with native speaker mentors',
-                        ],
-                        examTarget: course.examPrep || 'Telc Deutsch / Goethe-Zertifikat Prep',
-                        certificate: course.certificate || 'Official Certificate of Completion',
-                      })
-                    }
-                    className={`inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full ${palette.btnBg} font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer`}
-                  >
-                    <span>View Course Details</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Bottom Button */}
+                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <button
+                      onClick={() =>
+                        openCourseModal({
+                          title: course.title,
+                          levelBadge: course.level || course.title,
+                          price: `₹${(course.price ?? 0).toLocaleString('en-IN')}${
+                            course.billingPeriod === 'monthly' ? ' / mo' : ''
+                          }`,
+                          feeNote: course.feeNote || 'Course Fee',
+                          themeColor: palette.cardBorder,
+                          iconBg: palette.iconBg,
+                          iconText: palette.iconText,
+                          description: course.description || `${course.title} language program.`,
+                          curriculum: featuresList,
+                          schedule: course.schedule || 'Monday to Friday',
+                          duration: course.durationLabel || (course.durationDays ? `${course.durationDays} Days` : ''),
+                          materials: [
+                            'Complete curated PDF learning guide & workbook',
+                            'Vocabulary flashcards & audio pronunciation files',
+                            'Language exchange partner drills with native speaker mentors',
+                          ],
+                          examTarget: course.examPrep || undefined,
+                          certificate: course.certificate || undefined,
+                        })
+                      }
+                      className={`inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full ${palette.btnBg} font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer`}
+                    >
+                      <span>View Course Details</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
 
-                  <Link
-                    href="/register"
-                    className="text-xs font-bold text-gray-500 hover:text-emerald-700 transition-colors hidden sm:inline-block"
-                  >
-                    Book Free Trial →
-                  </Link>
+                    <Link
+                      href="/register"
+                      className="text-xs font-bold text-gray-500 hover:text-emerald-700 transition-colors hidden sm:inline-block"
+                    >
+                      Book Free Trial →
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* ── 3. BANNER: "How Our German Course Works" ── */}
         <div className="bg-[#EBF5FF] border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 mt-9 shadow-xs">
@@ -619,142 +494,139 @@ export default function CoursesPage() {
         </div>
 
         {/* English Content: Map over all English courses from DB */}
-        <div className="space-y-6">
-          {englishCourses.map((engCourse, engIdx) => {
-            const engImage =
-              engCourse.imageUrl && engCourse.imageUrl.trim()
-                ? engCourse.imageUrl.trim()
-                : '/courses-images/english-banner-ben.png';
-            const engFeatures =
-              Array.isArray(engCourse.features) && engCourse.features.length > 0
-                ? engCourse.features
-                : [
-                    'Build advanced vocabulary and grammar',
-                    'Improve reading, writing, listening and speaking',
-                    'Real-life conversation practice',
-                    'Interactive classes with expert guidance',
-                  ];
+        {loading ? (
+          <div className="py-12 flex justify-center items-center">
+            <div className="text-sm font-bold text-gray-500 animate-pulse">
+              Loading English courses from database...
+            </div>
+          </div>
+        ) : englishCourses.length === 0 ? (
+          <div className="bg-white border border-gray-100 rounded-3xl p-10 text-center text-gray-500 font-medium text-sm">
+            No English courses available in database.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {englishCourses.map((engCourse, engIdx) => {
+              const engImage = engCourse.imageUrl?.trim() || '';
+              const engFeatures = Array.isArray(engCourse.features) ? engCourse.features : [];
 
-            return (
-              <div
-                key={engCourse._id || engIdx}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center"
-              >
-                {/* Card: English Course (lg:col-span-7) */}
-                <div className="lg:col-span-7 bg-white border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(30,117,200,0.05)] hover:shadow-[0_12px_28px_rgba(30,117,200,0.1)] transition-all flex flex-col justify-between relative overflow-hidden">
-                  <div>
-                    {/* Top Row: Icon + Title + Price */}
-                    <div className="flex items-start justify-between gap-4 pb-4 border-b border-blue-50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-2xl bg-[#EAF4FE] text-[#1351B4] flex items-center justify-center shadow-2xs flex-shrink-0">
-                          <BookOpen className="w-5 h-5" />
+              return (
+                <div
+                  key={engCourse._id || engIdx}
+                  className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center"
+                >
+                  {/* Card: English Course (lg:col-span-7) */}
+                  <div className={`${engImage ? 'lg:col-span-7' : 'lg:col-span-12'} bg-white border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(30,117,200,0.05)] hover:shadow-[0_12px_28px_rgba(30,117,200,0.1)] transition-all flex flex-col justify-between relative overflow-hidden`}>
+                    <div>
+                      {/* Top Row: Icon + Title + Price */}
+                      <div className="flex items-start justify-between gap-4 pb-4 border-b border-blue-50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-[#EAF4FE] text-[#1351B4] flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <BookOpen className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                                {engCourse.title}
+                              </h3>
+                              {engCourse.level && (
+                                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[#EBF5FF] text-[#1351B4] border border-[#CEE3FD]">
+                                  {engCourse.level}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-                              {engCourse.title}
-                            </h3>
-                            {engCourse.level && (
-                              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[#EBF5FF] text-[#1351B4] border border-[#CEE3FD]">
-                                {engCourse.level}
-                              </span>
+
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                            ₹{(engCourse.price ?? 0).toLocaleString('en-IN')}
+                            {engCourse.billingPeriod === 'monthly' && (
+                              <span className="text-base font-bold text-gray-500">/mo</span>
                             )}
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
-                          ₹{(engCourse.price ?? 0).toLocaleString('en-IN')}
-                          {engCourse.billingPeriod === 'monthly' && (
-                            <span className="text-base font-bold text-gray-500">/mo</span>
+                          {engCourse.feeNote && (
+                            <div className="text-[11px] text-gray-400 font-medium mt-1">
+                              {engCourse.feeNote}
+                            </div>
                           )}
                         </div>
-                        <div className="text-[11px] text-gray-400 font-medium mt-1">
-                          {engCourse.feeNote || (engCourse.billingPeriod === 'monthly' ? '(Monthly Fees)' : '(Total Course Fees)')}
-                        </div>
+                      </div>
+
+                      {/* Checklist */}
+                      <div className="space-y-3 pt-5 pb-5">
+                        {engFeatures.map((feat, fIdx) => (
+                          <div key={fIdx} className="flex items-start gap-2.5">
+                            <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                            <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                              {feat}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Checklist */}
-                    <div className="space-y-3 pt-5 pb-5">
-                      {engFeatures.map((feat, fIdx) => (
-                        <div key={fIdx} className="flex items-start gap-2.5">
-                          <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                          </div>
-                          <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
-                            {feat}
-                          </span>
-                        </div>
-                      ))}
+                    {/* Bottom Button */}
+                    <div className="pt-4 border-t border-blue-50 flex items-center justify-between">
+                      <button
+                        onClick={() =>
+                          openCourseModal({
+                            title: engCourse.title,
+                            levelBadge: engCourse.level || engCourse.title,
+                            price: `₹${(engCourse.price ?? 0).toLocaleString('en-IN')}${
+                              engCourse.billingPeriod === 'monthly' ? ' / month' : ''
+                            }`,
+                            feeNote: engCourse.feeNote || 'Course Subscription',
+                            themeColor: 'border-blue-200',
+                            iconBg: 'bg-blue-50',
+                            iconText: 'text-blue-700',
+                            description: engCourse.description || `${engCourse.title} English curriculum.`,
+                            curriculum: engFeatures,
+                            schedule: engCourse.schedule || 'Monday to Friday',
+                            duration: engCourse.durationLabel || (engCourse.durationDays ? `${engCourse.durationDays} Days` : ''),
+                            materials: [
+                              'Digital practice worksheets & idiom decks',
+                              'Daily conversation rooms with co-learners',
+                              'Personalized feedback from certified trainers',
+                            ],
+                            examTarget: engCourse.examPrep || undefined,
+                            certificate: engCourse.certificate || undefined,
+                          })
+                        }
+                        className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#1351B4] hover:bg-[#0E3E8C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+                      >
+                        <span>View Course Details</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      <Link
+                        href="/register"
+                        className="text-xs font-bold text-[#1351B4] hover:underline hidden sm:inline-block"
+                      >
+                        Start Monthly Subscription →
+                      </Link>
                     </div>
                   </div>
 
-                  {/* Bottom Button */}
-                  <div className="pt-4 border-t border-blue-50 flex items-center justify-between">
-                    <button
-                      onClick={() =>
-                        openCourseModal({
-                          title: engCourse.title,
-                          levelBadge: engCourse.level || 'Intermediate (B1–B2)',
-                          price: `₹${(engCourse.price ?? 0).toLocaleString('en-IN')}${
-                            engCourse.billingPeriod === 'monthly' ? ' / month' : ''
-                          }`,
-                          feeNote: engCourse.feeNote || 'Affordable subscription, cancel anytime',
-                          themeColor: 'border-blue-200',
-                          iconBg: 'bg-blue-50',
-                          iconText: 'text-blue-700',
-                          description:
-                            engCourse.description ||
-                            'Designed for students and professionals looking to conquer hesitation, speak with natural fluency, polish pronunciation, and master formal email & presentation skills.',
-                          curriculum: engFeatures,
-                          schedule: engCourse.schedule || 'Monday to Friday (1:30 Hours per session)',
-                          duration: engCourse.durationLabel || '4 to 5 Months (Continuous mentor support)',
-                          materials: [
-                            'Digital practice worksheets & idiom decks',
-                            'Daily conversation rooms with co-learners',
-                            'Personalized feedback from certified trainers',
-                          ],
-                          examTarget: engCourse.examPrep || 'IELTS Speaking / TOEFL / Corporate Readiness',
-                          certificate: engCourse.certificate || 'Course Completion Certificate',
-                        })
-                      }
-                      className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#1351B4] hover:bg-[#0E3E8C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
-                    >
-                      <span>View Course Details</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-
-                    <Link
-                      href="/register"
-                      className="text-xs font-bold text-[#1351B4] hover:underline hidden sm:inline-block"
-                    >
-                      Start Monthly Subscription →
-                    </Link>
-                  </div>
+                  {/* Right Artwork: Image from Course DB (lg:col-span-5) */}
+                  {engImage && (
+                    <div className="lg:col-span-5 flex items-center justify-center relative">
+                      <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
+                        <img
+                          src={engImage}
+                          alt={engCourse.title}
+                          className="w-full h-auto object-contain select-none hover:scale-105 transition-transform duration-500 drop-shadow-md"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {/* Right Artwork: Image from Course DB (lg:col-span-5) */}
-                <div className="lg:col-span-5 flex items-center justify-center relative">
-                  <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
-                    <img
-                      src={engImage}
-                      alt={engCourse.title}
-                      className="w-full h-auto object-contain select-none hover:scale-105 transition-transform duration-500 drop-shadow-md"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        if (target.src !== '/courses-images/english-banner-ben.png') {
-                          target.src = '/courses-images/english-banner-ben.png';
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
       </section>
 
