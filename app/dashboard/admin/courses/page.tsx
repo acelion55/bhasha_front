@@ -14,6 +14,8 @@ import {
   Check,
   GraduationCap,
   Globe2,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -72,6 +74,36 @@ export default function AdminCoursesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...emptyForm });
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image must be 10MB or smaller');
+      return;
+    }
+    setUploadingImage(true);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: data,
+      });
+      const json = await res.json();
+      if (!res.ok || !json.url) {
+        throw new Error(json.error || 'Upload failed');
+      }
+      setForm((f) => ({ ...f, imageUrl: json.url }));
+      toast.success('Course image uploaded successfully');
+    } catch (err: any) {
+      toast.error(err.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -410,25 +442,87 @@ export default function AdminCoursesPage() {
                 </section>
 
                 <section className="border-t border-gray-100 pt-5">
-                  <h3 className={sectionTitle}>Landmark / Arch Image</h3>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    Display image on the course card (choose a landmark arch preset or enter an image URL).
-                  </p>
-                  <div className="mt-3 space-y-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <label className={labelClass}>Image URL or Path</label>
-                      <input
-                        type="text"
-                        value={form.imageUrl}
-                        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                        placeholder="e.g. /courses-images/card-a1-arch.png or https://..."
-                        className={fieldClass}
-                      />
+                      <h3 className={sectionTitle}>Course Landmark / Image</h3>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        Upload an image from your device or pick a preset landmark arch.
+                      </p>
                     </div>
+                    {form.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, imageUrl: '' })}
+                        className="flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Remove Image
+                      </button>
+                    )}
+                  </div>
 
-                    <div>
+                  <div className="mt-3 space-y-3">
+                    {/* Image Preview & Upload Dropzone */}
+                    {form.imageUrl ? (
+                      <div className="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-3">
+                        <img
+                          src={form.imageUrl}
+                          alt="Course preview"
+                          className="h-20 w-20 rounded-xl border border-gray-200 bg-white object-contain p-1 shadow-2xs"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-xs font-bold text-gray-900">
+                            Current Image Selected
+                          </span>
+                          <span className="block truncate font-mono text-[11px] text-gray-500 mt-0.5">
+                            {form.imageUrl}
+                          </span>
+                          <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-2xs hover:bg-gray-50">
+                            <Upload className="h-3.5 w-3.5 text-emerald-600" />
+                            <span>Upload Different Image</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={uploadingImage}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/70 p-6 text-center transition hover:border-emerald-500 hover:bg-emerald-50/30">
+                        {uploadingImage ? (
+                          <div className="flex flex-col items-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mb-2" />
+                            <span className="text-xs font-bold text-gray-700">Uploading image to cloud...</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-2xs text-emerald-600 border border-gray-200">
+                              <Upload className="h-5 w-5" />
+                            </div>
+                            <span className="text-xs font-bold text-gray-900">
+                              Click here to upload an image from device
+                            </span>
+                            <span className="mt-1 text-[11px] text-gray-400">
+                              PNG, JPG, WEBP, SVG up to 10MB
+                            </span>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploadingImage}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+
+                    {/* Quick Landmark Presets */}
+                    <div className="pt-1">
                       <span className="mb-1.5 block text-[11px] font-bold text-gray-500">
-                        Quick Landmark Arch Presets:
+                        Or choose a Landmark Arch Preset:
                       </span>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -488,22 +582,6 @@ export default function AdminCoursesPage() {
                         </button>
                       </div>
                     </div>
-
-                    {form.imageUrl && (
-                      <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-2.5">
-                        <img
-                          src={form.imageUrl}
-                          alt="Preview"
-                          className="h-14 w-14 rounded-lg border border-gray-200 bg-white object-contain p-1"
-                        />
-                        <div className="min-w-0 flex-1 text-xs text-gray-600">
-                          <span className="block font-bold text-gray-800">Preview</span>
-                          <span className="block truncate font-mono text-[11px] text-gray-500">
-                            {form.imageUrl}
-                          </span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </section>
 
