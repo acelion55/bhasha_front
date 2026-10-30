@@ -20,9 +20,9 @@ export const metadata: Metadata = {
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ minHeight: '100vh' }} className="flex flex-col justify-between pb-[70px] md:pb-0">
+    <div style={{ minHeight: '100vh' }} className="flex flex-col justify-between pb-[70px] md:pb-0 overflow-x-hidden">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-x-hidden">{children}</main>
       <Footer />
       <BottomNav />
     </div>

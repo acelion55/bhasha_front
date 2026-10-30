@@ -30,6 +30,7 @@ interface User {
   studentId?: string;
   isActive?: boolean;
   isSubscribed?: boolean;
+  avatar?: string;
   tenantId: string;
   createdAt: string;
   updatedAt: string;

@@ -446,7 +446,7 @@ export default function AdminCoursesPage() {
                     <div>
                       <h3 className={sectionTitle}>Course Landmark / Image</h3>
                       <p className="mt-0.5 text-xs text-gray-500">
-                        Upload an image from your device or pick a preset landmark arch.
+                        Upload an image from your device for this course.
                       </p>
                     </div>
                     {form.imageUrl && (
@@ -518,70 +518,6 @@ export default function AdminCoursesPage() {
                         />
                       </label>
                     )}
-
-                    {/* Quick Landmark Presets */}
-                    <div className="pt-1">
-                      <span className="mb-1.5 block text-[11px] font-bold text-gray-500">
-                        Or choose a Landmark Arch Preset:
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-a1-arch.png' })}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
-                            form.imageUrl === '/courses-images/card-a1-arch.png'
-                              ? 'border-red-400 bg-red-50 text-red-700 ring-2 ring-red-200'
-                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          🏛️ A1 Brandenburg Gate
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-a2-arch.png' })}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
-                            form.imageUrl === '/courses-images/card-a2-arch.png'
-                              ? 'border-amber-400 bg-amber-50 text-amber-700 ring-2 ring-amber-200'
-                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          🌉 A2 Tower Bridge
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-b1-arch.png' })}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
-                            form.imageUrl === '/courses-images/card-b1-arch.png'
-                              ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200'
-                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          ⛪ B1 Sagrada Família
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/card-b2-arch.png' })}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
-                            form.imageUrl === '/courses-images/card-b2-arch.png'
-                              ? 'border-purple-400 bg-purple-50 text-purple-700 ring-2 ring-purple-200'
-                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          🗼 B2 Eiffel Tower
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, imageUrl: '/courses-images/english-banner-ben.png' })}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
-                            form.imageUrl === '/courses-images/english-banner-ben.png'
-                              ? 'border-blue-400 bg-blue-50 text-blue-700 ring-2 ring-blue-200'
-                              : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          🕰️ Big Ben (English)
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </section>
 

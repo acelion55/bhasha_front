@@ -14,6 +14,7 @@ interface User {
   language?: string;
   createdAt?: string;
   userWhatsappNumber?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           language: res.data.language,
           createdAt: res.data.createdAt,
           userWhatsappNumber: res.data.userWhatsappNumber,
+          avatar: res.data.avatar,
         });
       }
     } catch (err) {

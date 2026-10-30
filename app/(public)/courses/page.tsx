@@ -59,44 +59,53 @@ interface CourseModalData {
   materials: string[];
   examTarget?: string;
   certificate?: string;
+  buttonColor?: string;
 }
 
 const GERMAN_STYLE_PALETTE = [
   {
-    cardBorder: 'border-[#FEE2E2]',
-    cardShadow: 'shadow-[0_4px_20px_rgba(239,68,68,0.04)] hover:shadow-[0_12px_28px_rgba(239,68,68,0.1)]',
-    iconBg: 'bg-[#FFF0F2]',
+    cardBg: 'bg-[#FDF2F0]',
+    cardBorder: 'border-[#FCDAD7]',
+    cardShadow: 'shadow-[0_4px_24px_rgba(244,63,94,0.06)] hover:shadow-[0_12px_28px_rgba(244,63,94,0.12)]',
+    iconBg: 'bg-[#FFE4E9]',
     iconText: 'text-[#E02B3A]',
-    checkBg: 'bg-red-100',
+    checkBg: 'bg-[#FFE0E5]',
     checkText: 'text-[#E02B3A]',
-    btnBg: 'bg-[#FFE6E8] hover:bg-[#FFD9DC] text-[#D92D3E]',
+    btnBg: 'bg-[#FCD8D8] hover:bg-[#F9BABA] text-[#D92D3E]',
+    divider: 'border-red-100/80',
   },
   {
-    cardBorder: 'border-[#FEF3C7]',
-    cardShadow: 'shadow-[0_4px_20px_rgba(245,158,11,0.04)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.1)]',
-    iconBg: 'bg-[#FFFBEB]',
+    cardBg: 'bg-[#FFFAEC]',
+    cardBorder: 'border-[#FDE8B3]',
+    cardShadow: 'shadow-[0_4px_24px_rgba(245,158,11,0.06)] hover:shadow-[0_12px_28px_rgba(245,158,11,0.12)]',
+    iconBg: 'bg-[#FEF3C7]',
     iconText: 'text-[#D97706]',
-    checkBg: 'bg-amber-100',
+    checkBg: 'bg-[#FEF3C7]',
     checkText: 'text-[#D97706]',
-    btnBg: 'bg-[#FFF0D4] hover:bg-[#FFE6B8] text-[#B87A00]',
+    btnBg: 'bg-[#FEEBA9] hover:bg-[#FDE074] text-[#92400E]',
+    divider: 'border-amber-100/80',
   },
   {
-    cardBorder: 'border-[#D1FAE5]',
-    cardShadow: 'shadow-[0_4px_20px_rgba(16,185,129,0.04)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.1)]',
-    iconBg: 'bg-[#ECFDF5]',
+    cardBg: 'bg-[#EDFDF3]',
+    cardBorder: 'border-[#C6F6D5]',
+    cardShadow: 'shadow-[0_4px_24px_rgba(16,185,129,0.06)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.12)]',
+    iconBg: 'bg-[#DCFCE7]',
     iconText: 'text-[#059669]',
-    checkBg: 'bg-emerald-100',
+    checkBg: 'bg-[#DCFCE7]',
     checkText: 'text-[#059669]',
-    btnBg: 'bg-[#DDF7E8] hover:bg-[#CFF0DC] text-[#1E824C]',
+    btnBg: 'bg-[#C6F6D5] hover:bg-[#A7F3D0] text-[#065F46]',
+    divider: 'border-emerald-100/80',
   },
   {
-    cardBorder: 'border-[#EDE9FE]',
-    cardShadow: 'shadow-[0_4px_20px_rgba(139,92,246,0.04)] hover:shadow-[0_12px_28px_rgba(139,92,246,0.1)]',
-    iconBg: 'bg-[#F5F3FF]',
+    cardBg: 'bg-[#F5EEFE]',
+    cardBorder: 'border-[#DDD6FE]',
+    cardShadow: 'shadow-[0_4px_24px_rgba(139,92,246,0.06)] hover:shadow-[0_12px_28px_rgba(139,92,246,0.12)]',
+    iconBg: 'bg-[#EDE9FE]',
     iconText: 'text-[#7C3AED]',
-    checkBg: 'bg-purple-100',
+    checkBg: 'bg-[#EDE9FE]',
     checkText: 'text-[#7C3AED]',
-    btnBg: 'bg-[#EDE5FF] hover:bg-[#E3D6FF] text-[#6938D3]',
+    btnBg: 'bg-[#E9D5FF] hover:bg-[#DDD6FE] text-[#6D28D9]',
+    divider: 'border-purple-100/80',
   },
 ];
 
@@ -141,66 +150,61 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-gray-800 font-[Plus_Jakarta_Sans] selection:bg-emerald-100 selection:text-emerald-900 pb-20">
+    <div className="min-h-screen bg-[#FAF8F5] text-gray-800 font-[Plus_Jakarta_Sans] selection:bg-emerald-100 selection:text-emerald-900 pb-20">
       
       {/* ── 1. HERO SECTION: "Learn a Language for a Bigger World" ── */}
-      <section className="relative overflow-hidden border-b border-[rgba(32,37,42,0.06)] bg-gradient-to-b from-[#F2F8FE] via-[#FAF7F2] to-[#FAF7F2]">
-        <div className="relative max-w-[1440px] mx-auto min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] xl:min-h-[620px] flex items-center">
-          
-          {/* Panoramic Hero Art Background (Visible on Tablet/Desktop) */}
-          <div className="absolute inset-0 hidden sm:block pointer-events-none select-none">
-            <img
-              src="/courses-images/heroimage.png"
-              alt="Learn a Language for a Bigger World"
-              className="w-full h-full object-cover object-[center_right_10%] lg:object-center drop-shadow-xs"
-            />
-          </div>
+      <section className="relative overflow-hidden border-b border-[rgba(32,37,42,0.06)] bg-[#FAF8F5]">
+        {/* Desktop / Tablet View (md and up): Exact single panoramic banner layout */}
+        <div className="hidden md:block relative w-full max-w-[1440px] mx-auto overflow-hidden">
+          {/* Panoramic Illustration */}
+          <img
+            src="/courses-images/heroimage.png"
+            alt="Learn a Language for a Bigger World"
+            className="w-full h-auto block select-none pointer-events-none"
+          />
 
-          {/* Foreground Text Content */}
-          <div className="relative z-10 w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-            <div className="max-w-xl lg:max-w-lg space-y-5 text-left">
+          {/* Text Overlay: positioned precisely in the clear sky area between airplane and polaroids */}
+          <div className="absolute left-[28%] xl:left-[28.5%] top-0 bottom-0 w-[28.5%] flex flex-col justify-center pointer-events-none">
+            <div className="pointer-events-auto space-y-1.5 md:space-y-2 lg:space-y-2.5 xl:space-y-3.5 text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5F3FE] text-[#1E75C8] text-[11px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs backdrop-blur-xs">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 lg:px-3 lg:py-1 rounded-full bg-[#E5F3FE]/95 text-[#1E75C8] text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs backdrop-blur-xs">
                 <span>OUR COURSES &amp; FEES</span>
               </div>
 
               {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-gray-900 tracking-tight leading-[1.12]">
+              <h1 className="text-lg md:text-xl lg:text-[1.85rem] xl:text-[2.25rem] 2xl:text-[2.5rem] font-black text-gray-900 tracking-tight leading-[1.12]">
                 Learn a Language <br />
                 for a <span className="text-[#3048D4]">Bigger</span> <span className="text-[#FF5938]">World</span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed max-w-md">
+              <p className="text-[10px] md:text-[11px] lg:text-xs xl:text-sm text-gray-600 font-medium leading-relaxed max-w-sm">
                 Structured courses based on the CEFR framework with expert guidance, interactive classes and a global community.
               </p>
-
-              {/* Quick Navigation Action Buttons */}
-              <div className="pt-2 flex items-center gap-3 flex-wrap">
-                <a
-                  href="#german-courses"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#E02B3A] hover:bg-[#C82331] text-white text-xs font-bold shadow-xs transition-all active:scale-95"
-                >
-                  <span>Explore German ↓</span>
-                </a>
-                <a
-                  href="#english-courses"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold shadow-2xs transition-all active:scale-95"
-                >
-                  <span>Explore English ↓</span>
-                </a>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile View: Full Artwork rendered cleanly below the text */}
-        <div className="sm:hidden px-4 pb-8 -mt-2">
-          <div className="rounded-2xl overflow-hidden shadow-xs border border-amber-100/80">
+        {/* Mobile View (< md): Clean stacked layout so text is crisp, spacious & readable */}
+        <div className="md:hidden pt-8 pb-6 px-4 bg-gradient-to-b from-[#F2F8FE] via-[#FAF8F5] to-[#FAF8F5]">
+          <div className="text-center space-y-3 mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E5F3FE] text-[#1E75C8] text-[10px] font-black uppercase tracking-wider border border-[#CEE7FC] shadow-2xs">
+              <span>OUR COURSES &amp; FEES</span>
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">
+              Learn a Language <br />
+              for a <span className="text-[#3048D4]">Bigger</span> <span className="text-[#FF5938]">World</span>
+            </h1>
+            <p className="text-xs text-gray-600 font-medium leading-relaxed max-w-xs mx-auto">
+              Structured courses based on the CEFR framework with expert guidance, interactive classes and a global community.
+            </p>
+          </div>
+
+          <div className="rounded-2xl overflow-hidden shadow-xs border border-amber-100/60 bg-white">
             <img
               src="/courses-images/heroimage.png"
-              alt="Landmark polaroids: Brandenburg Gate, Eiffel Tower, Colosseum"
-              className="w-full h-auto object-contain"
+              alt="Learn a Language for a Bigger World"
+              className="w-full h-auto object-contain block"
             />
           </div>
         </div>
@@ -245,11 +249,22 @@ export default function CoursesPage() {
               return (
                 <div
                   key={course._id || idx}
-                  className={`bg-white border ${palette.cardBorder} rounded-[26px] p-6 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group`}
+                  className={`${palette.cardBg} border ${palette.cardBorder} rounded-[28px] p-6 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group min-h-[360px] sm:min-h-[370px]`}
                 >
-                  <div>
+                  {/* Large Landmark Arch Image: positioned higher up, well clear of 'Book Free Trial' */}
+                  {cardImg && (
+                    <div className="absolute bottom-[96px] sm:bottom-[108px] right-1 sm:right-3 w-56 sm:w-64 md:w-60 lg:w-76 xl:w-84 h-44 sm:h-52 md:h-56 lg:h-64 pointer-events-none select-none flex items-end justify-end group-hover:scale-105 transition-transform duration-300">
+                      <img
+                        src={cardImg}
+                        alt={course.title}
+                        className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-sm"
+                      />
+                    </div>
+                  )}
+
+                  <div className="relative z-10">
                     {/* Top Row: Icon + Title + Price */}
-                    <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
+                    <div className={`flex items-start justify-between gap-4 pb-4 border-b ${palette.divider}`}>
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-11 h-11 rounded-2xl ${palette.iconBg} ${palette.iconText} flex items-center justify-center shadow-2xs flex-shrink-0`}
@@ -282,41 +297,25 @@ export default function CoursesPage() {
                       </div>
                     </div>
 
-                    {/* Card Middle: Checklist + Landmark Arch Image */}
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center pt-5 pb-3">
-                      {/* Left Checklist */}
-                      <div className={`${cardImg ? 'sm:col-span-7' : 'sm:col-span-12'} space-y-2.5`}>
-                        {featuresList.slice(0, 5).map((feat, fIdx) => (
-                          <div key={fIdx} className="flex items-start gap-2.5">
-                            <div
-                              className={`w-4 h-4 rounded-full ${palette.checkBg} ${palette.checkText} flex items-center justify-center flex-shrink-0 mt-0.5`}
-                            >
-                              <Check className="w-2.5 h-2.5 stroke-[3]" />
-                            </div>
-                            <span className="text-xs text-gray-700 font-medium leading-relaxed">
-                              {feat}
-                            </span>
+                    {/* Middle: Checklist with generous width to prevent text wrapping */}
+                    <div className="pt-5 pb-4 max-w-[65%] sm:max-w-[62%] lg:max-w-[58%] space-y-2.5">
+                      {featuresList.slice(0, 5).map((feat, fIdx) => (
+                        <div key={fIdx} className="flex items-start gap-2.5">
+                          <div
+                            className={`w-4 h-4 rounded-full ${palette.checkBg} ${palette.checkText} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                          >
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
                           </div>
-                        ))}
-                      </div>
-
-                      {/* Right Landmark Arch: Fetched directly from Course table in DB */}
-                      {cardImg && (
-                        <div className="sm:col-span-5 flex items-center justify-center sm:justify-end">
-                          <div className="w-28 sm:w-32 lg:w-36 h-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
-                            <img
-                              src={cardImg}
-                              alt={course.title}
-                              className="w-full h-auto object-contain pointer-events-none drop-shadow-xs"
-                            />
-                          </div>
+                          <span className="text-[11.5px] sm:text-xs text-gray-700 font-medium leading-relaxed sm:whitespace-nowrap xl:whitespace-normal">
+                            {feat}
+                          </span>
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
 
-                  {/* Bottom Button */}
-                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                  {/* Bottom Button Row: View Course Details (left) & Book Free Trial (right) */}
+                  <div className={`relative z-10 pt-4 border-t ${palette.divider} flex items-center justify-between`}>
                     <button
                       onClick={() =>
                         openCourseModal({
@@ -340,6 +339,7 @@ export default function CoursesPage() {
                           ],
                           examTarget: course.examPrep || undefined,
                           certificate: course.certificate || undefined,
+                          buttonColor: 'bg-[#E02B3A] hover:bg-[#C82331]',
                         })
                       }
                       className={`inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full ${palette.btnBg} font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95 cursor-pointer`}
@@ -350,9 +350,10 @@ export default function CoursesPage() {
 
                     <Link
                       href="/register"
-                      className="text-xs font-bold text-gray-500 hover:text-emerald-700 transition-colors hidden sm:inline-block"
+                      className="text-xs font-bold text-gray-600 hover:text-emerald-700 transition-colors flex items-center gap-1 group/btn"
                     >
-                      Book Free Trial →
+                      <span>Book Free Trial</span>
+                      <span className="transition-transform group-hover/btn:translate-x-0.5">→</span>
                     </Link>
                   </div>
                 </div>
@@ -362,19 +363,19 @@ export default function CoursesPage() {
         )}
 
         {/* ── 3. BANNER: "How Our German Course Works" ── */}
-        <div className="bg-[#EBF5FF] border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 mt-9 shadow-xs">
+        <div className="bg-[#E0F2FE] border border-[#BAE6FD] rounded-[26px] p-6 sm:p-8 mt-9 shadow-xs">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             
             {/* Left Narrative */}
             <div className="lg:col-span-7 flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#FFEBA5] text-amber-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
-                <Lightbulb className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-full bg-[#FDE047] text-[#854D0E] flex items-center justify-center flex-shrink-0 shadow-2xs">
+                <Lightbulb className="w-6 h-6 stroke-[2.5]" />
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight">
                   How Our German Course Works
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium mt-1.5 leading-relaxed">
+                <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1.5 leading-relaxed">
                   Our German courses are designed using the CEFR framework, ensuring a step-by-step learning journey from basic to advanced levels. You&apos;ll get expert guidance, interactive classes and plenty of practice to build real-world confidence.
                 </p>
               </div>
@@ -383,43 +384,43 @@ export default function CoursesPage() {
             {/* Right 4 Icons */}
             <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-xl bg-red-100 text-[#D92D3E] flex items-center justify-center mb-1.5 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#FFE4E6] text-[#E11D48] flex items-center justify-center mb-1.5 shadow-2xs">
                   <FileText className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                <span className="text-[11px] font-black text-gray-900 leading-tight">
                   Structured Curriculum
                 </span>
-                <span className="text-[10px] text-gray-500 font-semibold">(CEFR Aligned)</span>
+                <span className="text-[10px] text-gray-600 font-semibold">(CEFR Aligned)</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#1E75C8] flex items-center justify-center mb-1.5 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center mb-1.5 shadow-2xs">
                   <Monitor className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                <span className="text-[11px] font-black text-gray-900 leading-tight">
                   Interactive
                 </span>
-                <span className="text-[10px] text-gray-500 font-semibold">Live Classes</span>
+                <span className="text-[10px] text-gray-600 font-semibold">Live Classes</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#D97706] flex items-center justify-center mb-1.5 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#FFEDD5] text-[#EA580C] flex items-center justify-center mb-1.5 shadow-2xs">
                   <UserCheck className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                <span className="text-[11px] font-black text-gray-900 leading-tight">
                   Expert
                 </span>
-                <span className="text-[10px] text-gray-500 font-semibold">Guidance</span>
+                <span className="text-[10px] text-gray-600 font-semibold">Guidance</span>
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#059669] flex items-center justify-center mb-1.5 shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center mb-1.5 shadow-2xs">
                   <Users className="w-5 h-5" />
                 </div>
-                <span className="text-[11px] font-black text-gray-800 leading-tight">
+                <span className="text-[11px] font-black text-gray-900 leading-tight">
                   Global
                 </span>
-                <span className="text-[10px] text-gray-500 font-semibold">Community</span>
+                <span className="text-[10px] text-gray-600 font-semibold">Community</span>
               </div>
             </div>
 
@@ -503,7 +504,7 @@ export default function CoursesPage() {
         ) : (
           <div className="space-y-6">
             {englishCourses.map((engCourse, engIdx) => {
-              const engImage = engCourse.imageUrl?.trim() || '';
+              const engImage = engCourse.imageUrl?.trim() || '/courses-images/english-big-ben.png';
               const engFeatures = Array.isArray(engCourse.features) ? engCourse.features : [];
 
               return (
@@ -511,13 +512,13 @@ export default function CoursesPage() {
                   key={engCourse._id || engIdx}
                   className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center"
                 >
-                  {/* Card: English Course (lg:col-span-7) */}
-                  <div className={`${engImage ? 'lg:col-span-7' : 'lg:col-span-12'} bg-white border border-[#D0E6FF] rounded-[26px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(30,117,200,0.05)] hover:shadow-[0_12px_28px_rgba(30,117,200,0.1)] transition-all flex flex-col justify-between relative overflow-hidden`}>
+                  {/* Card: English Course (lg:col-span-7 xl:col-span-6) */}
+                  <div className={`${engImage ? 'lg:col-span-7 xl:col-span-6' : 'lg:col-span-12'} bg-[#ECF7FD] border border-[#BAE6FD] rounded-[26px] p-6 sm:p-8 transition-all flex flex-col justify-between relative overflow-hidden`}>
                     <div>
                       {/* Top Row: Icon + Title + Price */}
-                      <div className="flex items-start justify-between gap-4 pb-4 border-b border-blue-50">
+                      <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#CEE7FE]">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-2xl bg-[#EAF4FE] text-[#1351B4] flex items-center justify-center shadow-2xs flex-shrink-0">
+                          <div className="w-11 h-11 rounded-2xl bg-[#DBEAFE] text-[#1E75C8] flex items-center justify-center shadow-2xs flex-shrink-0">
                             <BookOpen className="w-5 h-5" />
                           </div>
                           <div>
@@ -526,7 +527,7 @@ export default function CoursesPage() {
                                 {engCourse.title}
                               </h3>
                               {engCourse.level && (
-                                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[#EBF5FF] text-[#1351B4] border border-[#CEE3FD]">
+                                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
                                   {engCourse.level}
                                 </span>
                               )}
@@ -553,10 +554,10 @@ export default function CoursesPage() {
                       <div className="space-y-3 pt-5 pb-5">
                         {engFeatures.map((feat, fIdx) => (
                           <div key={fIdx} className="flex items-start gap-2.5">
-                            <div className="w-4 h-4 rounded-full bg-blue-100 text-[#1351B4] flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <div className="w-4 h-4 rounded-full bg-[#DBEAFE] text-[#0284C7] flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Check className="w-2.5 h-2.5 stroke-[3]" />
                             </div>
-                            <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                            <span className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed sm:whitespace-nowrap xl:whitespace-normal">
                               {feat}
                             </span>
                           </div>
@@ -565,7 +566,7 @@ export default function CoursesPage() {
                     </div>
 
                     {/* Bottom Button */}
-                    <div className="pt-4 border-t border-blue-50 flex items-center justify-between">
+                    <div className="pt-4 border-t border-[#CEE7FE] flex items-center justify-between">
                       <button
                         onClick={() =>
                           openCourseModal({
@@ -589,9 +590,10 @@ export default function CoursesPage() {
                             ],
                             examTarget: engCourse.examPrep || undefined,
                             certificate: engCourse.certificate || undefined,
+                            buttonColor: 'bg-[#0F52BA] hover:bg-[#0C4196]',
                           })
                         }
-                        className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#1351B4] hover:bg-[#0E3E8C] text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#0F52BA] hover:bg-[#0C4196] text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer"
                       >
                         <span>View Course Details</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -599,21 +601,21 @@ export default function CoursesPage() {
 
                       <Link
                         href="/register"
-                        className="text-xs font-bold text-[#1351B4] hover:underline hidden sm:inline-block"
+                        className="text-xs font-bold text-[#0F52BA] hover:underline hidden sm:inline-block"
                       >
                         Start Monthly Subscription →
                       </Link>
                     </div>
                   </div>
 
-                  {/* Right Artwork: Image from Course DB (lg:col-span-5) */}
+                  {/* Right Artwork: Image beside English Course (lg:col-span-5 xl:col-span-6) */}
                   {engImage && (
-                    <div className="lg:col-span-5 flex items-center justify-center relative">
-                      <div className="relative w-full max-w-[340px] sm:max-w-[380px] flex items-center justify-center">
+                    <div className="lg:col-span-5 xl:col-span-6 flex items-center justify-center relative py-4 lg:py-0">
+                      <div className="relative w-full max-w-[560px] lg:max-w-[620px] flex items-center justify-center">
                         <img
                           src={engImage}
-                          alt={engCourse.title}
-                          className="w-full h-auto object-contain select-none hover:scale-105 transition-transform duration-500 drop-shadow-md"
+                          alt="Better English, Bigger Opportunities"
+                          className="w-full h-auto object-contain select-none hover:scale-105 transition-transform duration-500"
                         />
                       </div>
                     </div>
@@ -647,7 +649,7 @@ export default function CoursesPage() {
               <div className="mt-4 flex items-center justify-center md:justify-start gap-3 flex-wrap">
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#E67002] hover:bg-[#C95F00] text-white font-extrabold text-xs sm:text-sm shadow-xs transition-all active:scale-95"
                 >
                   <span>Get Started</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -657,7 +659,7 @@ export default function CoursesPage() {
                   href="https://wa.me/919105326128?text=Hello%20BhashaSchool!%20I%20would%20like%20guidance%20on%20choosing%20the%20right%20course."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 font-bold text-xs sm:text-sm shadow-2xs transition-all active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-800 font-extrabold text-xs sm:text-sm shadow-2xs transition-all active:scale-95"
                 >
                   <PhoneCall className="w-3.5 h-3.5 text-gray-500" />
                   <span>Talk to Our Team</span>
@@ -667,13 +669,32 @@ export default function CoursesPage() {
           </div>
 
           {/* Right Flight Path Graphic: "Your Language Journey Starts Here" */}
-          <div className="flex-shrink-0 flex items-center justify-center">
-            <div className="w-40 sm:w-48 h-auto">
-              <img
-                src="/courses-images/cta-journey-note.png"
-                alt="Your Language Journey Starts Here with paper airplane"
-                className="w-full h-auto object-contain select-none"
-              />
+          <div className="flex-shrink-0 flex flex-col items-center md:items-end justify-center relative select-none pr-2 sm:pr-4">
+            <div className="relative transform -rotate-2 text-center md:text-right">
+              <span className="block font-serif italic font-extrabold text-[#E02B3A] text-sm sm:text-base tracking-tight leading-snug">
+                Your Language
+              </span>
+              <span className="block font-serif italic font-extrabold text-[#E02B3A] text-sm sm:text-base tracking-tight leading-snug">
+                Journey Starts Here
+              </span>
+              {/* Flight path curve with paper airplane */}
+              <svg
+                className="w-32 sm:w-36 h-10 overflow-visible mt-1 mx-auto md:ml-auto text-[#E02B3A]"
+                viewBox="0 0 120 40"
+                fill="none"
+              >
+                <path
+                  d="M10 32 C 40 38, 70 30, 95 12"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeDasharray="4 4"
+                  fill="none"
+                />
+                <path
+                  d="M95 12 L110 5 L102 18 L99 13 Z"
+                  fill="currentColor"
+                />
+              </svg>
             </div>
           </div>
 
@@ -682,136 +703,183 @@ export default function CoursesPage() {
 
       {/* ── 7. INTERACTIVE COURSE DETAILS MODAL ── */}
       {selectedCourse && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={closeCourseModal}
+        >
           <div
-            className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200"
+            className="bg-white rounded-[32px] max-w-2xl lg:max-w-3xl w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[92vh] sm:max-h-[88vh] animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-start justify-between">
-              <div className="flex items-center gap-3">
+            <div className="px-6 sm:px-8 py-5 bg-gradient-to-r from-gray-50/90 via-white to-gray-50/90 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-3.5 min-w-0">
                 <div
                   className={`w-12 h-12 rounded-2xl ${selectedCourse.iconBg} ${selectedCourse.iconText} flex items-center justify-center flex-shrink-0 shadow-2xs`}
                 >
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-black text-gray-900 leading-tight">
+                <div className="min-w-0">
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight truncate">
                     {selectedCourse.title}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
                       {selectedCourse.levelBadge}
                     </span>
-                    <span className="text-xs font-black text-emerald-700">
+                    <span className="text-xs sm:text-sm font-black text-gray-900">
                       {selectedCourse.price}
                     </span>
+                    {selectedCourse.feeNote && (
+                      <span className="text-[11px] text-gray-400 font-medium hidden sm:inline">
+                        • {selectedCourse.feeNote}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <button
                 onClick={closeCourseModal}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors cursor-pointer flex-shrink-0 ml-3"
                 aria-label="Close modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-6 overflow-y-auto space-y-5 text-xs sm:text-sm">
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1.5">
-                  About the Course
-                </h4>
-                <p className="text-gray-700 leading-relaxed font-medium">
+            <div className="px-6 sm:px-8 py-6 overflow-y-auto space-y-6 [scrollbar-width:thin] [scrollbar-color:#CBD5E1_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+              {/* About the Course */}
+              <div className="bg-gray-50/80 border border-gray-100 rounded-2xl p-4 sm:p-5">
+                <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block mb-1.5">
+                  About The Course
+                </span>
+                <p className="text-xs sm:text-sm text-gray-700 leading-relaxed font-medium">
                   {selectedCourse.description}
                 </p>
               </div>
 
-              {/* Schedule & Duration */}
-              <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
-                <div>
-                  <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px]">
-                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>TIMINGS</span>
+              {/* Specs Pills: Timings & Duration & Exam/Certificate */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-2xs flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-wider">
+                    <Clock className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Timings</span>
                   </div>
-                  <p className="font-extrabold text-gray-900 mt-0.5 text-xs">
+                  <p className="font-extrabold text-gray-900 mt-1 text-xs sm:text-sm">
                     {selectedCourse.schedule}
                   </p>
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px]">
+
+                <div className="bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-2xs flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-wider">
                     <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>DURATION</span>
+                    <span>Duration</span>
                   </div>
-                  <p className="font-extrabold text-gray-900 mt-0.5 text-xs">
+                  <p className="font-extrabold text-gray-900 mt-1 text-xs sm:text-sm">
                     {selectedCourse.duration}
+                  </p>
+                </div>
+
+                <div className="col-span-2 sm:col-span-1 bg-white p-3.5 rounded-2xl border border-gray-200/80 shadow-2xs flex flex-col justify-center">
+                  <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-wider">
+                    <Award className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Certification</span>
+                  </div>
+                  <p className="font-extrabold text-gray-900 mt-1 text-xs sm:text-sm truncate">
+                    {selectedCourse.certificate || selectedCourse.examTarget || 'CEFR Aligned'}
                   </p>
                 </div>
               </div>
 
-              {/* Curriculum */}
+              {/* Curriculum Highlights in 2 Columns */}
               <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block mb-2.5">
                   Curriculum Highlights
-                </h4>
-                <ul className="space-y-2">
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {selectedCourse.curriculum.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-gray-700">
-                      <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5 text-[10px] font-black">
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-gray-50/90 border border-gray-100 text-gray-800"
+                    >
+                      <div className="w-5 h-5 rounded-md bg-[#DBEAFE] text-[#1E75C8] flex items-center justify-center flex-shrink-0 text-[10px] font-black mt-0.5">
                         {idx + 1}
                       </div>
-                      <span className="leading-snug font-medium">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Materials */}
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2">
-                  Included Study Material
-                </h4>
-                <div className="space-y-1.5">
-                  {selectedCourse.materials.map((mat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-gray-600">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                      <span className="font-medium text-xs">{mat}</span>
+                      <span className="text-xs font-semibold leading-snug">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Exam Target */}
+              {/* Included Study Material */}
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block mb-2.5">
+                  Included Study Material
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {selectedCourse.materials.map((mat, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-2 p-3 rounded-xl bg-amber-50/50 border border-amber-100 text-amber-900"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs font-medium leading-snug">{mat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Exam Target if Available */}
               {selectedCourse.examTarget && (
-                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-xs">
-                  <span className="font-black text-amber-900 block">Exam Certification Target:</span>
-                  <span className="text-amber-800 font-medium">{selectedCourse.examTarget}</span>
+                <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-100 flex items-center gap-3">
+                  <Award className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  <div>
+                    <span className="font-black text-emerald-900 text-xs block">
+                      Official Certification Target
+                    </span>
+                    <span className="text-emerald-700 font-medium text-xs">
+                      {selectedCourse.examTarget}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="p-5 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
+            <div className="px-6 sm:px-8 py-5 bg-gray-50/90 border-t border-gray-100 flex items-center justify-between gap-4">
               <div>
-                <span className="text-xs text-gray-400 font-medium block">Total Investment</span>
-                <span className="text-lg font-black text-gray-900">{selectedCourse.price}</span>
+                <span className="text-[10px] text-gray-400 font-black uppercase tracking-wider block">
+                  Total Investment
+                </span>
+                <div className="flex items-baseline gap-1.5 mt-0.5">
+                  <span className="text-2xl sm:text-3xl font-black text-gray-900">
+                    {selectedCourse.price}
+                  </span>
+                  {selectedCourse.feeNote && (
+                    <span className="text-xs text-gray-500 font-medium hidden sm:inline">
+                      ({selectedCourse.feeNote})
+                    </span>
+                  )}
+                </div>
               </div>
-              
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-3">
                 <button
                   onClick={closeCourseModal}
-                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 rounded-xl"
+                  className="px-5 py-2.5 text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 rounded-full transition-colors cursor-pointer"
                 >
                   Close
                 </button>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs shadow-md transition-all active:scale-95"
+                  className={`inline-flex items-center gap-2 px-7 py-3 rounded-full ${
+                    selectedCourse.buttonColor || 'bg-[#E02B3A] hover:bg-[#C82331]'
+                  } text-white font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer`}
                 >
-                  Enroll Now →
+                  <span>Enroll Now</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import {
@@ -14,6 +14,10 @@ import {
   CalendarDays,
   Languages,
   KeyRound,
+  Camera,
+  Loader2,
+  Trash2,
+  Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,6 +27,8 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -60,6 +66,45 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Avatar image must be 5 MB or smaller');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const data = new FormData();
+      data.append('image', file);
+      const res = await api.post<{ url: string }>('/blogs/upload', data);
+      await api.post('/auth/profile', { avatar: res.data.url });
+      await fetchUser();
+      toast.success('Profile avatar updated successfully!');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to upload avatar');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!confirm('Are you sure you want to remove your profile photo?')) return;
+    setAvatarUploading(true);
+    try {
+      await api.post('/auth/profile', { avatar: '' });
+      await fetchUser();
+      toast.success('Profile photo removed');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to remove photo');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const initials = (user?.name || 'U')
     .split(' ')
     .filter(Boolean)
@@ -81,18 +126,72 @@ export default function ProfilePage() {
       {/* Profile header */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-800 to-emerald-950 p-6 sm:p-7 text-white shadow-sm">
         <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/5" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-2xl sm:text-3xl font-black tracking-tight shrink-0">
-            {initials || 'U'}
+        <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
+          {/* Avatar with Upload Option */}
+          <div className="relative group shrink-0">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              disabled={avatarUploading}
+            />
+
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/10 border-2 border-white/25 overflow-hidden flex items-center justify-center text-2xl sm:text-3xl font-black tracking-tight shrink-0 shadow-lg relative">
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user?.name || 'User'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{initials || 'U'}</span>
+              )}
+
+              {avatarUploading && (
+                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-white text-[10px] font-bold">
+                  <Loader2 className="w-6 h-6 animate-spin text-emerald-400 mb-1" />
+                  <span>Uploading</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="absolute -bottom-1 -right-1 p-2 rounded-xl bg-white text-emerald-900 shadow-md hover:bg-emerald-50 transition-transform active:scale-95 cursor-pointer"
+              title="Upload profile photo"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
           </div>
+
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">
-              {user?.name || 'Your Profile'}
-            </h1>
-            <p className="text-xs sm:text-sm font-medium text-emerald-100/80 truncate mt-0.5">
-              {user?.email || (user?.phoneNumber ? `+${user.phoneNumber}` : 'No contact added')}
-            </p>
-            <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">
+                  {user?.name || 'Your Profile'}
+                </h1>
+                <p className="text-xs sm:text-sm font-medium text-emerald-100/80 truncate mt-0.5">
+                  {user?.email || (user?.phoneNumber ? `+${user.phoneNumber}` : 'No contact added')}
+                </p>
+              </div>
+
+              {user?.avatar && (
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={avatarUploading}
+                  className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-white/10 hover:bg-rose-500/20 text-rose-200 border border-white/15 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Remove Photo
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 mt-3">
               <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
                 <Shield className="w-3 h-3" /> {roleLabel}
               </span>
