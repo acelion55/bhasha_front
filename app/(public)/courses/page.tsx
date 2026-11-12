@@ -249,7 +249,7 @@ export default function CoursesPage() {
               return (
                 <div
                   key={course._id || idx}
-                  className={`${palette.cardBg} border ${palette.cardBorder} rounded-[28px] p-6 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group min-h-[360px] sm:min-h-[370px]`}
+                  className={`${palette.cardBg} border ${palette.cardBorder} rounded-[28px] p-5 sm:p-7 ${palette.cardShadow} transition-all flex flex-col justify-between relative overflow-hidden group min-h-[360px] sm:min-h-[370px]`}
                 >
                   {/* Large Landmark Arch Image: positioned higher up, well clear of 'Book Free Trial' */}
                   {cardImg && (
@@ -264,33 +264,33 @@ export default function CoursesPage() {
 
                   <div className="relative z-10">
                     {/* Top Row: Icon + Title + Price */}
-                    <div className={`flex items-start justify-between gap-4 pb-4 border-b ${palette.divider}`}>
-                      <div className="flex items-center gap-3">
+                    <div className={`flex items-start justify-between gap-2.5 sm:gap-4 pb-4 border-b ${palette.divider}`}>
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                         <div
-                          className={`w-11 h-11 rounded-2xl ${palette.iconBg} ${palette.iconText} flex items-center justify-center shadow-2xs flex-shrink-0`}
+                          className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl ${palette.iconBg} ${palette.iconText} flex items-center justify-center shadow-2xs flex-shrink-0`}
                         >
-                          <BookOpen className="w-5 h-5" />
+                          <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <div>
-                          <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                        <div className="min-w-0">
+                          <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight break-words">
                             {course.title}
                           </h3>
                           {course.level && (
-                            <p className="text-xs text-gray-500 font-medium">
+                            <p className="text-xs text-gray-500 font-medium truncate">
                               {course.level}
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                      <div className="text-right shrink-0 max-w-[46%] sm:max-w-[220px] min-w-0">
+                        <div className="text-[clamp(1.1rem,4.5vw,1.7rem)] font-black text-gray-900 leading-none whitespace-nowrap">
                           ₹{(course.price ?? 0).toLocaleString('en-IN')}
                           {course.billingPeriod === 'monthly' && (
-                            <span className="text-base font-bold text-gray-500">/mo</span>
+                            <span className="text-xs sm:text-base font-bold text-gray-500">/mo</span>
                           )}
                         </div>
                         {course.feeNote && (
-                          <div className="text-[11px] text-gray-400 font-medium mt-1">
+                          <div className="text-[10px] sm:text-[11px] text-gray-500 font-medium mt-1 leading-snug break-words">
                             {course.feeNote}
                           </div>
                         )}
@@ -513,17 +513,17 @@ export default function CoursesPage() {
                   className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-center"
                 >
                   {/* Card: English Course (lg:col-span-7 xl:col-span-6) */}
-                  <div className={`${engImage ? 'lg:col-span-7 xl:col-span-6' : 'lg:col-span-12'} bg-[#ECF7FD] border border-[#BAE6FD] rounded-[26px] p-6 sm:p-8 transition-all flex flex-col justify-between relative overflow-hidden`}>
+                  <div className={`${engImage ? 'lg:col-span-7 xl:col-span-6' : 'lg:col-span-12'} bg-[#ECF7FD] border border-[#BAE6FD] rounded-[26px] p-5 sm:p-8 transition-all flex flex-col justify-between relative overflow-hidden`}>
                     <div>
                       {/* Top Row: Icon + Title + Price */}
-                      <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#CEE7FE]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-2xl bg-[#DBEAFE] text-[#1E75C8] flex items-center justify-center shadow-2xs flex-shrink-0">
-                            <BookOpen className="w-5 h-5" />
+                      <div className="flex items-start justify-between gap-2.5 sm:gap-4 pb-4 border-b border-[#CEE7FE]">
+                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#DBEAFE] text-[#1E75C8] flex items-center justify-center shadow-2xs flex-shrink-0">
+                            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                              <h3 className="text-lg sm:text-2xl font-black text-gray-900 tracking-tight break-words">
                                 {engCourse.title}
                               </h3>
                               {engCourse.level && (
@@ -535,15 +535,15 @@ export default function CoursesPage() {
                           </div>
                         </div>
 
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-2xl sm:text-[1.7rem] font-black text-gray-900 leading-none">
+                        <div className="text-right shrink-0 max-w-[46%] sm:max-w-[220px] min-w-0">
+                          <div className="text-[clamp(1.1rem,4.5vw,1.7rem)] font-black text-gray-900 leading-none whitespace-nowrap">
                             ₹{(engCourse.price ?? 0).toLocaleString('en-IN')}
                             {engCourse.billingPeriod === 'monthly' && (
-                              <span className="text-base font-bold text-gray-500">/mo</span>
+                              <span className="text-xs sm:text-base font-bold text-gray-500">/mo</span>
                             )}
                           </div>
                           {engCourse.feeNote && (
-                            <div className="text-[11px] text-gray-400 font-medium mt-1">
+                            <div className="text-[10px] sm:text-[11px] text-gray-500 font-medium mt-1 leading-snug break-words">
                               {engCourse.feeNote}
                             </div>
                           )}

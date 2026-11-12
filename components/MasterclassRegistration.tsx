@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Check, Clock, GraduationCap, Timer, X } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Masterclass {
   id: string;
@@ -24,8 +25,6 @@ interface RegistrationForm {
   email: string;
   phone: string;
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function MasterclassRegistration() {
   const [masterclasses, setMasterclasses] = useState<Masterclass[]>([]);

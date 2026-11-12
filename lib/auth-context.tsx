@@ -12,6 +12,7 @@ interface User {
   role: string;
   category?: string;
   language?: string;
+  isSubscribed?: boolean;
   createdAt?: string;
   userWhatsappNumber?: string;
   avatar?: string;
@@ -50,6 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role: res.data.role,
           category: res.data.category,
           language: res.data.language,
+          isSubscribed: Boolean(res.data.isSubscribed),
           createdAt: res.data.createdAt,
           userWhatsappNumber: res.data.userWhatsappNumber,
           avatar: res.data.avatar,
@@ -64,6 +66,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
+      if (typeof window !== 'undefined') {
+        const fcmToken = localStorage.getItem('fcm_token');
+        if (fcmToken) {
+          await api.delete('/notifications/token', { data: { token: fcmToken } }).catch(() => {});
+          localStorage.removeItem('fcm_token');
+        }
+      }
       await api.post('/auth/logout');
     } catch (err) {
       // Ignore error

@@ -18,7 +18,7 @@ import {
   CheckCircle2,
   CreditCard,
   BookOpen,
-  MessagesSquare
+  MessagesSquare,
 } from 'lucide-react';
 
 export default function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
@@ -47,18 +47,24 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     );
   }
 
-  // Navigation tabs based on user role
+  // Navigation tabs based on user role (Req 4: hide chat for non-subscribed students)
+  const isSubscribed = Boolean((user as any)?.isSubscribed);
+
   const studentNav = [
     { name: 'My Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
-    { name: 'Language Exchange', shortName: 'Chat', path: '/dashboard/student/chat', icon: MessagesSquare },
+    ...(isSubscribed ? [{ name: 'Language Exchange', shortName: 'Chat', path: '/dashboard/student/chat', icon: MessagesSquare }] : []),
     { name: 'Completed Classes', shortName: 'Completed', path: '/dashboard/student/completed', icon: CheckCircle2 },
     { name: 'Payments & Plans', shortName: 'Payments', path: '/dashboard/student/payments', icon: CreditCard },
-    { name: 'Profile & Category', shortName: 'Profile', path: '/dashboard/profile', icon: User },
+    {
+      name: user?.language === 'English' || user?.language === 'Spanish' ? 'Profile & Settings' : 'Profile & Category',
+      shortName: 'Profile',
+      path: '/dashboard/profile',
+      icon: User,
+    },
   ];
 
   const mentorNav = [
     { name: 'Classes & Cohorts', shortName: 'Classes', path: '/dashboard/student', icon: GraduationCap },
-    { name: 'Payments & Plans', shortName: 'Payments', path: '/dashboard/student/payments', icon: CreditCard },
     { name: 'Profile & Settings', shortName: 'Profile', path: '/dashboard/profile', icon: User },
   ];
 
@@ -67,6 +73,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     { name: 'Student Chats', shortName: 'Chats', path: '/dashboard/admin/chats', icon: MessagesSquare },
     { name: 'Analytics', shortName: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
     { name: 'Classes Studio', shortName: 'Classes', path: '/dashboard/admin/classes', icon: Layers },
+    { name: 'Mentor Classes', shortName: 'Mentor', path: '/dashboard/admin/mentor-classes', icon: GraduationCap },
     { name: 'Public Classes', shortName: 'Public', path: '/dashboard/admin/masterclasses', icon: Calendar },
     { name: 'Leads', shortName: 'Leads', path: '/dashboard/admin/leads', icon: Inbox },
     { name: 'Courses & Fees', shortName: 'Courses', path: '/dashboard/admin/courses', icon: BookOpen },
@@ -81,13 +88,16 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   }
 
   return (
-    <div className={`h-[100dvh] h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] dashboard-mobile-type dashboard-touch-root ${user.role === 'admin' ? 'admin-panel' : user.role === 'mentor' || user.role === 'teacher' ? '' : 'student-panel'}`}>
+    <div 
+      data-lenis-prevent="true"
+      className={`h-[100dvh] h-screen w-full flex bg-[#f8faf9] text-gray-800 overflow-hidden font-[Plus_Jakarta_Sans] dashboard-mobile-type ${user.role === 'admin' ? 'admin-panel' : user.role === 'mentor' || user.role === 'teacher' ? '' : 'student-panel'}`}
+    >
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-full overflow-hidden text-gray-200">
 
         {/* Scrollable Nav Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4 overscroll-y-contain touch-pan-y">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4">
 
           {/* Brand Header */}
           <div className="flex items-center justify-between pt-1 pb-2 px-1">
@@ -164,7 +174,10 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </header>
 
         {/* Main Content Area */}
-        <main className="dashboard-main-scroll flex-1 overflow-y-auto overscroll-y-contain touch-pan-y min-h-0 bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-28 md:pb-8">
+        <main 
+          data-lenis-prevent="true"
+          className="dashboard-main-scroll flex-1 overflow-y-auto min-h-0 bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-28 md:pb-8"
+        >
           {children}
         </main>
       </div>

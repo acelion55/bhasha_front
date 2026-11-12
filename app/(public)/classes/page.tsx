@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, API_BASE_URL } from '@/lib/api';
 import {
   Search,
   Calendar,
@@ -23,8 +23,6 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface PublicMasterclass {
   _id: string;
@@ -617,7 +615,7 @@ export default function PublicMasterclassesPage() {
                             {cls.instructor}
                           </p>
                           <p className="text-[11px] text-gray-400 font-medium truncate">
-                            {cls.instructorRole || 'Native Language Teacher'}
+                            Teacher
                           </p>
                         </div>
                       </div>
@@ -767,7 +765,7 @@ export default function PublicMasterclassesPage() {
                   {activeModalClass.title}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
-                  with <strong className="text-gray-800">{activeModalClass.instructor}</strong> ({activeModalClass.instructorRole || 'Teacher'})
+                  with <strong className="text-gray-800">{activeModalClass.instructor}</strong> (Teacher)
                 </p>
               </div>
 

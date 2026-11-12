@@ -4,21 +4,33 @@ import React, { useState } from 'react';
 import { CreditCard, Loader2, CheckCircle2, XCircle, IndianRupee } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface PayButtonProps {
-  amount: number;
+export interface PayButtonProps {
+  amount: number; // In INR by default (e.g. 499 for ₹499)
+  isPaise?: boolean; // Set true if amount is already in paise
+  currency?: string;
   description?: string;
   courseName?: string;
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
-  onSuccess?: (result: any) => void;
-  onFailed?: (result: any) => void;
+  onSuccess?: (result: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+    paymentId: string;
+    orderId: string;
+    [key: string]: any;
+  }) => void;
+  onFailed?: (error: any) => void;
   className?: string;
   variant?: 'default' | 'compact' | 'card';
+  buttonText?: string;
 }
 
 export default function PayButton({
   amount,
+  isPaise = false,
+  currency = 'INR',
   description,
   courseName,
   customerName,
@@ -28,117 +40,163 @@ export default function PayButton({
   onFailed,
   className = '',
   variant = 'default',
+  buttonText,
 }: PayButtonProps) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'failed'>('idle');
 
-  const RAZORPAY_API_URL = process.env.NEXT_PUBLIC_RAZORPAY_API_URL || 'http://localhost:6100';
-  const RAZORPAY_CHECKOUT_URL = process.env.NEXT_PUBLIC_RAZORPAY_CHECKOUT_URL || 'http://localhost:7000';
+  // Convert to paise for Razorpay API (minimum 100 paise = ₹1)
+  const amountInPaise = isPaise ? Math.round(amount) : Math.round(amount * 100);
+  const displayAmount = isPaise ? Math.round(amount / 100) : amount;
 
-  const startPayment = async () => {
+  const handlePayment = async () => {
+    if (amountInPaise < 100) {
+      toast.error('Minimum payment amount is ₹1 (100 paise)');
+      return;
+    }
+
     setLoading(true);
     setStatus('loading');
 
     try {
-      // Create payment session via our API wrapper
-      const res = await fetch('/api/pay', {
+      // 1. Ensure Razorpay Checkout script is loaded
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        throw new Error('Could not load Razorpay Checkout SDK. Please check your internet connection.');
+      }
+
+      // 2. Step 1: Create Order on Backend
+      const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount,
-          description: description || courseName || 'BhashaSchool Payment',
-          customerName,
-          customerEmail,
-          customerPhone,
+          amount: amountInPaise,
+          currency,
+          receipt: `rcpt_${Date.now()}`,
+          notes: {
+            description: description || courseName || 'BhashaSchool Course',
+            courseName: courseName || '',
+          },
         }),
       });
 
-      const data = await res.json();
+      const orderData = await orderRes.json();
 
-      if (!res.ok || !data.checkoutUrl) {
-        throw new Error(data.error || 'Failed to create payment');
+      if (!orderRes.ok || !orderData.order_id) {
+        throw new Error(orderData.error || 'Failed to initiate payment order');
       }
 
-      // Dynamically load the Razorpay checkout SDK and open the modal
-      await loadRazorpaySDK();
-
-      // Use the global Razorpay.pay() to open checkout modal
-      const rzp = (window as any).Razorpay || (window as any).RazorpayCheckout;
-
-      if (!rzp) {
-        // Fallback: open checkout URL in new tab
-        window.open(data.checkoutUrl, '_blank');
-        toast.info('Payment opened in a new tab');
-        setLoading(false);
-        setStatus('idle');
-        return;
+      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!keyId) {
+        throw new Error('NEXT_PUBLIC_RAZORPAY_KEY_ID is missing');
       }
 
-      await rzp.pay({
-        paymentId: data.paymentId,
-        checkoutUrl: data.checkoutUrl,
-        amount,
+      // 3. Step 2: Open Razorpay Standard Checkout Modal
+      const options = {
+        key: keyId,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
         name: 'BhashaSchool',
-        description: description || courseName || 'Course Payment',
-        portalUrl: RAZORPAY_CHECKOUT_URL,
-        apiUrl: RAZORPAY_API_URL,
-        customer: {
+        description: description || courseName || 'Language Course Payment',
+        order_id: orderData.order_id,
+        prefill: {
           name: customerName || '',
           email: customerEmail || '',
-          phone: customerPhone || '',
+          contact: customerPhone || '',
         },
-        theme: { color: '#059669' },
-        onSuccess: (result: any) => {
-          setStatus('success');
-          toast.success('Payment successful!');
-          onSuccess?.(result);
-          setTimeout(() => setStatus('idle'), 3000);
+        theme: {
+          color: '#059669', // Emerald
         },
-        onFailed: (result: any) => {
-          setStatus('failed');
-          toast.error('Payment failed. Please try again.');
-          onFailed?.(result);
-          setTimeout(() => setStatus('idle'), 3000);
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            setStatus('idle');
+            toast.info('Payment window closed');
+          },
         },
-        onPaymentFailed: (result: any) => {
-          setStatus('failed');
-          toast.error('Payment failed. Please try again.');
-          onFailed?.(result);
-          setTimeout(() => setStatus('idle'), 3000);
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            // 4. Step 3: Backend signature verification
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.error || 'Payment signature verification failed');
+            }
+
+            setStatus('success');
+            toast.success('Payment verified successfully!');
+
+            const resultPayload = {
+              ...response,
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+            };
+
+            onSuccess?.(resultPayload);
+            setTimeout(() => setStatus('idle'), 4000);
+          } catch (verifyErr: any) {
+            console.error('[PayButton Verification Error]:', verifyErr);
+            setStatus('failed');
+            toast.error(verifyErr.message || 'Payment verification failed');
+            onFailed?.(verifyErr);
+            setTimeout(() => setStatus('idle'), 4000);
+          } finally {
+            setLoading(false);
+          }
         },
-        onCancelled: () => {
-          setStatus('idle');
-          toast.info('Payment cancelled');
-        },
-        onExpired: () => {
-          setStatus('failed');
-          toast.warning('Payment session expired. Please try again.');
-          setTimeout(() => setStatus('idle'), 3000);
-        },
-        onClose: () => {
-          if (status === 'loading') setStatus('idle');
-        },
+      };
+
+      const razorpayInstance = new (window as any).Razorpay(options);
+
+      razorpayInstance.on('payment.failed', (failResponse: any) => {
+        console.error('[Razorpay Payment Failed]:', failResponse);
+        const reason =
+          failResponse?.error?.description ||
+          failResponse?.error?.reason ||
+          'Payment processing failed';
+        setStatus('failed');
+        toast.error(`Payment failed: ${reason}`);
+        onFailed?.(failResponse);
+        setLoading(false);
+        setTimeout(() => setStatus('idle'), 4000);
       });
+
+      razorpayInstance.open();
     } catch (err: any) {
-      console.error('[PayButton] Error:', err);
-      toast.error(err.message || 'Something went wrong');
+      console.error('[PayButton Error]:', err);
+      toast.error(err.message || 'Payment could not be started');
       setStatus('failed');
-      setTimeout(() => setStatus('idle'), 3000);
-    } finally {
+      onFailed?.(err);
       setLoading(false);
+      setTimeout(() => setStatus('idle'), 4000);
     }
   };
 
   return (
     <button
-      onClick={startPayment}
+      type="button"
+      onClick={handlePayment}
       disabled={loading || status === 'success'}
       className={`
         group relative overflow-hidden
         flex items-center justify-center gap-2.5
         font-black text-base sm:text-lg
         transition-all duration-300 ease-out
-        disabled:cursor-not-allowed
+        cursor-pointer disabled:cursor-not-allowed
         ${variant === 'compact'
           ? 'px-5 py-2.5 rounded-xl text-sm'
           : variant === 'card'
@@ -175,10 +233,10 @@ export default function PayButton({
       ) : (
         <>
           <CreditCard className="w-5 h-5" />
-          <span>Pay</span>
+          <span>{buttonText || 'Pay'}</span>
           <span className="flex items-center gap-0.5">
             <IndianRupee className="w-4 h-4" />
-            {amount.toLocaleString('en-IN')}
+            {displayAmount.toLocaleString('en-IN')}
           </span>
         </>
       )}
@@ -186,29 +244,30 @@ export default function PayButton({
   );
 }
 
-/** Dynamically loads the Razorpay checkout SDK script if not already present */
-function loadRazorpaySDK(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if ((window as any).__RAZORPAY_SDK_INITIALIZED__) {
-      resolve();
+/** Dynamically loads the official Razorpay Checkout SDK script */
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(false);
       return;
     }
 
-    const existing = document.querySelector('script[src*="razorpay"]');
-    if (existing) {
-      resolve();
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const scriptSrc = process.env.NEXT_PUBLIC_RAZORPAY_CHECKOUT_SCRIPT_URL;
+    if (!scriptSrc) {
+      resolve(false);
       return;
     }
 
     const script = document.createElement('script');
-    const checkoutUrl = process.env.NEXT_PUBLIC_RAZORPAY_CHECKOUT_URL || 'http://localhost:7000';
-    script.src = `${checkoutUrl}/razorpay-checkout.js`;
+    script.src = scriptSrc;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => {
-      console.warn('[PayButton] Could not load Razorpay SDK from checkout portal, using fallback');
-      resolve(); // Resolve anyway — we'll fallback to window.open
-    };
-    document.head.appendChild(script);
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
   });
 }

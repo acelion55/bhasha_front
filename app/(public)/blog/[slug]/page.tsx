@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { API_BASE_URL } from '@/lib/api';
 import { getMergedKeywords } from '@/lib/seo-keywords';
 import {
   ArrowLeft,
@@ -22,8 +23,6 @@ import {
   CheckCircle2,
   type LucideIcon,
 } from 'lucide-react';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const categoryIcons: Record<string, LucideIcon> = {
   'Study Methods': Brain,
@@ -75,6 +74,7 @@ function cleanSlug(rawSlug: string): string {
 }
 
 async function getBlog(rawSlug: string): Promise<ApiBlog | null> {
+  if (!API_BASE_URL) return null;
   const slug = cleanSlug(rawSlug);
   try {
     const res = await fetch(`${API_BASE_URL}/blogs/${encodeURIComponent(slug)}`, {
@@ -90,6 +90,7 @@ async function getBlog(rawSlug: string): Promise<ApiBlog | null> {
 }
 
 async function getRelated(currentSlug: string): Promise<ApiBlog[]> {
+  if (!API_BASE_URL) return [];
   try {
     const res = await fetch(`${API_BASE_URL}/blogs`, {
       cache: 'no-store',

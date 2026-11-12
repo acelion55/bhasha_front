@@ -12,14 +12,17 @@ import {
   Target,
   Sparkles,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   GraduationCap,
   ExternalLink,
   X,
   Quote,
   ShieldCheck,
   Eye,
+  Code2,
+  Terminal,
+  Cpu,
+  Layers,
+  Laptop,
 } from 'lucide-react';
 
 const stats = [
@@ -87,45 +90,6 @@ const values = [
   },
 ];
 
-const teachers = [
-  {
-    name: 'Anna Müller',
-    role: 'Native German Teacher',
-    country: 'Germany',
-    flag: '🇩🇪',
-    image:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&auto=format&fit=crop',
-    bio: 'Helping learners build confidence in everyday conversations.',
-  },
-  {
-    name: 'James Carter',
-    role: 'English Language Coach',
-    country: 'United Kingdom',
-    flag: '🇬🇧',
-    image:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop',
-    bio: 'Focus on fluency, pronunciation and real-life communication.',
-  },
-  {
-    name: 'Sophie Laurent',
-    role: 'Native French Teacher',
-    country: 'France',
-    flag: '🇫🇷',
-    image:
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
-    bio: 'Making French simple, practical and enjoyable to learn.',
-  },
-  {
-    name: 'Carlos Ruiz',
-    role: 'Native Spanish Teacher',
-    country: 'Spain',
-    flag: '🇪🇸',
-    image:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop',
-    bio: 'Learn Spanish through culture, conversation and real-world practice.',
-  },
-];
-
 const certifications = [
   {
     id: 'iso',
@@ -167,24 +131,14 @@ export default function AboutPage() {
     file: string;
   } | null>(null);
 
-  const [activeTeacherIndex, setActiveTeacherIndex] = useState(0);
-
-  const handlePrevTeacher = () => {
-    setActiveTeacherIndex((prev) => (prev > 0 ? prev - 1 : teachers.length - 1));
-  };
-
-  const handleNextTeacher = () => {
-    setActiveTeacherIndex((prev) => (prev < teachers.length - 1 ? prev + 1 : 0));
-  };
-
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-gray-900 font-[Plus_Jakarta_Sans] overflow-x-hidden">
-      
+
       {/* ──────────────────────────────────────────────────────────── */}
       {/* 1. HERO SECTION (Edge-to-Edge, No Rounded Corners, No Side Padding) */}
       {/* ──────────────────────────────────────────────────────────── */}
       <section className="relative w-full max-w-none px-0 pt-0 pb-6 sm:pb-10 overflow-hidden">
-        
+
         {/* Desktop: Full-width uncut Hero Banner with text on left */}
         <div className="hidden lg:block relative w-full overflow-hidden bg-[#FDFBF7]">
           {/* Full uncut image spanning 100% full width edge-to-edge */}
@@ -275,9 +229,8 @@ export default function AboutPage() {
             return (
               <div
                 key={stat.label}
-                className={`flex items-center gap-3.5 ${
-                  i !== 0 ? 'pt-4 sm:pt-0 sm:pl-6' : ''
-                }`}
+                className={`flex items-center gap-3.5 ${i !== 0 ? 'pt-4 sm:pt-0 sm:pl-6' : ''
+                  }`}
               >
                 <div
                   className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${stat.color}`}
@@ -303,7 +256,7 @@ export default function AboutPage() {
       {/* ──────────────────────────────────────────────────────────── */}
       <section id="our-journey" className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-16 sm:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          
+
           {/* Left Column: Timeline */}
           <div className="lg:col-span-6 space-y-6">
             <span className="inline-block px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
@@ -359,18 +312,18 @@ export default function AboutPage() {
       <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-16">
         <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-6 sm:p-10 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
+
             {/* Left: Founder Photo Card */}
             <div className="lg:col-span-5 flex justify-center">
               <div className="relative w-full max-w-[340px] aspect-[4/5] rounded-3xl overflow-hidden border-2 border-gray-100 shadow-lg bg-gradient-to-br from-amber-50 to-orange-100/40 flex items-center justify-center">
-                {/* Founder portrait from public/about us/someshfounder.png */}
+                {/* Founder portrait from public/about us/Pawanfounder.png */}
                 <img
-                  src="/about us/someshfounder.png"
-                  alt="Founder Somesh"
+                  src="/about us/Pawanfounder.png"
+                  alt="Founder Pawan"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-xs text-white p-3 rounded-2xl text-center">
-                  <p className="text-sm font-black">Somesh</p>
+                  <p className="text-sm font-black">Pawan</p>
                   <p className="text-[10px] text-amber-300 font-semibold">Founder &amp; CEO</p>
                 </div>
               </div>
@@ -383,31 +336,46 @@ export default function AboutPage() {
               </span>
 
               <h2 className="text-3xl sm:text-4xl font-black text-[#0B1528] tracking-tight">
-                Meet <span className="text-[#E67E22]">Somesh</span>
+                Meet <span className="text-[#E67E22]">Pawan Verma</span>
               </h2>
 
               <p className="text-sm font-bold text-gray-700">
-                Founder &amp; CEO, BhashaSchool
+                Founder &amp; CEO, BhashaSchool • Lead German Language Trainer
               </p>
 
               <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                Somesh founded BhashaSchool with a vision to make high-quality language
-                learning accessible to everyone. His mission is to create a global platform
-                where learners can gain real skills, connect with a supportive community and
-                unlock new opportunities through languages.
+                Pawan comes from Agra—The City of the Taj Mahal—where growing up surrounded by
+                international travelers ignited his passion for languages. Having taught English for 5 years
+                and actively training students in German since 2022, Pawan has mentored over 200+ students who are now
+                living and working across Germany in nursing, baking, sales, and global MNCs.
               </p>
 
               {/* Founder Quote Card */}
-              <div className="rounded-2xl bg-[#FFF8EC] border border-[#FDE68A] p-5 sm:p-6 space-y-3 relative">
+              <div className="rounded-2xl bg-[#FFF8EC] border border-[#FDE68A] p-5 sm:p-6 space-y-3 relative shadow-2xs">
                 <Quote className="w-8 h-8 text-amber-400 opacity-60" />
                 <p className="text-sm sm:text-base font-bold text-gray-800 italic leading-relaxed">
-                  &ldquo;Languages open doors. At BhashaSchool, we don&apos;t just teach languages,
-                  we help you use them to build a brighter future.&rdquo;
+                  &ldquo;Every language has its own grammatical structure, expressions, and rhythm.
+                  Prior knowledge of English is not a prerequisite to learn German or any language.
+                  At BhashaSchool, we help you connect with people, explore cultures, and create global opportunities.&rdquo;
                 </p>
                 <div className="text-right pt-1">
-                  <p className="text-xs font-black text-gray-900">— Somesh</p>
-                  <p className="text-[11px] text-gray-500 font-medium">Founder, BhashaSchool</p>
+                  <p className="text-xs font-black text-gray-900">— Pawan Verma</p>
+                  <p className="text-[11px] text-gray-500 font-medium">Founder &amp; CEO, BhashaSchool</p>
                 </div>
+              </div>
+
+              {/* My Story Backlink Button */}
+              <div className="pt-2 flex items-center gap-3">
+                <Link
+                  href="/best-german-language-online-teacher-in-india"
+                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[#0B1528] hover:bg-[#152542] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-xl transition-all group cursor-pointer"
+                >
+                  <span>My Story</span>
+                  <ArrowRight className="w-4 h-4 text-[#E67E22] group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <span className="text-xs text-gray-400 font-medium hidden sm:inline-block">
+                  Discover Pawan&apos;s journey into the world of languages →
+                </span>
               </div>
             </div>
 
@@ -454,83 +422,61 @@ export default function AboutPage() {
       </section>
 
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* 6. LEARN FROM EXPERT TEACHERS                                */}
+      {/* 6. LEARN FROM EXPERT TEACHERS (Prachi Bansal)                */}
       {/* ──────────────────────────────────────────────────────────── */}
-      <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-14 sm:py-18">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-          <div className="space-y-2.5 max-w-xl">
-            <span className="inline-block px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
-              Our Teachers
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-[#0B1528] tracking-tight">
-              Learn from <span className="text-blue-600">Expert Teachers</span>
-            </h2>
-          </div>
-
-          <div className="flex items-center justify-between lg:justify-end gap-4 max-w-lg">
-            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed font-medium">
-              Our teachers are native speakers and experienced language experts who
-              make learning interactive, practical and enjoyable. They guide you at
-              every step — from building confidence to achieving advanced fluency.
-            </p>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={handlePrevTeacher}
-                className="w-9 h-9 rounded-full bg-white border border-gray-200 hover:border-gray-400 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors shadow-2xs cursor-pointer"
-                aria-label="Previous teacher"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNextTeacher}
-                className="w-9 h-9 rounded-full bg-white border border-gray-200 hover:border-gray-400 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors shadow-2xs cursor-pointer"
-                aria-label="Next teacher"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+      <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-16">
+        <div className="space-y-2.5 mb-8">
+          <span className="inline-block px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
+            Our Teacher
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0B1528] tracking-tight">
+            Learn from <span className="text-blue-600">Expert Teachers</span>
+          </h2>
         </div>
 
-        {/* 4 Teacher Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {teachers.map((teacher) => (
-            <div
-              key={teacher.name}
-              className="bg-white rounded-3xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-            >
-              {/* Photo Area */}
-              <div className="h-44 sm:h-48 w-full bg-gray-100 overflow-hidden relative">
+        <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-6 sm:p-10 lg:p-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+            {/* Left: Teacher Photo from public/about us/prachiteacher.png */}
+            <div className="md:col-span-4 flex justify-center">
+              <div className="relative w-full max-w-[300px] aspect-[3/4] rounded-3xl overflow-hidden border-2 border-sky-100/80 shadow-lg bg-slate-50">
                 <img
-                  src={teacher.image}
-                  alt={teacher.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  src="/about us/prachiteacher.png"
+                  alt="Prachi Bansal - German Language Teacher"
+                  className="w-full h-full object-cover object-top"
                 />
               </div>
+            </div>
 
-              {/* Bio & Details */}
-              <div className="p-5 space-y-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">{teacher.flag}</span>
-                  <div>
-                    <h3 className="text-sm font-black text-gray-900 leading-tight">
-                      {teacher.name}
-                    </h3>
-                    <p className="text-[11px] font-bold text-gray-500">
-                      {teacher.role}
-                    </p>
-                  </div>
-                </div>
+            {/* Right: Teacher Profile */}
+            <div className="md:col-span-8 space-y-4 text-left">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-sky-50 text-sky-800 border border-sky-200 mb-2">
+                  <span>🇩🇪</span>
+                  <span>German Language Teacher</span>
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-[#0B1528] tracking-tight">
+                  Prachi Bansal
+                </h3>
+                <p className="text-xs sm:text-sm font-semibold text-blue-700 mt-0.5">
+                  MBA Graduate from Agra • Ausbildung &amp; Career Mentor
+                </p>
+              </div>
 
-                <p className="text-xs text-gray-500 leading-relaxed font-medium">
-                  {teacher.bio}
+              <div className="space-y-3 text-sm sm:text-base text-gray-700 leading-relaxed font-normal">
+                <p>
+                  Hello everyone! I am Prachi Bansal, an MBA graduate from Agra and a German language teacher by profession. After living and experiencing life in Germany, I am excited to share my journey and experiences with aspiring students.
+                </p>
+                <p>
+                  Germany offers wonderful career opportunities through its Ausbildung programme. I would love to guide and motivate students who wish to pursue vocational training in Germany by sharing my first-hand experiences, practical insights, and understanding of German culture and professional life.
+                </p>
+                <p className="font-medium text-gray-900">
+                  My aim is to help students take their first confident step towards building a successful future in Germany.
                 </p>
               </div>
             </div>
-          ))}
+
+          </div>
         </div>
       </section>
 
@@ -539,13 +485,13 @@ export default function AboutPage() {
       {/* ──────────────────────────────────────────────────────────── */}
       <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-6 sm:py-8">
         <div className="bg-[#0B1528] rounded-3xl p-5 sm:p-6 lg:p-7 text-white shadow-xl relative overflow-hidden">
-          
+
           {/* Subtle cosmic glow background */}
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
           <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center relative z-10">
-            
+
             {/* Left Column: Full World Image fitting section height */}
             <div className="lg:col-span-6 flex justify-center items-center">
               <div className="w-full flex items-center justify-center">
@@ -603,7 +549,7 @@ export default function AboutPage() {
       {/* 8. CERTIFICATIONS & REGISTRATIONS (Our Recognitions)         */}
       {/* ──────────────────────────────────────────────────────────── */}
       <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-12 sm:py-16">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
           <div className="space-y-2 max-w-2xl">
@@ -735,11 +681,67 @@ export default function AboutPage() {
       </section>
 
       {/* ──────────────────────────────────────────────────────────── */}
+      {/* 8.5. ABOUT HARSHVARDHAN RANKAWAT                             */}
+      {/* ──────────────────────────────────────────────────────────── */}
+      <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-14">
+        <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xs p-6 sm:p-10 lg:p-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-10 items-center">
+
+            {/* Left: Informatiker Image */}
+            <div className="md:col-span-4 flex justify-center">
+              <div className="relative w-full max-w-[280px] sm:max-w-[300px] aspect-square rounded-3xl overflow-hidden border-2 border-emerald-100/80 shadow-lg bg-slate-50">
+                <img
+                  src="/about us/infomatiker.jpeg"
+                  alt="Harshvardhan Rankawat - Informatiker & Platform Developer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Right: Details & Paragraph */}
+            <div className="md:col-span-8 space-y-4 text-left">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="inline-block px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 mb-2">
+                    Platform Developer
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#0B1528] tracking-tight">
+                    Harshvardhan Rankawat
+                  </h2>
+                  <p className="text-xs sm:text-sm font-semibold text-emerald-700 mt-0.5">
+                    Software Engineer &amp; Platform Developer
+                  </p>
+                </div>
+
+                <a
+                  href="https://www.linkedin.com/in/harsh-vardhan-479b50318/?skipRedirect=true"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                >
+                  <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.62 1.62 0 1 0 0-3.24 1.62 1.62 0 0 0 0 3.24M7.86 18.5V9.93H5.06v8.57h2.8z" />
+                  </svg>
+                  <span>Connect on LinkedIn</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </a>
+              </div>
+
+              <p className="text-sm sm:text-base text-gray-700 leading-relaxed font-normal pt-1">
+                Harshvardhan Rankawat is a passionate software engineer and informatiker who engineered and developed the BhashaSchool digital learning platform under the guidance of founder Pawan Rankawat. Combining modern web technologies with user-centric design, he built the platform’s live classrooms, student learning dashboards, mentor management workflows, and administration systems from the ground up, dedicated to delivering a seamless, fast, and accessible foreign language learning experience for all learners.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────────────────────────────────────────────────── */}
       {/* 9. READY TO START YOUR LANGUAGE JOURNEY? (Bottom Banner)    */}
       {/* ──────────────────────────────────────────────────────────── */}
       <section className="w-full max-w-none px-3 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-16">
         <div className="bg-gradient-to-r from-[#FFF5EA] via-[#FFF1E0] to-[#FFE8D1] rounded-3xl p-8 sm:p-12 border border-[#FED7AA]/70 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-xs">
-          
+
           {/* Left Text */}
           <div className="space-y-2 max-w-xl text-center md:text-left">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0B1528] tracking-tight">

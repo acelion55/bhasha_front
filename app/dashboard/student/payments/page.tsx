@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import PayButton from '@/components/PayButton';
@@ -38,10 +39,19 @@ interface Course {
 
 export default function PaymentsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paymentHistory] = useState<any[]>([]);
+
+  const isMentorOrTeacher = user?.role === 'mentor' || user?.role === 'teacher';
+
+  useEffect(() => {
+    if (isMentorOrTeacher) {
+      router.replace('/dashboard/student');
+    }
+  }, [isMentorOrTeacher, router]);
 
   const loadCourses = useCallback(async () => {
     setLoading(true);
@@ -57,8 +67,14 @@ export default function PaymentsPage() {
   }, []);
 
   useEffect(() => {
-    loadCourses();
-  }, [loadCourses]);
+    if (!isMentorOrTeacher) {
+      loadCourses();
+    }
+  }, [loadCourses, isMentorOrTeacher]);
+
+  if (isMentorOrTeacher) {
+    return null;
+  }
 
   const handlePaymentSuccess = async (course: Course, result: any) => {
     try {

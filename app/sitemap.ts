@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next';
+import { API_BASE_URL } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const SITE_URL = 'https://bhashaschool.com';
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://bhashaschool.com').replace(/\/+$/, '');
 
 const fallbackBlogSlugs = [
   'what-is-cefr',
@@ -48,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/earn-with-learn/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
     },
     {
       url: `${SITE_URL}/features/`,
@@ -168,28 +174,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Live fetch from backend to automatically capture any newly uploaded blogs
-  try {
-    const res = await fetch(`${API_BASE_URL}/blogs`, {
-      cache: 'no-store',
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        for (const item of data as BlogItem[]) {
-          if (item?.slug) {
-            const clean = cleanSlug(item.slug);
-            const date = item.updatedAt
-              ? new Date(item.updatedAt)
-              : item.createdAt
-              ? new Date(item.createdAt)
-              : new Date();
-            blogMap.set(clean, { lastModified: Number.isNaN(date.getTime()) ? new Date() : date });
+  if (API_BASE_URL) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/blogs`, {
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          for (const item of data as BlogItem[]) {
+            if (item?.slug) {
+              const clean = cleanSlug(item.slug);
+              const date = item.updatedAt
+                ? new Date(item.updatedAt)
+                : item.createdAt
+                ? new Date(item.createdAt)
+                : new Date();
+              blogMap.set(clean, { lastModified: Number.isNaN(date.getTime()) ? new Date() : date });
+            }
           }
         }
       }
+    } catch {
+      // Graceful fallback to established blogs if backend is unreachable
     }
-  } catch {
-    // Graceful fallback to established blogs if backend is unreachable
   }
 
   const blogEntries: MetadataRoute.Sitemap = Array.from(blogMap.entries()).map(([slug, meta]) => ({

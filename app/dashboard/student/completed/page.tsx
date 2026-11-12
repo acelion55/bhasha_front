@@ -206,7 +206,7 @@ export default function CompletedClassesPage() {
                     </div>
                     <div className="flex items-center gap-3 text-gray-800 font-bold">
                       <GraduationCap className="w-5 h-5 text-emerald-600 shrink-0" />
-                      <span className="text-base sm:text-lg">Mentor: {mentorName}</span>
+                      <span className="text-base sm:text-lg">Teacher: {mentorName}</span>
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import {
   AlertCircle,
   ArrowLeft,
   Loader2,
+  Lock,
   MessageCircle,
   Search,
   Send,
@@ -18,12 +20,13 @@ type Partner = {
   id: string;
   name: string;
   level: string;
+  language?: string;
   conversationId: string | null;
 };
 
 type Conversation = {
   id: string;
-  partner: { id: string; name: string; level: string };
+  partner: { id: string; name: string; level: string; language?: string };
   lastMessage: string;
   lastMessageAt: string | null;
 };
@@ -98,6 +101,10 @@ export default function LearnerChatPage() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const loadLists = useCallback(async () => {
+    if (user?.role === 'student' && !user?.isSubscribed) {
+      setLoading(false);
+      return;
+    }
     try {
       const [partnersRes, conversationsRes] = await Promise.all([
         api.get<Partner[]>('/chat/partners'),
@@ -111,7 +118,7 @@ export default function LearnerChatPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     loadLists();
@@ -208,6 +215,31 @@ export default function LearnerChatPage() {
     partner.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
+  // Req 4: Do not allow non-subscribed learners to access chat
+  if (user?.role === 'student' && !user?.isSubscribed) {
+    return (
+      <div className="w-full flex items-center justify-center p-6 min-h-[60vh] font-[Plus_Jakarta_Sans]">
+        <div className="max-w-md w-full bg-white border border-emerald-100 rounded-3xl p-8 sm:p-10 text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
+            <Lock className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+            Chat is for Subscribed Members Only
+          </h2>
+          <p className="text-sm text-gray-600 leading-relaxed font-medium">
+            Language exchange conversations and student peer practice are exclusively accessible to subscribed learners.
+          </p>
+          <Link
+            href="/dashboard/student/payments"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition-all"
+          >
+            Upgrade &amp; Unlock Chat
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-none font-[Plus_Jakarta_Sans]">
 
@@ -303,7 +335,7 @@ export default function LearnerChatPage() {
               )
             ) : filteredPartners.length === 0 ? (
               <div className="flex h-full items-center justify-center px-4 text-center text-sm font-semibold text-gray-500">
-                No higher level learners found yet.
+                No subscribed practice partners found in your {user?.language || 'German'} cohort yet.
               </div>
             ) : (
               filteredPartners.map((partner) => (
@@ -322,7 +354,7 @@ export default function LearnerChatPage() {
                       <LevelBadge level={partner.level} />
                     </span>
                     <span className="mt-0.5 block text-xs font-medium text-gray-500">
-                      Higher level partner
+                      {partner.language || user?.language || 'Language'} Peer
                     </span>
                   </span>
                   <button

@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 
-const RAZORPAY_API_URL = process.env.RAZORPAY_API_URL || 'http://localhost:6100';
-const RAZORPAY_CHECKOUT_URL = process.env.RAZORPAY_CHECKOUT_URL || 'http://localhost:7000';
+const RAZORPAY_API_URL = (process.env.RAZORPAY_API_URL || '').trim().replace(/\/+$/, '');
+const APP_BASE_URL = (process.env.NEXT_PUBLIC_BASE_URL || '').trim().replace(/\/+$/, '');
 
 export async function POST(req: Request) {
   try {
+    if (!RAZORPAY_API_URL || !APP_BASE_URL) {
+      return NextResponse.json(
+        { error: 'Payment gateway API URLs (RAZORPAY_API_URL / NEXT_PUBLIC_BASE_URL) are not configured' },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
     const { amount, description, orderId, customerName, customerEmail, customerPhone } = body;
 
@@ -28,7 +35,7 @@ export async function POST(req: Request) {
           email: customerEmail || '',
           phoneNumber: customerPhone || '',
         },
-        returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard/student/payments?status=success`,
+        returnUrl: `${APP_BASE_URL}/dashboard/student/payments?status=success`,
         metadata: {
           source: 'bhashaschool',
           description,

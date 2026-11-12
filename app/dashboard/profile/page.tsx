@@ -112,7 +112,8 @@ export default function ProfilePage() {
     .map((part) => part[0]?.toUpperCase())
     .join('');
 
-  const roleLabel = (user?.role || 'student').replace(/^./, (c) => c.toUpperCase());
+  const roleLabel = user?.role === 'teacher' ? 'Mentor' : (user?.role || 'student').replace(/^./, (c) => c.toUpperCase());
+  const isEnglishOrSpanish = user?.language === 'English' || user?.language === 'Spanish';
   const joined = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-IN', {
         day: '2-digit',
@@ -198,7 +199,7 @@ export default function ProfilePage() {
               <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
                 <Languages className="w-3 h-3" /> {user?.language || 'German'}
               </span>
-              {user?.category && (
+              {!isEnglishOrSpanish && user?.category && (
                 <span className="inline-flex items-center gap-1 rounded-lg bg-white/10 border border-white/15 px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
                   <GraduationCap className="w-3 h-3" /> {user.category}
                 </span>
@@ -304,13 +305,15 @@ export default function ProfilePage() {
                 <p className="text-xs font-bold text-gray-800">{user?.language || 'German'}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <GraduationCap className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Level</p>
-                <p className="text-xs font-bold text-gray-800">{user?.category || 'A1'}</p>
+            {!isEnglishOrSpanish && (
+              <div className="flex items-start gap-3">
+                <GraduationCap className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Level</p>
+                  <p className="text-xs font-bold text-gray-800">{user?.category || 'A1'}</p>
+                </div>
               </div>
-            </div>
+            )}
             <div className="flex items-start gap-3">
               <CalendarDays className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
               <div>

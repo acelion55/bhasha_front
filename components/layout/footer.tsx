@@ -81,6 +81,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/earn-with-learn" className="hover:text-[var(--starbucks-green)] transition-colors font-semibold text-amber-700">
+                Earn with Learn (25% Payback)
+              </Link>
+            </li>
+            <li>
               <Link href="/features" className="hover:text-[var(--starbucks-green)] transition-colors">
                 Learning Method &amp; AI Practice
               </Link>
@@ -117,6 +122,11 @@ export default function Footer() {
             <li>
               <Link href="/about" className="hover:text-[var(--starbucks-green)] transition-colors">
                 About BhashaSchool
+              </Link>
+            </li>
+            <li>
+              <Link href="/best-german-language-online-teacher-in-india" className="hover:text-[var(--starbucks-green)] transition-colors">
+                Founder Story (Pawan Verma)
               </Link>
             </li>
             <li>

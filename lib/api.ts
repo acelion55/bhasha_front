@@ -1,17 +1,20 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl) {
-    return envUrl.replace('://localhost:', '://127.0.0.1:');
+  const envUrl = (process.env.NEXT_PUBLIC_API_URL || '').trim().replace(/\/+$/, '');
+  if (!envUrl) {
+    if (typeof window !== 'undefined') {
+      console.warn('[API] NEXT_PUBLIC_API_URL is not configured in environment variables.');
+    }
+    return '';
   }
-  return 'http://127.0.0.1:3001';
+  return envUrl.replace('://localhost:', '://127.0.0.1:');
 };
 
-const API_BASE_URL = getBaseUrl();
+export const API_BASE_URL = getBaseUrl();
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL || undefined,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

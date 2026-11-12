@@ -1,15 +1,20 @@
 import type { NextConfig } from "next";
 
-const isDev = process.env.NODE_ENV === 'development';
+const backendApiUrl = (
+  process.env.BACKEND_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  ''
+).trim().replace(/\/+$/, '');
 
 const nextConfig: NextConfig = {
   async rewrites() {
+    if (!backendApiUrl) {
+      return [];
+    }
     return [
       {
         source: '/api/:path*',
-        destination: isDev
-          ? 'http://localhost:3001/:path*'
-          : 'https://moneyprinting.onrender.com/:path*',
+        destination: `${backendApiUrl}/:path*`,
       },
     ];
   },
