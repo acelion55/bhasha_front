@@ -118,6 +118,8 @@ export default function AdminClassesPage() {
   const [mentorUsers, setMentorUsers] = useState<User[]>([]);
   const [studentsList, setStudentsList] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = React.useRef(false);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedClassForStudents, setSelectedClassForStudents] = useState<ClassItem | null>(null);
@@ -202,13 +204,22 @@ export default function AdminClassesPage() {
     });
   };
 
+  const isConversationalBatch = (cls?: ClassItem | null) =>
+    Boolean(
+      cls &&
+      (cls.isConversational ||
+        cls.language === 'Conversational' ||
+        (cls.categories && cls.categories.includes('Conversational')) ||
+        (cls.category && cls.category.toLowerCase().includes('conversational')))
+    );
+
   const openRosterModal = (cls: ClassItem, initialTab: 'current' | 'previous' | 'assign' = 'current') => {
     const enrolled = (cls.enrolledStudents || cls.students || []).filter(Boolean);
     const ids = enrolled
       .map((s: any) => String(typeof s === 'object' ? (s._id || s.id) : s))
       .filter(Boolean);
     setRosterSelectedIds(ids);
-    setRosterTab(initialTab);
+    setRosterTab(isConversationalBatch(cls) && initialTab === 'assign' ? 'current' : initialTab);
     setRosterSearch('');
     setSelectedClassForStudents(cls);
   };
@@ -284,8 +295,10 @@ export default function AdminClassesPage() {
   const toggleCategory = (lvl: string) => {
     setForm((prev) => {
       if (prev.isConversational) {
-        const exists = prev.categories.includes(lvl);
-        const next = exists ? prev.categories.filter((c) => c !== lvl) : [...prev.categories, lvl];
+        if (lvl !== 'B1' && lvl !== 'B2') return prev;
+        const bOnly = prev.categories.filter((c) => c === 'B1' || c === 'B2');
+        const exists = bOnly.includes(lvl);
+        const next = exists ? bOnly.filter((c) => c !== lvl) : [...bOnly, lvl];
         return { ...prev, categories: next.length > 0 ? next : [lvl] };
       } else {
         return { ...prev, categories: [lvl] };
@@ -424,6 +437,9 @@ export default function AdminClassesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const selectedTeacher = mentorUsers.find((t) => t._id === form.teacherId) || teachers.find((t) => t._id === form.teacherId);
       const daysLabel = selectedWeekdays.length > 0 ? `Every ${selectedWeekdays.join(', ')}` : '';
@@ -435,7 +451,13 @@ export default function AdminClassesPage() {
       const timingParts = [daysLabel, dateLabel, timeLabel].filter(Boolean);
       const formattedTiming = timingParts.length > 0 ? timingParts.join(' | ') : 'Schedule TBA';
 
-      const activeCategories = form.categories.length > 0 ? form.categories : ['A1'];
+      const rawCategories = form.categories.length > 0 ? form.categories : ['A1'];
+      const activeCategories = form.isConversational
+        ? (() => {
+            const bOnly = rawCategories.filter((c) => c === 'B1' || c === 'B2');
+            return bOnly.length > 0 ? bOnly : ['B1', 'B2'];
+          })()
+        : rawCategories;
       const activeCategory = activeCategories.join(', ');
 
       const validMatchIds = new Set(
@@ -443,9 +465,9 @@ export default function AdminClassesPage() {
           String(s._id),
         ),
       );
-      const filteredSelectedStudents = (form.selectedStudentIds || []).filter((id) =>
-        validMatchIds.has(String(id)),
-      );
+      const filteredSelectedStudents = form.isConversational
+        ? []
+        : (form.selectedStudentIds || []).filter((id) => validMatchIds.has(String(id)));
 
       const payload: any = {
         title: form.title,
@@ -487,6 +509,9 @@ export default function AdminClassesPage() {
       fetchData();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to save batch');
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -1177,13 +1202,15 @@ export default function AdminClassesPage() {
                             Students ({enrolledCount} / {maxCapacity})
                           </span>
                           <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => openRosterModal(cls, 'assign')}
-                              className="px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-100/60 border border-emerald-200 text-[11px] font-bold text-emerald-800 cursor-pointer"
-                            >
-                              Select Students
-                            </button>
+                            {!isConversationalBatch(cls) && (
+                              <button
+                                type="button"
+                                onClick={() => openRosterModal(cls, 'assign')}
+                                className="px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-100/60 border border-emerald-200 text-[11px] font-bold text-emerald-800 cursor-pointer"
+                              >
+                                Select Students
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => openRosterModal(cls, 'current')}
@@ -1417,14 +1444,16 @@ export default function AdminClassesPage() {
                           </td>
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => openRosterModal(cls, 'assign')}
-                                className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg cursor-pointer"
-                                title="Select / Assign Students"
-                              >
-                                <Users className="w-3.5 h-3.5" />
-                              </button>
+                              {!isConversationalBatch(cls) && (
+                                <button
+                                  type="button"
+                                  onClick={() => openRosterModal(cls, 'assign')}
+                                  className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg cursor-pointer"
+                                  title="Select / Assign Students"
+                                >
+                                  <Users className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => openRosterModal(cls, 'current')}
@@ -1704,18 +1733,20 @@ export default function AdminClassesPage() {
               {/* Actions Footer */}
               <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100 flex-wrap">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const target = previewClass;
-                      setPreviewClass(null);
-                      openRosterModal(target, 'assign');
-                    }}
-                    className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Users className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Select Students</span>
-                  </button>
+                  {!isConversationalBatch(previewClass) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = previewClass;
+                        setPreviewClass(null);
+                        openRosterModal(target, 'assign');
+                      }}
+                      className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Users className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Select Students</span>
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -1796,8 +1827,19 @@ export default function AdminClassesPage() {
         <div className="fixed inset-0 z-[9999] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
           <form
             onSubmit={handleSubmit}
-            className="bg-white border border-gray-200 rounded-3xl w-full max-w-[740px] my-auto shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
+            className="relative bg-white border border-gray-200 rounded-3xl w-full max-w-[740px] my-auto shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
           >
+            {submitting && (
+              <div className="absolute inset-0 z-50 bg-white/85 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2.5 rounded-3xl">
+                <RefreshCw className="w-8 h-8 text-[#1E2B7B] animate-spin" />
+                <p className="text-sm font-black text-gray-900">
+                  {editingId ? 'Saving batch...' : 'Creating batch...'}
+                </p>
+                <p className="text-xs font-semibold text-gray-500">
+                  Please wait, do not click again
+                </p>
+              </div>
+            )}
             {/* Modal Header */}
             <div className="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <div>
@@ -1810,8 +1852,9 @@ export default function AdminClassesPage() {
               </div>
               <button
                 type="button"
+                disabled={submitting}
                 onClick={() => setShowModal(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
@@ -1884,8 +1927,9 @@ export default function AdminClassesPage() {
                           ...prev,
                           isConversational: checked,
                           categories: checked
-                            ? (prev.categories.length > 0 ? prev.categories : ['A1', 'A2'])
+                            ? ['B1', 'B2']
                             : [prev.categories[0] || 'A1'],
+                          selectedStudentIds: checked ? [] : prev.selectedStudentIds,
                         }));
                       }}
                       className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 accent-purple-600 cursor-pointer"
@@ -1900,9 +1944,9 @@ export default function AdminClassesPage() {
                   </label>
                 </div>
 
-                {/* Level pills: A1, A2, B1, B2 in all languages */}
+                {/* Level pills: A1, A2, B1, B2 (Conversational restricts to B1 & B2 only) */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  {['A1', 'A2', 'B1', 'B2'].map((lvl) => {
+                  {(form.isConversational ? ['B1', 'B2'] : ['A1', 'A2', 'B1', 'B2']).map((lvl) => {
                     const isSelected = form.categories.includes(lvl);
                     return (
                       <button
@@ -1924,7 +1968,7 @@ export default function AdminClassesPage() {
 
                   {form.isConversational && (
                     <span className="text-[11px] font-bold text-purple-700 ml-auto">
-                      Visible to: {form.categories.join(', ')} students
+                      Visible to: {form.categories.filter((c) => c === 'B1' || c === 'B2').join(', ') || 'B1, B2'} students only
                     </span>
                   )}
                 </div>
@@ -2044,8 +2088,8 @@ export default function AdminClassesPage() {
                 </div>
               </div>
 
-              {/* 7. Assign Multiple Students (Strictly matched to Batch Level & Language) */}
-              {(() => {
+              {/* 7. Assign Multiple Students (Hidden for Conversational classes; strictly matched to Batch Level & Language) */}
+              {!form.isConversational && (() => {
                 const matchedStudents = getMatchingStudents(
                   form.language,
                   form.categories,
@@ -2176,18 +2220,30 @@ export default function AdminClassesPage() {
             <div className="px-5 sm:px-6 py-3.5 border-t border-gray-100 flex items-center justify-end gap-2.5 bg-gray-50/50 shrink-0">
               <button
                 type="button"
+                disabled={submitting}
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl text-xs font-black bg-[#1E2B7B] hover:bg-[#16205b] text-white shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
+                disabled={submitting}
+                className="px-5 py-2 rounded-xl text-xs font-black bg-[#1E2B7B] hover:bg-[#16205b] text-white shadow-xs transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                {submitting ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                )}
                 <span>
-                  {editingId ? 'Save Batch' : 'Create Batch'}
+                  {submitting
+                    ? editingId
+                      ? 'Saving...'
+                      : 'Creating...'
+                    : editingId
+                      ? 'Save Batch'
+                      : 'Create Batch'}
                 </span>
               </button>
             </div>
@@ -2416,18 +2472,20 @@ export default function AdminClassesPage() {
                     <span>Previous Classes Students ({previousStudentsList.length})</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setRosterTab('assign')}
-                    className={`px-4 py-2 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-                      rosterTab === 'assign'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80'
-                    }`}
-                  >
-                    <UserCheck className="w-4 h-4" />
-                    <span>Assign Students</span>
-                  </button>
+                  {!isConversationalBatch(selectedClassForStudents) && (
+                    <button
+                      type="button"
+                      onClick={() => setRosterTab('assign')}
+                      className={`px-4 py-2 rounded-xl font-black text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+                        rosterTab === 'assign'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80'
+                      }`}
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      <span>Assign Students</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Live Search Input */}

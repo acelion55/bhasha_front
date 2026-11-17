@@ -51,6 +51,7 @@ interface ClassItem {
   _id: string;
   title: string;
   language?: string;
+  isConversational?: boolean;
   category: string;
   categories?: string[];
   description: string;
@@ -705,11 +706,19 @@ export default function StudentDashboardPage() {
   const activeBatches = classes.filter((c) => c.status !== 'completed');
   const previousBatches = classes.filter((c) => c.status === 'completed');
 
-  // Classes to display (students see active classes; recurring weekend/conversational classes always stay visible!)
+  // Classes to display (students see active classes; conversational classes only show to B1/B2 students)
+  const studentLevelUpper = String(user?.category || 'A1').trim().toUpperCase();
+  const isB1OrB2Student = studentLevelUpper === 'B1' || studentLevelUpper === 'B2';
   const displayedClasses = isMentor 
     ? (mentorTab === 'active' ? activeBatches : previousBatches)
     : classes.filter((c) => {
         if (c.status === 'completed') return false;
+        const isConv =
+          Boolean(c.isConversational) ||
+          c.language === 'Conversational' ||
+          (Array.isArray(c.categories) && c.categories.includes('Conversational')) ||
+          (typeof c.category === 'string' && c.category.toLowerCase().includes('conversational'));
+        if (isConv && !isB1OrB2Student) return false;
         // Conversational / weekend batches are recurring: always keep them visible for upcoming sessions!
         if (isRecurringClass(c)) return true;
         return !completedIds.includes(c._id);
@@ -1790,7 +1799,7 @@ export default function StudentDashboardPage() {
                             ...prev,
                             isConversational: checked,
                             categories: checked
-                              ? (prev.categories.length > 0 ? prev.categories : ['A1', 'A2'])
+                              ? ['B1', 'B2']
                               : [prev.categories[0] || 'A1'],
                           }));
                         }}
@@ -1807,9 +1816,9 @@ export default function StudentDashboardPage() {
                   )}
                 </div>
 
-                {/* Level pills: A1 & A2 for mentors; A1–B2 for teachers */}
+                {/* Level pills: A1 & A2 for mentors; B1 & B2 for conversational; A1–B2 for teachers */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  {(user?.role === 'mentor' ? ['A1', 'A2'] : ['A1', 'A2', 'B1', 'B2']).map((lvl) => {
+                  {(user?.role === 'mentor' ? ['A1', 'A2'] : form.isConversational ? ['B1', 'B2'] : ['A1', 'A2', 'B1', 'B2']).map((lvl) => {
                     const isSelected = form.categories.includes(lvl);
                     return (
                       <button
@@ -1835,7 +1844,7 @@ export default function StudentDashboardPage() {
                     </span>
                   ) : form.isConversational && (
                     <span className="text-[11px] font-bold text-purple-700 ml-auto">
-                      Visible to: {form.categories.join(', ')} students
+                      Visible to: {form.categories.filter((c) => c === 'B1' || c === 'B2').join(', ') || 'B1, B2'} students only
                     </span>
                   )}
                 </div>

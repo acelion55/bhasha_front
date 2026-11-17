@@ -94,27 +94,27 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     >
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 lg:w-72 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-full overflow-hidden text-gray-200">
+      <aside className="hidden md:flex w-56 lg:w-60 flex-shrink-0 bg-[#0c1913] border-r border-[#152a20] shadow-xl flex-col h-full overflow-hidden text-gray-200">
 
         {/* Scrollable Nav Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 p-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 p-3">
 
           {/* Brand Header */}
-          <div className="flex items-center justify-between pt-1 pb-2 px-1">
+          <div className="flex items-center justify-between pt-1 pb-1.5 px-1">
             <Link href="/" className="flex items-center">
-              <img src="/logos/whitelogo.png" alt="BhashaSchool Logo" className="h-8 w-auto object-contain" />
+              <img src="/logos/whitelogo.png" alt="BhashaSchool Logo" className="h-7 w-auto object-contain" />
             </Link>
             <Link
               href="/"
               title="Back to Main Website"
               className="p-1.5 text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
             >
-              <Home className="w-5 h-5" />
+              <Home className="w-4 h-4" />
             </Link>
           </div>
 
           {/* Nav Items */}
-          <nav className="space-y-1.5">
+          <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               const Icon = item.icon;
@@ -122,13 +122,13 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-base font-bold transition-all ${
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/60'
                       : 'text-gray-300 hover:text-white hover:bg-white/[0.08]'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                   <span className="truncate tracking-tight">{item.name}</span>
                 </Link>
               );
@@ -137,12 +137,12 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         </div>
 
         {/* Sidebar Footer Controls */}
-        <div className="flex-shrink-0 p-4 border-t border-white/10 bg-[#0c1913]">
+        <div className="flex-shrink-0 p-3 border-t border-white/10 bg-[#0c1913]">
           <button
             onClick={() => logout()}
-            className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-base font-bold transition-colors"
+            className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-sm font-bold transition-colors"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4" />
             Sign Out
           </button>
         </div>
@@ -176,7 +176,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
         {/* Main Content Area */}
         <main 
           data-lenis-prevent="true"
-          className="dashboard-main-scroll flex-1 overflow-y-auto min-h-0 bg-[#f8faf9] p-4 sm:p-6 lg:p-8 pb-28 md:pb-8"
+          className="dashboard-main-scroll flex-1 overflow-y-auto min-h-0 bg-[#f8faf9] p-3 sm:p-4 lg:p-5 pb-24 md:pb-5"
         >
           {children}
         </main>
